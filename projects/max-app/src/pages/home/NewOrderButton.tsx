@@ -4,12 +4,18 @@ import { useNavigate } from 'react-router-dom';
 
 import { useTranslation } from 'react-i18next';
 
-export const NewOrderButton: React.FC = () => {
+import { ClientPortfolio } from '../../api/services';
+
+interface NewOrderButtonProps {
+  portfolio?: ClientPortfolio | null;
+}
+
+export const NewOrderButton: React.FC<NewOrderButtonProps> = ({ portfolio }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
   return (
-    <div onClick={() => navigate('/order/new')} style={{ cursor: 'pointer', textAlign: 'center' }}>
+    <div onClick={() => navigate('/order/new', { state: { portfolio } })} style={{ cursor: 'pointer', textAlign: 'center' }}>
       <Flex direction="column" align="center" gap={8}>
         <div style={{
           width: '48px',

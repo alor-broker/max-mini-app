@@ -33,13 +33,28 @@ export const HomePage: React.FC = () => {
       ClientService.getActivePortfolios(user.clientId, user.login)
         .then(data => {
           setPortfolios(data);
-          if (data.length > 0) {
-            setSelectedPortfolio(data[0]);
+
+          // Restore selection from localStorage or default to first
+          const savedPortfolioId = localStorage.getItem('MAX_APP_SELECTED_PORTFOLIO');
+          let portfolioToSelect = data.length > 0 ? data[0] : null;
+
+          if (savedPortfolioId) {
+            const found = data.find(p => p.portfolio === savedPortfolioId);
+            if (found) {
+              portfolioToSelect = found;
+            }
           }
+
+          setSelectedPortfolio(portfolioToSelect);
         })
         .catch(console.error);
     }
   }, [user]);
+
+  const handlePortfolioSelect = (p: ClientPortfolio) => {
+    setSelectedPortfolio(p);
+    localStorage.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
+  };
 
   return (
     <Panel>
@@ -52,7 +67,7 @@ export const HomePage: React.FC = () => {
               <PortfolioSelector
                 portfolios={portfolios}
                 selectedPortfolio={selectedPortfolio}
-                onSelect={setSelectedPortfolio}
+                onSelect={handlePortfolioSelect}
                 triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
               />
               <Flex gap={8}>
@@ -64,7 +79,7 @@ export const HomePage: React.FC = () => {
             <PortfolioEvaluation portfolio={selectedPortfolio} />
 
             <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
-              <NewOrderButton />
+              <NewOrderButton portfolio={selectedPortfolio} />
             </Flex>
           </Flex>
         </Container>

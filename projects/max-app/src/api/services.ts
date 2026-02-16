@@ -179,7 +179,7 @@ const decodeJwtBody = (jwt: string): JwtBody => {
   }
 };
 
-const getBaseOrdersUrl = (config: typeof API_CONFIG) => `${config.superAppUrl}/commandapi/warptrans/TRADE/v2/client/orders`;
+const getBaseOrdersUrl = (config: typeof API_CONFIG) => `${config.apiUrl}/commandapi/warptrans/TRADE/v2/client/orders`;
 
 const getOrderRequest = async <T extends NewOrder>(
   order: T,

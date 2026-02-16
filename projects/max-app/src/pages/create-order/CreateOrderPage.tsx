@@ -68,6 +68,15 @@ export const CreateOrderPage: React.FC = () => {
           }
         }
 
+        const savedId = localStorage.getItem('MAX_APP_SELECTED_PORTFOLIO');
+        if (savedId) {
+          const found = data.find(p => p.portfolio === savedId);
+          if (found) {
+            setSelectedPortfolio(found);
+            return;
+          }
+        }
+
         if (data.length > 0) setSelectedPortfolio(data[0]);
       });
     }
@@ -191,7 +200,10 @@ export const CreateOrderPage: React.FC = () => {
             <PortfolioSelector
               portfolios={portfolios}
               selectedPortfolio={selectedPortfolio}
-              onSelect={setSelectedPortfolio}
+              onSelect={(p) => {
+                setSelectedPortfolio(p);
+                localStorage.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
+              }}
               triggerStyle={{ color: '#333', borderColor: '#ccc', width: '100%', textAlign: 'left', justifyContent: 'flex-start' }}
             />
           </Flex>
