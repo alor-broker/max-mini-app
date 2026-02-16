@@ -45,6 +45,43 @@
     "order_failed": "Ошибка заявки",
     "failed_submit": "Не удалось отправить заявку"
   },
+  "orderDetail": {
+    "title": "Детали заявки",
+    "not_found": "Заявка не найдена",
+    "exchange": "Биржа",
+    "portfolio": "Портфель",
+    "order_type": "Тип заявки",
+    "side": "Направление",
+    "quantity": "Исполнено / Всего",
+    "price": "Цена",
+    "trans_time": "Создана",
+    "end_time": "Действует до",
+    "new_order_for_symbol": "Новая заявка по этому инструменту",
+    "status": {
+      "working": "Активна",
+      "filled": "Исполнена",
+      "canceled": "Отменена",
+      "rejected": "Отклонена"
+    },
+    "type": {
+      "limit": "Лимитная",
+      "market": "Рыночная",
+      "stop": "Стоп-маркет",
+      "stoplimit": "Стоп-лимит"
+    }
+  },
+  "tradeDetail": {
+    "title": "Детали сделки",
+    "not_found": "Сделка не найдена",
+    "order_no": "Заявка №",
+    "exchange": "Биржа",
+    "side": "Направление",
+    "quantity": "Количество",
+    "price": "Цена",
+    "volume": "Объём",
+    "date": "Дата и время",
+    "new_order_for_symbol": "Новая заявка по этому инструменту"
+  },
   "portfolio": {
     "buying_power": "Покупательская способность",
     "profit_day": "Прибыль за день",

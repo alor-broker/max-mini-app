@@ -45,6 +45,43 @@
     "order_failed": "Order failed",
     "failed_submit": "Failed to submit order"
   },
+  "orderDetail": {
+    "title": "Order Details",
+    "not_found": "Order not found",
+    "exchange": "Exchange",
+    "portfolio": "Portfolio",
+    "order_type": "Order Type",
+    "side": "Side",
+    "quantity": "Filled / Total",
+    "price": "Price",
+    "trans_time": "Created",
+    "end_time": "Expires",
+    "new_order_for_symbol": "New Order for This Instrument",
+    "status": {
+      "working": "Working",
+      "filled": "Filled",
+      "canceled": "Canceled",
+      "rejected": "Rejected"
+    },
+    "type": {
+      "limit": "Limit",
+      "market": "Market",
+      "stop": "Stop Market",
+      "stoplimit": "Stop Limit"
+    }
+  },
+  "tradeDetail": {
+    "title": "Trade Details",
+    "not_found": "Trade not found",
+    "order_no": "Order №",
+    "exchange": "Exchange",
+    "side": "Side",
+    "quantity": "Quantity",
+    "price": "Price",
+    "volume": "Volume",
+    "date": "Date & Time",
+    "new_order_for_symbol": "New Order for This Instrument"
+  },
   "portfolio": {
     "buying_power": "Buying Power",
     "profit_day": "Profit Day",

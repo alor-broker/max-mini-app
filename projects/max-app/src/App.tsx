@@ -6,6 +6,8 @@ import { HomePage } from './pages/home/HomePage';
 import { UnlockPage } from './pages/auth/UnlockPage';
 import { SsoCallbackPage } from './pages/auth/SsoCallbackPage';
 import { CreateOrderPage } from './pages/create-order/CreateOrderPage';
+import { OrderDetailPage } from './pages/order-detail/OrderDetailPage';
+import { TradeDetailPage } from './pages/trade-detail/TradeDetailPage';
 import { MaxUI } from '@maxhub/max-ui';
 import '@maxhub/max-ui/dist/styles.css';
 
@@ -29,6 +31,22 @@ function App() {
             element={
               <RequireAuth>
                 <CreateOrderPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/order/detail"
+            element={
+              <RequireAuth>
+                <OrderDetailPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/trade/detail"
+            element={
+              <RequireAuth>
+                <TradeDetailPage />
               </RequireAuth>
             }
           />

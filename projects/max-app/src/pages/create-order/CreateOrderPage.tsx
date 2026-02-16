@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Panel, Grid, Container, Flex, Typography, Button, Input } from '@maxhub/max-ui';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ClientService,
   ClientPortfolio,
@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 
 export const CreateOrderPage: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { t } = useTranslation();
 
@@ -28,6 +29,15 @@ export const CreateOrderPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedInstrument, setSelectedInstrument] = useState<Instrument | null>(null);
   const [instrumentsList, setInstrumentsList] = useState<Instrument[]>([]);
+
+  // Initial State from Navigation
+  useEffect(() => {
+    const state = location.state as { symbol?: string; portfolio?: ClientPortfolio };
+    if (state?.symbol) {
+      setSearchQuery(state.symbol);
+    }
+    // Portfolio will be set after portfolios are loaded
+  }, [location.state]);
 
   // Order Form State
   // We use internal values for logic, but we need to map them for UI if SegmentedControl supports it.
@@ -47,10 +57,20 @@ export const CreateOrderPage: React.FC = () => {
     if (user?.clientId && user?.login) {
       ClientService.getActivePortfolios(user.clientId, user.login).then(data => {
         setPortfolios(data);
+
+        const state = location.state as { symbol?: string; portfolio?: ClientPortfolio };
+        if (state?.portfolio) {
+          const found = data.find(p => p.portfolio === state.portfolio?.portfolio);
+          if (found) {
+            setSelectedPortfolio(found);
+            return;
+          }
+        }
+
         if (data.length > 0) setSelectedPortfolio(data[0]);
       });
     }
-  }, [user]);
+  }, [user, location.state]);
 
   useEffect(() => {
     if (!searchQuery) {
@@ -125,11 +145,13 @@ export const CreateOrderPage: React.FC = () => {
       <Container style={{ padding: '16px', maxWidth: '100%', margin: '0 auto' }}>
         <Flex direction="column" gap={24}>
           <Flex justify="space-between" align="center">
-            <Button onClick={() => navigate('/')} style={{ background: 'transparent', color: '#333', border: 'none' }}>
-              &lt; {t('common.back')}
-            </Button>
+            <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+              <Button onClick={() => navigate('/')} style={{ background: 'transparent', color: '#333', border: 'none' }}>
+                &lt; {t('common.back')}
+              </Button>
+            </div>
             <Typography.Headline>{t('order.title')}</Typography.Headline>
-            <div style={{ width: '60px' }}></div>
+            <div style={{ flex: 1 }}></div>
           </Flex>
 
           {/* Portfolio Selector */}

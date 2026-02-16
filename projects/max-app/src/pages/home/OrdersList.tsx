@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Flex, Typography, Grid } from '@maxhub/max-ui';
 import { PortfolioService, ClientPortfolio, PortfolioOrder, Side, OrderStatus } from '../../api/services';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 
 interface OrdersListProps {
   portfolio: ClientPortfolio | null;
@@ -12,6 +13,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
   const [loading, setLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!portfolio) return;
@@ -37,7 +39,11 @@ export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
         const sideColor = isBuy ? '#4ade80' : '#ef4444';
 
         return (
-          <div key={order.id} style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div
+            key={order.id}
+            onClick={() => navigate('/order/detail', { state: { order } })}
+            style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
+          >
             <Flex justify="space-between" align="center">
               <Flex direction="column">
                 <Typography.Body style={{ fontWeight: 600 }}>{order.symbol}</Typography.Body>

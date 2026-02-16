@@ -3,6 +3,8 @@ import { Flex, Typography, Grid } from '@maxhub/max-ui';
 import { PortfolioService, ClientPortfolio, PortfolioTrade, Side } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 
+import { useNavigate } from 'react-router-dom';
+
 interface TradesListProps {
   portfolio: ClientPortfolio | null;
 }
@@ -12,6 +14,7 @@ export const TradesList: React.FC<TradesListProps> = ({ portfolio }) => {
   const [loading, setLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!portfolio) return;
@@ -35,7 +38,11 @@ export const TradesList: React.FC<TradesListProps> = ({ portfolio }) => {
         const color = isBuy ? '#4ade80' : '#ef4444';
 
         return (
-          <div key={trade.id} style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div
+            key={trade.id}
+            onClick={() => navigate('/trade/detail', { state: { trade } })}
+            style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
+          >
             <Flex justify="space-between" align="center">
               <Flex direction="column">
                 <Typography.Body style={{ fontWeight: 600 }}>{trade.symbol}</Typography.Body>
