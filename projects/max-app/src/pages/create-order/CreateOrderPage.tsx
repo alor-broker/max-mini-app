@@ -8,7 +8,8 @@ import {
   Instrument,
   OrdersService,
   Side,
-  OrderType
+  OrderType,
+  Quote
 } from '../../api/services';
 import { useAuth } from '../../auth/AuthContext';
 import { SearchInput } from '../../components/SearchInput';
@@ -29,6 +30,7 @@ export const CreateOrderPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedInstrument, setSelectedInstrument] = useState<Instrument | null>(null);
   const [instrumentsList, setInstrumentsList] = useState<Instrument[]>([]);
+  const [quote, setQuote] = useState<Quote | null>(null);
 
   // Ref to track if we should auto-select the first search result (from navigation)
   const autoSelectRef = useRef(false);
@@ -98,6 +100,27 @@ export const CreateOrderPage: React.FC = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  useEffect(() => {
+    if (!selectedInstrument) {
+      setQuote(null);
+      return;
+    }
+
+    const fetchQuote = () => {
+      InstrumentsService.getQuotes(selectedInstrument.exchange, selectedInstrument.symbol)
+        .then(setQuote)
+        .catch(e => {
+          console.error("Failed to fetch quotes", e);
+          setQuote(null);
+        });
+    };
+
+    fetchQuote();
+    const interval = setInterval(fetchQuote, 1000);
+
+    return () => clearInterval(interval);
+  }, [selectedInstrument]);
+
   const handleSelectInstrument = (inst: Instrument) => {
     setSelectedInstrument(inst);
     setInstrumentsList([]);
@@ -150,8 +173,8 @@ export const CreateOrderPage: React.FC = () => {
 
   return (
     <Panel>
-      <Container style={{ padding: '16px', maxWidth: '100%', margin: '0 auto' }}>
-        <Flex direction="column" gap={24}>
+      <div style={{ padding: '16px', width: '100%', boxSizing: 'border-box' }}>
+        <Flex direction="column" gap={24} style={{ width: '100%' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
               <Button onClick={() => navigate('/')} style={{ background: 'transparent', color: '#333', border: 'none' }}>
@@ -203,10 +226,56 @@ export const CreateOrderPage: React.FC = () => {
           </Flex>
 
           {selectedInstrument && (
-            <Flex direction="column" gap={16}>
-              <div style={{ background: '#f5f5f5', padding: '12px', borderRadius: '8px' }}>
-                <Typography.Body>{selectedInstrument.shortname}</Typography.Body>
-                <Typography.Label style={{ color: 'gray' }}>{selectedInstrument.exchange} | {selectedInstrument.primary_board}</Typography.Label>
+            <Flex direction="column" gap={16} style={{ width: '100%' }}>
+              <div style={{ background: 'rgba(0,0,0,0.03)', padding: '12px', borderRadius: '8px', width: '100%', boxSizing: 'border-box' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '8px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>Symbol</Typography.Label>
+                    <Typography.Body style={{ fontWeight: 600, fontSize: '14px' }}>{selectedInstrument.symbol}</Typography.Body>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>Exchange</Typography.Label>
+                    <Typography.Body style={{ fontSize: '14px' }}>{selectedInstrument.exchange}</Typography.Body>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>Board</Typography.Label>
+                    <Typography.Body style={{ fontSize: '14px' }}>{selectedInstrument.primary_board}</Typography.Body>
+                  </div>
+                  <div style={{ gridColumn: 'span 3' }}>
+                    <Typography.Label style={{ fontSize: '12px', color: 'gray' }}>{selectedInstrument.shortname}</Typography.Label>
+                  </div>
+                </div>
+
+                {quote ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+                    <div>
+                      <Typography.Label style={{ fontSize: '11px', display: 'block' }}>Last</Typography.Label>
+                      <Typography.Body style={{ fontWeight: 600 }}>{quote.last_price}</Typography.Body>
+                    </div>
+                    <div style={{ gridColumn: 'span 2' }}>
+                      <Typography.Label style={{ fontSize: '11px', display: 'block' }}>Change</Typography.Label>
+                      <Typography.Body style={{ color: quote.change >= 0 ? '#4ade80' : '#ef4444' }}>
+                        {quote.change > 0 ? '+' : ''}{quote.change} ({quote.change_percent}%)
+                      </Typography.Body>
+                    </div>
+
+                    <div>
+                      <Typography.Label style={{ fontSize: '11px', display: 'block', color: 'gray' }}>Bid</Typography.Label>
+                      <Typography.Body style={{ color: '#4ade80' }}>{quote.bid}</Typography.Body>
+                    </div>
+                    <div>
+                      <Typography.Label style={{ fontSize: '11px', display: 'block', color: 'gray' }}>Ask</Typography.Label>
+                      <Typography.Body style={{ color: '#ef4444' }}>{quote.ask}</Typography.Body>
+                    </div>
+                    <div></div>
+
+                    <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>Open</Typography.Label><Typography.Body>{quote.open_price}</Typography.Body></div>
+                    <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>High</Typography.Label><Typography.Body>{quote.high_price}</Typography.Body></div>
+                    <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>Low</Typography.Label><Typography.Body>{quote.low_price}</Typography.Body></div>
+                  </div>
+                ) : (
+                  <Typography.Body style={{ textAlign: 'center', color: 'gray', fontSize: '12px' }}>Loading market data...</Typography.Body>
+                )}
               </div>
 
               {/* Order Type Tabs */}
@@ -294,7 +363,7 @@ export const CreateOrderPage: React.FC = () => {
           )}
 
         </Flex>
-      </Container>
+      </div>
     </Panel>
   );
 };

@@ -304,6 +304,19 @@ export const PortfolioService = {
 };
 
 // --- InstrumentsService ---
+export interface Quote {
+  last_price: number;
+  bid: number;
+  ask: number;
+  open_price: number;
+  high_price: number;
+  low_price: number;
+  change: number;
+  change_percent: number;
+  last_price_timestamp?: number;
+}
+
+
 export const InstrumentsService = {
   searchInstruments: async (filters: SearchFilter): Promise<Instrument[]> => {
     const params = new URLSearchParams();
@@ -318,6 +331,11 @@ export const InstrumentsService = {
   getInstrument: async (instrument: InstrumentKey): Promise<Instrument> => {
     const inst = await apiClient.get<Instrument>(`${API_CONFIG.apiUrl}/md/v2/Securities/${instrument.exchange}/${instrument.symbol}`);
     return { ...inst, board: inst.board ?? inst.primary_board, minstep: inst.minstep ?? 0.01 };
+  },
+
+  getQuotes: async (exchange: string, symbol: string): Promise<Quote | null> => {
+    const quotes = await apiClient.get<Quote[]>(`${API_CONFIG.apiUrl}/md/v2/Securities/${exchange}:${symbol}/quotes`);
+    return Array.isArray(quotes) && quotes.length > 0 ? quotes[0] : null;
   }
 }
 
