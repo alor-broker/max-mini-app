@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Panel, Grid, Container, Flex, Typography, Button, Input } from '@maxhub/max-ui';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -30,22 +30,21 @@ export const CreateOrderPage: React.FC = () => {
   const [selectedInstrument, setSelectedInstrument] = useState<Instrument | null>(null);
   const [instrumentsList, setInstrumentsList] = useState<Instrument[]>([]);
 
+  // Ref to track if we should auto-select the first search result (from navigation)
+  const autoSelectRef = useRef(false);
+
   // Initial State from Navigation
   useEffect(() => {
     const state = location.state as { symbol?: string; portfolio?: ClientPortfolio };
     if (state?.symbol) {
       setSearchQuery(state.symbol);
+      autoSelectRef.current = true;
     }
     // Portfolio will be set after portfolios are loaded
   }, [location.state]);
 
   // Order Form State
-  // We use internal values for logic, but we need to map them for UI if SegmentedControl supports it.
-  // Since we plan to update SegmentedControl to support objects, let's assume it handles {label, value}.
-  // But for now, let's just stick to "Limit" and "Market" as internal values? 
-  // No, let's assume we update SegmentedControl to accept objects.
   const [orderType, setOrderType] = useState<string>('Limit');
-
   const [side, setSide] = useState<Side>(Side.Buy);
   const [price, setPrice] = useState<string>('');
   const [quantity, setQuantity] = useState<string>('1');
@@ -90,6 +89,7 @@ export const CreateOrderPage: React.FC = () => {
         setInstrumentsList(results);
       } catch (e) {
         console.error(e);
+        setInstrumentsList([]);
       } finally {
         setSearchLoading(false);
       }
@@ -102,8 +102,16 @@ export const CreateOrderPage: React.FC = () => {
     setSelectedInstrument(inst);
     setInstrumentsList([]);
     setSearchQuery(inst.symbol);
-    setPrice(inst.minstep.toString()); // Default price suggestion? Or just use minstep hint
+    setPrice(inst.minstep.toString());
   }
+
+  // Auto-select effect
+  useEffect(() => {
+    if (autoSelectRef.current && instrumentsList.length > 0) {
+      handleSelectInstrument(instrumentsList[0]);
+      autoSelectRef.current = false;
+    }
+  }, [instrumentsList]);
 
   const handleSubmit = async () => {
     if (!selectedPortfolio || !selectedInstrument) return;
@@ -170,7 +178,10 @@ export const CreateOrderPage: React.FC = () => {
             <Typography.Label>{t('order.instrument')}</Typography.Label>
             <SearchInput
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                autoSelectRef.current = false;
+                setSearchQuery(e.target.value);
+              }}
               placeholder={t('common.search_placeholder')}
             />
 
