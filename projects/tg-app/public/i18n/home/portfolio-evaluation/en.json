@@ -1,6 +1,0 @@
-{
-  "portfolioCost": "Portfolio cost",
-  "emptyPortfoliosModalTitle": "Portfolios are empty",
-  "emptyPortfoliosModalText": "You cant use bot while you haven`t portfolio with positions or money. You can deposit money through the client's account.",
-  "emptyPortfoliosModalButton": "Deposit"
-}

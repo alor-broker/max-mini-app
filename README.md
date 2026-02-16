@@ -1,64 +1,46 @@
-# AstrasMiniApp
+# Getting Started with Create React App
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 18.1.1.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Development server
+## Available Scripts
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+In the project directory, you can run:
 
-## Code scaffolding
+### `npm start`
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
-## Build
+The page will reload if you make edits.\
+You will also see any lint errors in the console.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+### `npm test`
 
-## Running unit tests
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+### `npm run build`
 
-## Running end-to-end tests
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-## Further help
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+### `npm run eject`
 
-## Architecture
+**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
 
-Проект построен по принципу монорепозитория. В папке projects содержатся проекты библиотек (имеют суффикс -lib) и проект приложения (tg-app).
-Рассмотрим подробнее предназначение каждого проекта.
+If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-### api-lib
-Данный проект инкапсулирует в себе сервисы для работы с API. Он не должен иметь никаких зависимостей от других проектов. В дальнейшем эта библиотека будет использована в проекте ASTRAS.
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
 
-### environment-services-lib
-Данный проект содержит абстракции для взаимодействия с хост-приложением.
-Для каждой используемой фичи хост-приложения необходимо создать абстрактный класс, который описывает контракт для взаимодействия с ней (см. theming-service.ts).
-Контракт **не должен просто копировать предоставляемые хостом функции**, а иметь интерфейс, удобный для использования в нашем приложении.
-Используемые при этом модели следует помещать в располагающийся рядом файл *feature*-service.models.ts.
+You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
 
-Данный проект не должен иметь никаких зависимостей от других проектов.
+## Learn More
 
-### shared-components-lib
-Здесь располагаются компоненты, которые можно использовать в разных приложениях.
-Это значит, что он может иметь зависимости от api-lib и environment-services-lib, но не должен иметь никаких зависимостей от конкретных приложений (tg-app).
-Все ссылки на используемые сервисы из environment-services-lib должны осуществляться через объявленные там абстракции.
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-### tg-app
-
-Приложение для telegram. Данный проект может ссылаться на любой другой lib-проект.
-
-В папке tg-app/src/environment-services/tg содержаться используемые данным приложением реализации для сервисов, объявленных в environment-services-lib.
-При этом следует соблюдать структуру папок из environment-services-lib. Т.е. если в environment-services-lib сервис объявлен в поддиректории src/theming, то и реализация должна размещаться в */tg/theming.
-Каждая реализация должна:
-1. расширять (наследовать) соответствующую абстракцию
-2. иметь соответствующий provider в файле */tg-app/src/environment-services/tg/**environment-services-providers.ts**
-
-## Важно!
-1. Все видимые из вне части lib-проекта должны быть указаны в public-api.ts файле
-2. Нужно следить, чтобы IDE корректно проставлялись import на lib-проекты. Import должен быть вид @lib-project-name
-
-
+To learn React, check out the [React documentation](https://reactjs.org/).

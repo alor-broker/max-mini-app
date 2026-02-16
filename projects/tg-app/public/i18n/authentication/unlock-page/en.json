@@ -1,6 +1,0 @@
-{
-  "loginTitle": "Login with password",
-  "invalidPasswordError": "Invalid password",
-  "attemptsCount": "Attempts left: {{count}}",
-  "cancelBtn": "Cancel"
-}
