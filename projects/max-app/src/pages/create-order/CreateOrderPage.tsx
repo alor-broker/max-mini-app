@@ -44,8 +44,8 @@ export const CreateOrderPage: React.FC = () => {
 
   // Initial Load
   useEffect(() => {
-    if (user?.clientId) {
-      ClientService.getPortfolios(user.clientId).then(data => {
+    if (user?.clientId && user?.login) {
+      ClientService.getActivePortfolios(user.clientId, user.login).then(data => {
         setPortfolios(data);
         if (data.length > 0) setSelectedPortfolio(data[0]);
       });

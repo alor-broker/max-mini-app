@@ -257,6 +257,20 @@ export const ClientService = {
       ...p,
       exchange: p.market === 'United' ? 'SPBX' : 'MOEX'
     }));
+  },
+
+  getActivePortfolios: async (clientId: string, login: string): Promise<ClientPortfolio[]> => {
+    const [allPortfolios, allPositions] = await Promise.all([
+      ClientService.getPortfolios(clientId),
+      PortfolioService.getAllPositions(login)
+    ]);
+
+    // Filter portfolios that have at least one position with non-zero quantity
+    const activePortfolios = allPortfolios.filter(portfolio =>
+      allPositions.some(pos => pos.portfolio === portfolio.portfolio && pos.qtyUnits !== 0)
+    );
+
+    return activePortfolios;
   }
 };
 
@@ -264,6 +278,10 @@ export const ClientService = {
 export const PortfolioService = {
   getSummary: async (exchange: string, portfolio: string): Promise<PortfolioSummary> => {
     return apiClient.get<PortfolioSummary>(`${API_CONFIG.apiUrl}/md/v2/Clients/${exchange}/${portfolio}/summary`);
+  },
+
+  getAllPositions: async (login: string): Promise<PortfolioPosition[]> => {
+    return apiClient.get<PortfolioPosition[]>(`${API_CONFIG.apiUrl}/md/v2/clients/${login}/positions`);
   },
 
   getPositions: async (exchange: string, portfolio: string): Promise<PortfolioPosition[]> => {

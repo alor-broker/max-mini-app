@@ -3,6 +3,8 @@ import { Flex, Typography, Grid } from '@maxhub/max-ui';
 import { PortfolioService, ClientPortfolio, PortfolioPosition } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 
+import { useNavigate } from 'react-router-dom';
+
 interface PositionsListProps {
   portfolio: ClientPortfolio | null;
 }
@@ -12,6 +14,7 @@ export const PositionsList: React.FC<PositionsListProps> = ({ portfolio }) => {
   const [loading, setLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!portfolio) return;
@@ -34,7 +37,11 @@ export const PositionsList: React.FC<PositionsListProps> = ({ portfolio }) => {
         const plColor = pos.unrealisedPl >= 0 ? '#4ade80' : '#ef4444';
 
         return (
-          <div key={pos.symbol} style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+          <div
+            key={pos.symbol}
+            onClick={() => navigate('/create-order', { state: { symbol: pos.symbol, portfolio } })}
+            style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
+          >
             <Flex justify="space-between" align="center">
               <Flex direction="column">
                 <Typography.Body style={{ fontWeight: 600 }}>{pos.symbol}</Typography.Body>

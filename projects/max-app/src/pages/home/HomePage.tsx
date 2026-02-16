@@ -29,8 +29,8 @@ export const HomePage: React.FC = () => {
   const [selectedPortfolio, setSelectedPortfolio] = useState<ClientPortfolio | null>(null);
 
   useEffect(() => {
-    if (user?.clientId) {
-      ClientService.getPortfolios(user.clientId)
+    if (user?.clientId && user?.login) {
+      ClientService.getActivePortfolios(user.clientId, user.login)
         .then(data => {
           setPortfolios(data);
           if (data.length > 0) {
