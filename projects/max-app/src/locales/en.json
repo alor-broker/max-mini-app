@@ -1,0 +1,54 @@
+{
+  "common": {
+    "back": "Back",
+    "logout": "Logout",
+    "loading": "Loading...",
+    "search_placeholder": "Search (e.g. SBER)",
+    "searching": "Searching...",
+    "load_more": "Load More",
+    "submit": "Submit",
+    "buy": "Buy",
+    "sell": "Sell",
+    "limit": "Limit",
+    "market": "Market",
+    "price": "Price",
+    "quantity": "Quantity",
+    "lots": "Lots",
+    "shares": "Shares",
+    "lot_size": "Lot size",
+    "error": "Error",
+    "avg": "Avg"
+  },
+  "home": {
+    "new_order": "New Order",
+    "portfolio_summary": "Portfolio Summary",
+    "investment_ideas": "Investment Ideas",
+    "active_orders": "Active Orders",
+    "positions": "Positions",
+    "trades_today": "Trades Today",
+    "no_active_orders": "No active orders",
+    "no_positions": "No open positions",
+    "no_trades": "No trades today",
+    "view_all_orders_soon": "All Orders view coming soon",
+    "view_all_positions_soon": "All Positions view coming soon",
+    "view_all_trades_soon": "All Trades view coming soon"
+  },
+  "order": {
+    "title": "New Order",
+    "select_portfolio": "Select Portfolio",
+    "no_portfolios": "No portfolios",
+    "instrument": "Instrument",
+    "portfolio": "Portfolio",
+    "submit_buy_order": "Submit BUY Order",
+    "submit_sell_order": "Submit SELL Order",
+    "submitting": "Submitting...",
+    "order_failed": "Order failed",
+    "failed_submit": "Failed to submit order"
+  },
+  "portfolio": {
+    "buying_power": "Buying Power",
+    "profit_day": "Profit Day",
+    "liquidation_value": "Liquidation Value",
+    "total_balance": "Total Balance"
+  }
+}

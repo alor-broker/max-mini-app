@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Flex, Typography, Grid } from '@maxhub/max-ui';
 import { PortfolioService, ClientPortfolio, PortfolioOrder, Side, OrderStatus } from '../../api/services';
+import { useTranslation } from 'react-i18next';
 
 interface OrdersListProps {
   portfolio: ClientPortfolio | null;
@@ -9,13 +10,14 @@ interface OrdersListProps {
 export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
   const [orders, setOrders] = useState<PortfolioOrder[]>([]);
   const [loading, setLoading] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(5);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!portfolio) return;
     setLoading(true);
     PortfolioService.getOrders(portfolio.exchange, portfolio.portfolio)
       .then(data => {
-        // Filter for active orders if needed, or show all returned
         setOrders(data.filter(o => o.status === OrderStatus.Working));
       })
       .catch(console.error)
@@ -23,11 +25,14 @@ export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
   }, [portfolio]);
 
   if (!portfolio) return null;
-  if (orders.length === 0 && !loading) return <Typography.Body style={{ color: 'gray' }}>No active orders</Typography.Body>;
+  if (orders.length === 0 && !loading) return <Typography.Body style={{ color: 'gray' }}>{t('home.no_active_orders')}</Typography.Body>;
+
+  const visibleOrders = orders.slice(0, visibleCount);
+  const hasMore = visibleCount < orders.length;
 
   return (
     <Grid gap={8} cols={1}>
-      {orders.map(order => {
+      {visibleOrders.map(order => {
         const isBuy = order.side === Side.Buy;
         const sideColor = isBuy ? '#4ade80' : '#ef4444';
 
@@ -43,13 +48,28 @@ export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
               <Flex direction="column" style={{ alignItems: 'flex-end' }}>
                 <Typography.Body>{order.price} ₽</Typography.Body>
                 <Typography.Label style={{ color: sideColor }}>
-                  {isBuy ? 'Buy' : 'Sell'} {order.qtyUnits - order.filledQtyUnits} / {order.qtyUnits}
+                  {isBuy ? t('common.buy') : t('common.sell')} {order.qtyUnits - order.filledQtyUnits} / {order.qtyUnits}
                 </Typography.Label>
               </Flex>
             </Flex>
           </div>
         );
       })}
+      {hasMore && (
+        <div
+          onClick={() => setVisibleCount(prev => prev + 5)}
+          style={{
+            textAlign: 'center',
+            padding: '8px',
+            cursor: 'pointer',
+            color: '#0a84ff',
+            fontWeight: 500,
+            marginTop: '8px'
+          }}
+        >
+          {t('common.load_more')}
+        </div>
+      )}
     </Grid>
   );
 };

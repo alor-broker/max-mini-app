@@ -5,6 +5,7 @@ import { RequireAuth } from './auth/RequireAuth';
 import { HomePage } from './pages/home/HomePage';
 import { UnlockPage } from './pages/auth/UnlockPage';
 import { SsoCallbackPage } from './pages/auth/SsoCallbackPage';
+import { CreateOrderPage } from './pages/create-order/CreateOrderPage';
 import { MaxUI } from '@maxhub/max-ui';
 import '@maxhub/max-ui/dist/styles.css';
 
@@ -20,6 +21,14 @@ function App() {
             element={
               <RequireAuth>
                 <HomePage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/order/new"
+            element={
+              <RequireAuth>
+                <CreateOrderPage />
               </RequireAuth>
             }
           />

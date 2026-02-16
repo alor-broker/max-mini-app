@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Flex, Typography } from '@maxhub/max-ui';
 import { PortfolioService, PortfolioSummary, ClientPortfolio } from '../../api/services';
+import { useTranslation } from 'react-i18next';
 
 interface PortfolioEvaluationProps {
   portfolio: ClientPortfolio | null;
@@ -9,6 +10,7 @@ interface PortfolioEvaluationProps {
 export const PortfolioEvaluation: React.FC<PortfolioEvaluationProps> = ({ portfolio }) => {
   const [summary, setSummary] = useState<PortfolioSummary | null>(null);
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!portfolio) return;
@@ -23,7 +25,7 @@ export const PortfolioEvaluation: React.FC<PortfolioEvaluationProps> = ({ portfo
   if (!portfolio || !summary) {
     return (
       <Flex direction="column" gap={8}>
-        <Typography.Body style={{ color: 'rgba(255,255,255,0.8)' }}>Total Balance</Typography.Body>
+        <Typography.Body style={{ color: 'rgba(255,255,255,0.8)' }}>{t('portfolio.total_balance')}</Typography.Body>
         <Typography.Display style={{ color: 'white' }}>---</Typography.Display>
       </Flex>
     );
@@ -36,7 +38,7 @@ export const PortfolioEvaluation: React.FC<PortfolioEvaluationProps> = ({ portfo
   return (
     <Flex direction="column" gap={8}>
       <Flex justify="space-between" align="center">
-        <Typography.Body style={{ color: 'rgba(255,255,255,0.8)' }}>Total Balance</Typography.Body>
+        <Typography.Body style={{ color: 'rgba(255,255,255,0.8)' }}>{t('portfolio.total_balance')}</Typography.Body>
       </Flex>
       <Typography.Display style={{ color: 'white' }}>
         {new Intl.NumberFormat('ru-RU', { style: 'currency', currency: 'RUB' }).format(portfolioLiquidationValue)}

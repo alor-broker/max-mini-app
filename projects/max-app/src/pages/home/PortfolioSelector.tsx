@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { Button, Typography, Panel, Grid, Container } from '@maxhub/max-ui';
 import { ClientPortfolio } from '../../api/services';
+import { useTranslation } from 'react-i18next';
 
 interface PortfolioSelectorProps {
   portfolios: ClientPortfolio[];
   selectedPortfolio: ClientPortfolio | null;
   onSelect: (portfolio: ClientPortfolio) => void;
+  triggerStyle?: React.CSSProperties;
 }
 
-export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios, selectedPortfolio, onSelect }) => {
+export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios, selectedPortfolio, onSelect, triggerStyle }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation();
 
   if (portfolios.length === 0) {
-    return <Typography.Body>No portfolios</Typography.Body>;
+    return <Typography.Body>{t('order.no_portfolios')}</Typography.Body>;
   }
 
   const toggleOpen = () => setIsOpen(!isOpen);
@@ -24,8 +27,8 @@ export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios
 
   return (
     <div style={{ position: 'relative' }}>
-      <Button onClick={toggleOpen} style={{ background: 'transparent', color: 'white', border: '1px solid rgba(255,255,255,0.3)' }}>
-        {selectedPortfolio ? `${selectedPortfolio.portfolio} (${selectedPortfolio.exchange})` : 'Select Portfolio'}
+      <Button onClick={toggleOpen} style={{ background: 'transparent', border: '1px solid rgba(0,0,0,0.1)', color: 'inherit', ...triggerStyle }}>
+        {selectedPortfolio ? `${selectedPortfolio.portfolio} (${selectedPortfolio.exchange})` : t('order.select_portfolio')}
       </Button>
 
       {isOpen && (

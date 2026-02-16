@@ -1,0 +1,54 @@
+{
+  "common": {
+    "back": "Назад",
+    "logout": "Выйти",
+    "loading": "Загрузка...",
+    "search_placeholder": "Поиск (например, SBER)",
+    "searching": "Поиск...",
+    "load_more": "Загрузить еще",
+    "submit": "Отправить",
+    "buy": "Покупка",
+    "sell": "Продажа",
+    "limit": "Лимитная",
+    "market": "Рыночная",
+    "price": "Цена",
+    "quantity": "Количество",
+    "lots": "Лотов",
+    "shares": "Акций",
+    "lot_size": "Размер лота",
+    "error": "Ошибка",
+    "avg": "Сред."
+  },
+  "home": {
+    "new_order": "Новая заявка",
+    "portfolio_summary": "Сводка портфеля",
+    "investment_ideas": "Инвестидеи",
+    "active_orders": "Активные заявки",
+    "positions": "Позиции",
+    "trades_today": "Сделки сегодня",
+    "no_active_orders": "Нет активных заявок",
+    "no_positions": "Нет открытых позиций",
+    "no_trades": "Нет сделок за сегодня",
+    "view_all_orders_soon": "Просмотр всех заявок скоро будет доступен",
+    "view_all_positions_soon": "Просмотр всех позиций скоро будет доступен",
+    "view_all_trades_soon": "Просмотр всех сделок скоро будет доступен"
+  },
+  "order": {
+    "title": "Новая заявка",
+    "select_portfolio": "Выберите портфель",
+    "no_portfolios": "Нет портфелей",
+    "instrument": "Инструмент",
+    "portfolio": "Портфель",
+    "submit_buy_order": "Купить",
+    "submit_sell_order": "Продать",
+    "submitting": "Отправка...",
+    "order_failed": "Ошибка заявки",
+    "failed_submit": "Не удалось отправить заявку"
+  },
+  "portfolio": {
+    "buying_power": "Покупательская способность",
+    "profit_day": "Прибыль за день",
+    "liquidation_value": "Ликвидационная стоимость",
+    "total_balance": "Баланс"
+  }
+}

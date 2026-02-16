@@ -8,13 +8,15 @@ import { InvestmentIdeasPreview } from './InvestmentIdeasPreview';
 import { OrdersList } from './OrdersList';
 import { PositionsList } from './PositionsList';
 import { TradesList } from './TradesList';
+import { NewOrderButton } from './NewOrderButton';
+import { useTranslation } from 'react-i18next';
+import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 
 // Placeholder components for sections
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
   <Container style={{ marginBottom: '16px', padding: '16px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '16px' }}>
     <Flex justify="space-between" align="center" style={{ marginBottom: '12px' }}>
       <Typography.Headline>{title}</Typography.Headline>
-      <Button style={{ background: 'transparent', color: '#0a84ff', border: 'none' }}>View All</Button>
     </Flex>
     {children}
   </Container>
@@ -22,6 +24,7 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
 
 export const HomePage: React.FC = () => {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const [portfolios, setPortfolios] = useState<ClientPortfolio[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState<ClientPortfolio | null>(null);
 
@@ -44,36 +47,45 @@ export const HomePage: React.FC = () => {
         {/* Header / Portfolio Summary */}
         <Container style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px' }}>
           <Flex direction="column" gap={16}>
+
             <Flex justify="space-between" align="center">
               <PortfolioSelector
                 portfolios={portfolios}
                 selectedPortfolio={selectedPortfolio}
                 onSelect={setSelectedPortfolio}
+                triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
               />
-              <Button onClick={logout} style={{ color: 'white', borderColor: 'white' }}>Logout</Button>
+              <Flex gap={8}>
+                <LanguageSwitcher />
+                <Button onClick={logout} style={{ color: 'white', borderColor: 'white' }}>{t('common.logout')}</Button>
+              </Flex>
             </Flex>
 
             <PortfolioEvaluation portfolio={selectedPortfolio} />
+
+            <Flex justify="center" style={{ marginTop: '16px' }}>
+              <NewOrderButton />
+            </Flex>
           </Flex>
         </Container>
 
-        {/* Investment Ideas */}
-        <Section title="Investment Ideas">
+        {/* Investment Ideas (API not implemented yet) */}
+        {/* <Section title={t('home.investment_ideas')}>
           <InvestmentIdeasPreview />
-        </Section>
+        </Section> */}
 
         {/* Orders */}
-        <Section title="Active Orders">
+        <Section title={t('home.active_orders')}>
           <OrdersList portfolio={selectedPortfolio} />
         </Section>
 
         {/* Portfolio Positions */}
-        <Section title="Positions">
+        <Section title={t('home.positions')}>
           <PositionsList portfolio={selectedPortfolio} />
         </Section>
 
         {/* Trades */}
-        <Section title="Trades today">
+        <Section title={t('home.trades_today')}>
           <TradesList portfolio={selectedPortfolio} />
         </Section>
       </Grid>

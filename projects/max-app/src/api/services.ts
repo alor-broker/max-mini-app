@@ -128,6 +128,45 @@ export interface PortfolioOrder {
   price: number;
 }
 
+export interface InstrumentKey {
+  symbol: string;
+  exchange: string;
+  board?: string | null;
+  ISIN?: string;
+}
+
+export interface Instrument extends InstrumentKey {
+  shortname: string;
+  description: string;
+  primary_board: string;
+  minstep: number;
+  lotsize?: number;
+  pricestep?: number;
+}
+
+export interface SearchFilter {
+  query: string;
+  limit: number;
+  exchange?: string;
+}
+
+export interface NewOrder {
+  side: Side;
+  instrument: InstrumentKey;
+  quantity: number;
+}
+
+export interface NewMarketOrder extends NewOrder { }
+
+export interface NewLimitOrder extends NewOrder {
+  price: number;
+}
+
+export interface NewOrderResponse {
+  message: string;
+  orderNumber: string;
+}
+
 // --- Helper Functions ---
 const decodeJwtBody = (jwt: string): JwtBody => {
   try {
@@ -139,6 +178,25 @@ const decodeJwtBody = (jwt: string): JwtBody => {
     throw new Error("Invalid Token");
   }
 };
+
+const getBaseOrdersUrl = (config: typeof API_CONFIG) => `${config.superAppUrl}/commandapi/warptrans/TRADE/v2/client/orders`;
+
+const getOrderRequest = async <T extends NewOrder>(
+  order: T,
+  portfolio: string,
+  config: typeof API_CONFIG,
+  orderType: string
+): Promise<NewOrderResponse> => {
+  return apiClient.post<NewOrderResponse>(`${getBaseOrdersUrl(config)}/actions/${orderType}`, {
+    ...order,
+    user: { portfolio }
+  }, {
+    headers: {
+      'X-REQID': crypto.randomUUID()
+    }
+  });
+}
+
 
 // --- AuthService ---
 export const AuthService = {
@@ -226,6 +284,35 @@ export const PortfolioService = {
     }));
   }
 };
+
+// --- InstrumentsService ---
+export const InstrumentsService = {
+  searchInstruments: async (filters: SearchFilter): Promise<Instrument[]> => {
+    const params = new URLSearchParams();
+    params.append('query', filters.query);
+    params.append('limit', String(filters.limit));
+    if (filters.exchange) params.append('exchange', filters.exchange);
+
+    const instruments = await apiClient.get<Instrument[]>(`${API_CONFIG.apiUrl}/md/v2/Securities?${params.toString()}&IncludeUnknownBoards=false`);
+    return instruments.map(i => ({ ...i, board: i.board ?? i.primary_board, minstep: i.minstep ?? 0.01 }));
+  },
+
+  getInstrument: async (instrument: InstrumentKey): Promise<Instrument> => {
+    const inst = await apiClient.get<Instrument>(`${API_CONFIG.apiUrl}/md/v2/Securities/${instrument.exchange}/${instrument.symbol}`);
+    return { ...inst, board: inst.board ?? inst.primary_board, minstep: inst.minstep ?? 0.01 };
+  }
+}
+
+// --- OrdersService ---
+export const OrdersService = {
+  submitLimitOrder: async (order: NewLimitOrder, portfolio: string): Promise<NewOrderResponse> => {
+    return getOrderRequest(order, portfolio, API_CONFIG, 'limit');
+  },
+
+  submitMarketOrder: async (order: NewMarketOrder, portfolio: string): Promise<NewOrderResponse> => {
+    return getOrderRequest(order, portfolio, API_CONFIG, 'market');
+  }
+}
 
 // --- InvestmentIdeasService ---
 export const InvestmentIdeasService = {
