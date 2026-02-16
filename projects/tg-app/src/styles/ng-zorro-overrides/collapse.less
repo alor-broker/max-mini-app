@@ -1,0 +1,21 @@
+﻿@collapse-header-bg: var(--mini-app-bg-color);
+@collapse-content-bg: var(--mini-app-bg-color);
+
+.@{collapse-prefix-cls} {
+  @tg-subtitle-text-color: var(--mini-app-subtitle-text-color);
+  @tg-section-separator-color: var(--mini-app-section-separator-color);
+
+  & > &-item {
+    border-bottom-color: transparent;
+
+    > .@{collapse-prefix-cls}-header {
+      .@{collapse-prefix-cls}-arrow {
+        color: @tg-subtitle-text-color;
+      }
+    }
+  }
+
+  &-content {
+    border-top-color: @tg-section-separator-color;
+  }
+}

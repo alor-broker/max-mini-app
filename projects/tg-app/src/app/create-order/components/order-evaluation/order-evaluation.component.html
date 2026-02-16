@@ -1,0 +1,33 @@
+@if (evaluation$ | async; as evaluation) {
+  <nz-descriptions
+    *transloco="let t; scope: 'create-order/order-evaluation'"
+    nzBordered
+    nzSize="small"
+    class="mb-15"
+  >
+    <nz-descriptions-item
+      [nzTitle]="t('createOrderOrderEvaluation.evaluationCost')"
+      [nzSpan]="2"
+    >
+      {{ evaluation.orderEvaluation | currency: currency:'symbol-narrow' }}
+    </nz-descriptions-item>
+    <nz-descriptions-item
+      [nzTitle]="t('createOrderOrderEvaluation.evaluationCommission')"
+      [nzSpan]="2"
+    >
+      {{ evaluation.commission | currency: currency:'symbol-narrow' }}
+    </nz-descriptions-item>
+    <nz-descriptions-item
+      [nzTitle]="t('createOrderOrderEvaluation.quantityToBuy')"
+      [nzSpan]="2"
+    >
+      {{ evaluation.quantityToBuy }} / {{ evaluation.notMarginQuantityToBuy }}
+    </nz-descriptions-item>
+    <nz-descriptions-item
+      [nzTitle]="t('createOrderOrderEvaluation.quantityToSell')"
+      [nzSpan]="2"
+    >
+      {{ evaluation.quantityToSell }} / {{ evaluation.notMarginQuantityToSell }}
+    </nz-descriptions-item>
+  </nz-descriptions>
+}

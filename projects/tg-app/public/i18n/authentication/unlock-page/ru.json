@@ -1,0 +1,6 @@
+{
+  "loginTitle": "Войти по код-паролю",
+  "invalidPasswordError": "Неверный пароль",
+  "attemptsCount": "Осталось попыток: {{count}}",
+  "cancelBtn": "Отмена"
+}

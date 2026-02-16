@@ -1,0 +1,293 @@
+{
+  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "version": 1,
+  "cli": {
+    "packageManager": "pnpm"
+  },
+  "newProjectRoot": "projects",
+  "projects": {
+    "api-lib": {
+      "projectType": "library",
+      "root": "projects/api-lib",
+      "sourceRoot": "projects/api-lib/src",
+      "prefix": "api",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/api-lib/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/api-lib/tsconfig.lib.prod.json"
+            },
+            "devContour": {
+              "tsConfig": "projects/api-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/api-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/api-lib/src/test-setup.ts",
+            "tsConfig": "projects/api-lib/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "environment-services-lib": {
+      "projectType": "library",
+      "root": "projects/environment-services-lib",
+      "sourceRoot": "projects/environment-services-lib/src",
+      "prefix": "es",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/environment-services-lib/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/environment-services-lib/tsconfig.lib.prod.json"
+            },
+            "devContour": {
+              "tsConfig": "projects/environment-services-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/environment-services-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/environment-services-lib/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "shared-components-lib": {
+      "projectType": "library",
+      "root": "projects/shared-components-lib",
+      "sourceRoot": "projects/shared-components-lib/src",
+      "prefix": "sc",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/shared-components-lib/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/shared-components-lib/tsconfig.lib.prod.json"
+            },
+            "devContour": {
+              "tsConfig": "projects/shared-components-lib/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/shared-components-lib/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "tsConfig": "projects/shared-components-lib/tsconfig.spec.json",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ]
+          }
+        }
+      }
+    },
+    "tg-app": {
+      "projectType": "application",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "less"
+        }
+      },
+      "root": "projects/tg-app",
+      "sourceRoot": "projects/tg-app/src",
+      "prefix": "tga",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:application",
+          "options": {
+            "outputPath": "dist/tg-app",
+            "index": "projects/tg-app/src/index.html",
+            "browser": "projects/tg-app/src/main.ts",
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "projects/tg-app/tsconfig.app.json",
+            "inlineStyleLanguage": "less",
+            "allowedCommonJsDependencies": [
+              "moment"
+            ],
+            "assets": [
+              {
+                "glob": "**/*",
+                "ignore": ["**/custom_icons/**/*"],
+                "input": "projects/tg-app/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+                "output": "/assets/"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/tg-app/public/custom_icons/",
+                "output": "/assets/"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/tg-app/public/i18n/",
+                "output": "/assets/i18n/"
+              }
+            ],
+            "styles": [
+              "projects/tg-app/src/styles.less"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "projects/tg-app/src/styles",
+                "projects/tg-app/src/styles/utils",
+                "projects/tg-app/src/styles/components",
+                "projects/tg-app/src/styles/mixins"
+              ]
+            },
+            "scripts": []
+          },
+          "configurations": {
+            "production": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2MB",
+                  "maximumError": "2.5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kB",
+                  "maximumError": "4kB"
+                }
+              ],
+              "outputHashing": "all"
+            },
+            "devContour": {
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "2MB",
+                  "maximumError": "2.5mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "2kB",
+                  "maximumError": "4kB"
+                }
+              ],
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "projects/tg-app/src/environments/environment.ts",
+                  "with": "projects/tg-app/src/environments/environment.dev.ts"
+                }
+              ]
+            },
+            "development": {
+              "optimization": false,
+              "extractLicenses": false,
+              "sourceMap": true,
+              "fileReplacements": [
+                {
+                  "replace": "projects/tg-app/src/environments/environment.ts",
+                  "with": "projects/tg-app/src/environments/environment.dev.ts"
+                }
+              ]
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "serve": {
+          "builder": "@angular-devkit/build-angular:dev-server",
+          "configurations": {
+            "production": {
+              "buildTarget": "tg-app:build:production"
+            },
+            "development": {
+              "buildTarget": "tg-app:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
+        },
+        "extract-i18n": {
+          "builder": "@angular-devkit/build-angular:extract-i18n"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/tg-app/src/test-setup.ts",
+            "polyfills": [
+              "zone.js",
+              "zone.js/testing"
+            ],
+            "tsConfig": "projects/tg-app/tsconfig.spec.json",
+            "inlineStyleLanguage": "less",
+            "assets": [
+              {
+                "glob": "**/*",
+                "ignore": ["**/custom_icons/**/*"],
+                "input": "projects/tg-app/public"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/@ant-design/icons-angular/src/inline-svg/",
+                "output": "/assets/"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/tg-app/public/custom_icons/",
+                "output": "/assets/"
+              },
+              {
+                "glob": "**/*",
+                "input": "projects/tg-app/public/i18n/",
+                "output": "/assets/i18n/"
+              }
+            ],
+            "styles": [
+              "projects/tg-app/src/styles.less"
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "projects/tg-app/src/styles",
+                "projects/tg-app/src/styles/utils",
+                "projects/tg-app/src/styles/components",
+                "projects/tg-app/src/styles/mixins"
+              ]
+            },
+            "scripts": []
+          }
+        }
+      }
+    }
+  }
+}

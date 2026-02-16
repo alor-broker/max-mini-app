@@ -1,0 +1,14 @@
+{
+  "disclaimer": {
+    "baseText": "The provided information does not constitute individual investment advice. You take all the risks of making decisions about the ways and possibilities of using the relevant information.",
+    "phoneText": "For more accurate information, you can contact us by phone",
+    "emailText": "and/or by email",
+    "addNumber": "add"
+  },
+  "recommendedPriceLabel": "Rec. price",
+  "validToLabel": "Valid to",
+  "indefinitelyLabel": "Indefinitely",
+  "authorLabel": "Author",
+  "emptyIdeasLabel": "Investment ideas are empty",
+  "showOldIdeasLabel": "Show outdated ideas"
+}

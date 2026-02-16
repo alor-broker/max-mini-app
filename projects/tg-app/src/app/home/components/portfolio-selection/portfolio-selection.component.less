@@ -1,0 +1,28 @@
+@btn-prefix-cls: ~'ant-btn';
+
+.@{btn-prefix-cls} {
+  @tg-button-text-color: var(--mini-app-text-color);
+  @tg-base-font-size: var(--font-size);
+
+  color: @tg-button-text-color;
+  height: calc(@tg-base-font-size * 3);
+
+  &-text {
+    &:hover,
+    &:focus {
+      color: @tg-button-text-color;
+    }
+
+    &:active {
+      color: @tg-button-text-color;
+    }
+  }
+}
+
+::ng-deep {
+  .portfolio-selection {
+    .ant-dropdown-menu-item {
+      line-height: 2.5;
+    }
+  }
+}

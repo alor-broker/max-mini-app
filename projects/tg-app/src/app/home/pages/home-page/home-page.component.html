@@ -1,0 +1,134 @@
+<ng-container *transloco="let t; scope: 'home/home-page'">
+  <tga-sections>
+    <tga-section-panel>
+      <div>
+        <div class="header d-flex justify-content-between">
+          <button
+            nz-button
+            nzSize="large"
+            nzType="text"
+            routerLink="/settings"
+          >
+            <span nz-icon nzType="setting" nzTheme="outline"></span>
+          </button>
+
+          <div>
+            <tga-portfolio-selection></tga-portfolio-selection>
+          </div>
+        </div>
+
+        <div class="portfolio-summary">
+          <tga-portfolio-evaluation></tga-portfolio-evaluation>
+        </div>
+        <div class="m-15">
+          <tga-links></tga-links>
+        </div>
+      </div>
+    </tga-section-panel>
+
+    @if (!isInvestmentIdeasUnauthorizedError) {
+      <tga-section-panel
+        (click)="openSubview(SubviewTypes.InvestingIdeas)"
+        class="cursor-pointer"
+      >
+        <div class="m-15 d-flex flex-row justify-content-between">
+          <div class="flex-fill overflow-x-hidden">
+            <div class="mb-5">{{ t('homeHomePage.investmentIdeasTitle') }}</div>
+            <tga-investment-ideas-preview (unauthorizedError)="onInvestmentIdeasUnauthorizedError()"></tga-investment-ideas-preview>
+          </div>
+          <span nz-icon nzType="right" nzTheme="outline" class="ml-10 list-item-arrow"></span>
+        </div>
+      </tga-section-panel>
+    }
+
+    <tga-section-panel>
+      <nz-collapse nzExpandIconPosition="end">
+        <nz-collapse-panel [nzHeader]="t('homeHomePage.positionsTitle')">
+          <tga-positions-list></tga-positions-list>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </tga-section-panel>
+
+    <tga-section-panel>
+      <nz-collapse nzExpandIconPosition="end">
+        <nz-collapse-panel [nzHeader]="t('homeHomePage.tradesTitle')">
+          <tga-trades-list (selectItem)="openSubview(SubviewTypes.Trade, $event)"></tga-trades-list>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </tga-section-panel>
+
+    <tga-section-panel>
+      <nz-collapse nzExpandIconPosition="end">
+        <nz-collapse-panel [nzHeader]="t('homeHomePage.ordersTitle')">
+          <tga-orders-list (selectItem)="openSubview(SubviewTypes.Order, $event)"></tga-orders-list>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </tga-section-panel>
+
+    <tga-section-panel>
+      <nz-collapse nzExpandIconPosition="end">
+        <nz-collapse-panel [nzHeader]="t('homeHomePage.stopOrdersTitle')">
+          <tga-stop-orders-list (selectItem)="openSubview(SubviewTypes.Order, $event)"></tga-stop-orders-list>
+        </nz-collapse-panel>
+      </nz-collapse>
+    </tga-section-panel>
+  </tga-sections>
+
+
+  @if (drawerContext$ | async; as drawerContext) {
+    <nz-drawer
+      [nzTitle]="drawerTitle"
+      nzPlacement="bottom"
+      nzHeight="100%"
+      [nzClosable]="false"
+      [nzVisible]="drawerContext.isVisible"
+      (nzOnClose)="closeSubview()"
+    >
+      <ng-container *nzDrawerContent>
+        @switch (drawerContext.itemType) {
+          @case (SubviewTypes.InvestingIdeas) {
+            <tga-investment-ideas (onBack)="closeSubview()"></tga-investment-ideas>
+          }
+          @case (SubviewTypes.Order) {
+            <tga-order-item
+              [orderData]="drawerContext.data"
+              (onBack)="closeSubview()"
+            ></tga-order-item>
+          }
+          @case (SubviewTypes.Trade) {
+            <tga-trade-item [trade]="drawerContext.data" (onBack)="closeSubview()"></tga-trade-item>
+          }
+        }
+      </ng-container>
+    </nz-drawer>
+
+    <ng-template #drawerTitle>
+      <div class="d-flex align-items-center">
+        @if (!isBackButtonAvailable) {
+          <button
+            nz-button
+            nzType="text"
+            class="mr-15"
+            (click)="closeSubview()"
+          >
+            <span nz-icon nzType="left" nzTheme="outline"></span>
+          </button>
+        }
+
+        <h3 class="mb-0">
+          @switch (drawerContext.itemType) {
+            @case (SubviewTypes.InvestingIdeas) {
+              {{ t('homeHomePage.investmentIdeasTitle') }}
+            }
+            @case (SubviewTypes.Order) {
+              {{ t('homeHomePage.orderTitle') }} №{{ drawerContext.data.id }}
+            }
+            @case (SubviewTypes.Trade) {
+              {{ t('homeHomePage.tradeTitle') }} №{{ drawerContext.data.id }}
+            }
+          }
+        </h3>
+      </div>
+    </ng-template>
+}
+</ng-container>

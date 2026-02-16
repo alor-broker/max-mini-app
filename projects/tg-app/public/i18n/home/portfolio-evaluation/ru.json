@@ -1,0 +1,6 @@
+{
+  "portfolioCost": "Стоимость портфеля",
+  "emptyPortfoliosModalTitle": "Портфели отсутствуют",
+  "emptyPortfoliosModalText": "Вы не сможете пользоваться ботом, если у вас нет портфеля с позициями или деньгами. Зачислить деньги на портфель можно в личном кабинете.",
+  "emptyPortfoliosModalButton": "Пополнить"
+}

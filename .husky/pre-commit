@@ -1,0 +1,3 @@
+pnpm test-api-lib --browsers=ChromeHeadless --watch=false
+pnpm test-tg-app --browsers=ChromeHeadless --watch=false
+pnpm build --configuration production

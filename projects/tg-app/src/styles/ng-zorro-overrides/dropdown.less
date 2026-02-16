@@ -1,0 +1,13 @@
+﻿@dropdown-menu-bg: @item-hover-bg;
+
+.@{dropdown-prefix-cls} {
+  @tg-section-separator-color: var(--mini-app-section-separator-color);
+
+  &-menu {
+    &-item {
+      &:not(:first-child) {
+        border-top: 1px @tg-section-separator-color solid;
+      }
+    }
+  }
+}

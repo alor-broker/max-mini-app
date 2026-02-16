@@ -1,0 +1,34 @@
+{
+  "statusLabel": "Статус",
+  "tickerLabel": "Тикер",
+  "exchangeLabel": "Биржа",
+  "orderTypeLabel": "Тип заявки",
+  "sideLabel": "Сторона",
+  "quantityLabel": "Количество",
+  "triggerPriceLabel": "Сигн. цена",
+  "conditionLabel": "Условие",
+  "priceLabel": "Цена",
+  "transTimeLabel": "Время",
+  "endTimeLabel": "Действ. до",
+  "volumeLabel": "Объём",
+  "cancelOrderBtn": "Отменить заявку",
+  "cancelModalMessage": "Вы уверены, что хотите отменить заявку?",
+  "orderNotFound": "Заявка не найдена",
+
+  "yes": "Да",
+  "no": "Нет",
+
+  "status": {
+    "canceled":  "Отменена",
+    "filled": "Исполнена",
+    "working":  "В работе",
+    "rejected": "Отложена"
+  },
+
+  "orderType": {
+    "limit": "Лимитная",
+    "market": "Рыночная",
+    "stoplimit": "Стоп-лимит",
+    "stop": "Стоп"
+  }
+}

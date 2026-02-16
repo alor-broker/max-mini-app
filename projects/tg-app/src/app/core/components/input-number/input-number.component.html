@@ -1,0 +1,11 @@
+<input
+  #inputElement
+  nz-input
+  (mousedown)="$event.stopPropagation()"
+  [placeholder]="placeholder"
+  [readOnly]="readonly"
+  autocomplete="off"
+  inputmode="decimal"
+  [ngModel]="displayValue"
+  (ngModelChange)="onModelChange($event)"
+/>

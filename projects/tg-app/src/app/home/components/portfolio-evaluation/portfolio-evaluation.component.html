@@ -1,0 +1,22 @@
+@if (viewModel$ | async; as viewModel) {
+  <div
+    *transloco="let t; scope: 'home/portfolio-evaluation'"
+    class="d-flex flex-column justify-content-center align-items-center user-select-none"
+  >
+    <div class="text-subtitle-color label">
+      @if (viewModel.isUpdating) {
+        <span nz-icon nzType="loading" nzTheme="outline" class="loading"></span>
+      }
+      {{ t('homePortfolioEvaluation.portfolioCost') }}
+    </div>
+    <h1
+      class="text-center lh-1-2 fw-medium"
+      [class.text-subtitle-color]="viewModel.isUpdating"
+      nz-typography
+    >
+      {{ (viewModel.viewData?.portfolioEvaluation ?? 0) | number: '1.0-2' }}
+      <span class="text-subtitle-color">₽</span>
+    </h1>
+  </div>
+}
+

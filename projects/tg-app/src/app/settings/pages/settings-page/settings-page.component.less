@@ -1,0 +1,38 @@
+.menu-item {
+  --reset-password-settings-icon-bg-color: rgb(142, 142, 148);
+  --alor-tg-settings-icon-bg-color: rgb(50, 173, 231);
+  --support-settings-icon-bg-color: rgb(255, 149, 1);
+  --logout-settings-icon-bg-color: rgb(224,20,20);
+
+  font-weight: 400;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid var(--mini-app-section-separator-color);
+  }
+
+  .menu-icon {
+    width: 28px;
+    height: 28px;
+    text-align: center;
+    font-size: var(--font-size-lg);
+    border-radius: 5px;
+    color: var(--mini-app-button-text-color);
+
+    &.reset-password-icon {
+      background-color: var(--reset-password-settings-icon-bg-color);
+    }
+
+    &.alor-tg-icon {
+      background-color: var(--alor-tg-settings-icon-bg-color);
+    }
+
+    &.support-icon {
+      background-color: var(--support-settings-icon-bg-color);
+    }
+
+    &.logout-icon {
+      background-color: var(--logout-settings-icon-bg-color);
+    }
+
+  }
+}

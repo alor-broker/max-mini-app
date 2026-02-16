@@ -1,0 +1,57 @@
+﻿.text {
+  &-start {
+    text-align: start;
+  }
+
+  &-center {
+    text-align: center;
+  }
+
+  &-end {
+    text-align: end;
+  }
+
+  &-nowrap {
+    white-space: nowrap;
+  }
+
+  &-ellipsis {
+    text-overflow: ellipsis;
+  }
+}
+
+.fw {
+  &-bold {
+    font-weight: 500 !important;
+  }
+
+  &-medium {
+    font-weight: 400 !important;
+  }
+}
+
+.fs {
+  &-base {
+    font-size: var(--font-size);
+  }
+
+  &-lg {
+    font-size: var(--font-size-lg);
+  }
+
+  &-sm {
+    font-size: var(--font-size-sm);
+  }
+}
+
+.lh {
+  &-1{
+    line-height: 1;
+  }
+
+  each(range(1, 9, 1), {
+    &-1-@{value}{
+      line-height: 1 + @value * 0.1
+    }
+  });
+}

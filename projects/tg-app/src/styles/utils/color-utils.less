@@ -1,0 +1,89 @@
+﻿// background
+.bg- {
+  &color {
+    background-color: var(--mini-app-bg-color);
+  }
+
+  &secondary-color {
+    background-color: var(--mini-app-secondary-bg-color);
+  }
+
+  &header-color {
+    background-color: var(--mini-app-header-bg-color);
+  }
+
+  &section-color {
+    background-color: var(--mini-app-section-bg-color);
+  }
+
+  &section-separator-color {
+    background-color: var(--mini-app-section-separator-color);
+  }
+}
+
+//text
+.text- {
+  &color {
+    color: var(--mini-app-text-color) !important;
+  }
+
+  &subtitle-color {
+    color: var(--mini-app-subtitle-text-color) !important;
+  }
+
+  &hint-color {
+    color: var(--mini-app-hint-color) !important;
+  }
+
+  &link-color {
+    color: var(--mini-app-link-color) !important;
+  }
+
+  &accent-color {
+    color: var(--mini-app-accent-text-color) !important;
+  }
+
+  &section-header-color {
+    color: var(--mini-app-section-header-text-color) !important;
+  }
+
+  &destructive-color {
+    color: var(--mini-app-destructive-text-color) !important;
+  }
+}
+
+.sell- {
+  @sell-color: red;
+
+  &color {
+    color: @sell-color;
+  }
+
+  &bg {
+    background-color: @sell-color;
+  }
+}
+
+.buy- {
+  @buy-color: green;
+
+  &color {
+    color: @buy-color;
+  }
+
+  &bg {
+    background-color: @buy-color;
+  }
+}
+
+.inactive- {
+  @inactive-color: gray;
+
+  &color {
+    color: @inactive-color;
+  }
+
+  &bg {
+    background-color: @inactive-color;
+  }
+}

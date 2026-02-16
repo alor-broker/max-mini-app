@@ -1,0 +1,63 @@
+@if (viewData$ | async; as data) {
+  <div class="d-flex flex-column">
+    <div class="d-flex align-items-center my-15">
+      <nz-avatar
+        class="avatar"
+        [nzText]="data.instrument.symbol"
+        [nzSize]="50"
+        nzGap="4"
+        [nzSrc]="getIconUrl(data.instrument.symbol)">
+      </nz-avatar>
+
+      <h1 class="lh-1 mb-0 ml-10 symbol-title">{{ data.instrument.symbol }}</h1>
+      <div class="d-flex flex-column justify-content-center fs-sm mr-10">
+        <span class="lh-1"> {{ data.instrument.exchange }} </span>
+        @if (data.instrument.board) {
+          <span class="text-subtitle-color lh-1 fs-sm"> {{ data.instrument.board }} </span>
+        }
+      </div>
+      <h1 class="lh-1 mb-0">{{ data.lastQuote?.last_price }}</h1>
+    </div>
+
+    <nz-descriptions
+      *transloco="let t; scope: 'create-order/instrument-info'"
+      [nzColon]="false"
+      [nzColumn]="3"
+      nzSize="small"
+    >
+      <nz-descriptions-item [nzTitle]="t('createOrderInstrumentInfo.dayChangeLabel')">
+        <span [class]="(data.lastQuote?.change ?? 0) < 0 ? 'sell-color' : 'buy-color'">
+          {{ data.lastQuote?.change }}
+        </span>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="High">
+        <span>{{ data.lastQuote?.high_price }}</span>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Ask">
+        <span
+          class="sell-color cursor-pointer"
+          (click)="selectPrice(data.lastQuote?.ask ?? null)"
+        >
+          {{ data.lastQuote?.ask }}
+        </span>
+      </nz-descriptions-item>
+
+      <nz-descriptions-item [nzTitle]="t('createOrderInstrumentInfo.dayChangePerPriceLabel')">
+        <span [class]="(data.lastQuote?.change ?? 0) < 0 ? 'sell-color' : 'buy-color'">
+          {{ data.lastQuote?.change_percent }}
+        </span>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Low">
+        <span>{{ data.lastQuote?.low_price }}</span>
+      </nz-descriptions-item>
+      <nz-descriptions-item nzTitle="Bid">
+        <span
+          class="buy-color cursor-pointer"
+          (click)="selectPrice(data.lastQuote?.bid ?? null)"
+        >
+          {{ data.lastQuote?.bid }}
+        </span>
+      </nz-descriptions-item>
+    </nz-descriptions>
+  </div>
+}

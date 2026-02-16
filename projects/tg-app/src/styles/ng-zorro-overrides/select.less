@@ -1,0 +1,15 @@
+@select-dropdown-bg: var(--mini-app-bg-color);
+@select-item-selected-bg: @item-hover-bg;
+@select-background: var(--mini-app-secondary-bg-color);
+
+.@{select-prefix-cls} {
+  @select-border-color: var(--mini-app-section-separator-color);
+
+  &:not(.ant-select-customize-input) .ant-select-selector {
+    border-color: @select-border-color;
+  }
+
+  &-arrow {
+    color: var(--mini-app-subtitle-text-color);
+  }
+}

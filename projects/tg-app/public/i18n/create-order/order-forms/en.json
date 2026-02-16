@@ -1,0 +1,16 @@
+{
+  "quantityLabel": "Lots quantity",
+  "lotSize": "Lot size",
+  "pcs": "pcs",
+  "emptyQuantityError": "Fill the quantity field",
+  "priceLabel": "Price",
+  "priceDifferenceTooltip": "The difference between the entered price and the average price of the position",
+  "emptyPriceError": "Fill the price field",
+  "triggerPriceLabel": "Trigger price",
+  "conditionLabel": "Condition",
+  "conditionError": "Select condition",
+  "stopEndTimeLabel": "Expiration date",
+  "stopEndTimeError": "Fill expiration date input",
+  "selectDatePlaceholder": "Select date",
+  "withLimitLabel": "Stop type"
+}

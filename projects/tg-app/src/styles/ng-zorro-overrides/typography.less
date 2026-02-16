@@ -1,0 +1,30 @@
+﻿
+.@{typography-prefix-cls} {
+  @tg-destructive-text-color: var(--mini-app-destructive-text-color);
+
+  &&-warning {
+    color: @tg-destructive-text-color;
+  }
+
+  &&-danger {
+    color: @tg-destructive-text-color;
+
+    a&:active,
+    a&:focus {
+      color: @tg-destructive-text-color;
+    }
+
+    a&:hover {
+      color: @tg-destructive-text-color;
+    }
+  }
+}
+
+
+@selectors: h1, h2, h3, h4, h5, h6;
+each(@selectors, {
+  @{value} {
+    color: @text-color !important;
+  }
+});
+

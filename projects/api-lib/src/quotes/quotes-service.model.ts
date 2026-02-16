@@ -1,0 +1,29 @@
+export interface Quote {
+  symbol: string;
+  exchange: string;
+  description: string;
+  prev_close_price: number;
+  last_price: number;
+  last_price_timestamp: number;
+  change?: number;
+  change_percent?: number;
+  high_price: number;
+  low_price: number;
+  accruedInt: number;
+  accrued_interest: number;
+  volume: number;
+  open_interest: number;
+  ask: number;
+  bid: number;
+  ask_vol: number;
+  bid_vol: number;
+  ob_ms_timestamp: number;
+  open_price: number;
+  yield: number;
+  lotsize: number;
+  lotvalue: number;
+  facevalue: number;
+  type: string;
+  total_bid_vol: number;
+  total_ask_vol: number;
+}

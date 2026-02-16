@@ -1,0 +1,16 @@
+@import 'scrollable-mixin';
+
+:host ::ng-deep {
+  .order-tabs {
+    height: 100%;
+
+    .ant-tabs-content-holder, .ant-tabs-content, .ant-tabs-tabpane {
+      height: 100%;
+    }
+
+    .ant-tabs-content {
+      overflow: auto;
+      .scrollable(var(--mini-app-subtitle-text-color));
+    }
+  }
+}

@@ -1,0 +1,25 @@
+@if (viewModel$ | async; as viewModel) {
+  <div class="fs-sm text-hint-color">
+    @if (viewModel.isUpdating) {
+      <nz-skeleton
+        [nzAvatar]="false"
+        [nzActive]="true"
+        [nzParagraph]="false"
+      ></nz-skeleton>
+    } @else {
+      @if (viewModel.viewData != null) {
+        <span
+          nz-typography
+          nzEllipsis
+          class="text-hint-color"
+        >
+          {{ viewModel.viewData.comment }}
+        </span>
+      } @else {
+        <span *transloco="let t; scope: 'home/investment-ideas-preview'">
+          {{ t('homeInvestmentIdeasPreview.emptyIdeasLabel') }}
+        </span>
+      }
+    }
+  </div>
+}

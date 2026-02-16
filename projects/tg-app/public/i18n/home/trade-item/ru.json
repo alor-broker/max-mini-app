@@ -1,0 +1,11 @@
+{
+  "orderNoLabel": "Заявка",
+  "tickerLabel": "Тикер",
+  "shortNameLabel": "Название",
+  "exchangeLabel": "Биржа",
+  "sideLabel": "Сторона",
+  "quantityLabel": "Количество",
+  "priceLabel": "Цена",
+  "transTimeLabel": "Время",
+  "volumeLabel": "Объём"
+}

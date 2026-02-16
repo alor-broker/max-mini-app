@@ -1,0 +1,34 @@
+<div
+  *transloco="let t; scope: 'authentication/unlock-page'"
+  class="h-100 d-flex flex-column align-items-center justify-content-center flex-gap-15 user-select-none"
+>
+  <h2 class="m-0"> {{ t('authenticationUnlockPage.loginTitle') }} </h2>
+
+  <span class="text-destructive-color text-center">
+    @if (passwordError) {
+      <p class="m-0">{{ t('authenticationUnlockPage.invalidPasswordError') }}</p>
+      <p class="m-0">{{ t('authenticationUnlockPage.attemptsCount', { count: attemptsCount }) }}</p>
+    } @else {
+      <p class="m-0">&nbsp;</p>
+      <p class="m-0">&nbsp;</p>
+    }
+  </span>
+
+  <tga-password-form
+    [formControl]="passwordControl"
+    [isBiometryButtonVisible]="(isBiometryAvailable$ | async) ?? false"
+    (onBiometryButtonClicked)="scanBiometry()"
+  />
+
+  @if (isCancelable && !isBackButtonAvailable) {
+    <button
+      nz-button
+      nzType="text"
+      (click)="onBack()"
+    >
+      {{ t('authenticationUnlockPage.cancelBtn') }}
+    </button>
+  }
+</div>
+
+<tga-page-loader [isVisible]="(isLoading$ | async) ?? false"></tga-page-loader>

@@ -1,0 +1,28 @@
+<div
+  *transloco="let t; scope: 'home/links'"
+  class="d-flex flex-row flex-nowrap flex-gap-10"
+>
+  <div
+    class="link-wrapper"
+    (click)="openOrderCreate()"
+  >
+    <span nz-icon nzType="shopping-cart" nzTheme="outline"></span>
+    {{ t('homeLinks.orderLabel') }}
+  </div>
+
+  <div
+    class="link-wrapper"
+    (click)="openInBrowser(externalLinks.personalAccount)"
+  >
+    <span nz-icon nzType="user" nzTheme="outline"></span>
+    {{ t('homeLinks.accountLabel') }}
+  </div>
+
+  <div
+    class="link-wrapper"
+    (click)="openInApplication(externalLinks.tgAlor)"
+  >
+    <span nz-icon nzType="message" nzTheme="outline"></span>
+    {{ t('homeLinks.channelLabel') }}
+  </div>
+</div>
