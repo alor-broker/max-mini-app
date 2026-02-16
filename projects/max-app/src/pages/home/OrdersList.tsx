@@ -42,7 +42,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
           <div
             key={order.id}
             onClick={() => navigate('/order/detail', { state: { order } })}
-            style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
+            style={{ padding: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer' }}
           >
             <Flex justify="space-between" align="center">
               <Flex direction="column">

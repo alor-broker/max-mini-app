@@ -144,15 +144,15 @@ export const CreateOrderPage: React.FC = () => {
     <Panel>
       <Container style={{ padding: '16px', maxWidth: '100%', margin: '0 auto' }}>
         <Flex direction="column" gap={24}>
-          <Flex justify="space-between" align="center">
-            <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
+            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
               <Button onClick={() => navigate('/')} style={{ background: 'transparent', color: '#333', border: 'none' }}>
                 &lt; {t('common.back')}
               </Button>
             </div>
-            <Typography.Headline>{t('order.title')}</Typography.Headline>
-            <div style={{ flex: 1 }}></div>
-          </Flex>
+            <Typography.Headline style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{t('order.title')}</Typography.Headline>
+            <div></div>
+          </div>
 
           {/* Portfolio Selector */}
           <Flex direction="column" gap={8} style={{ width: '100%' }}>

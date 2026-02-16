@@ -14,7 +14,7 @@ import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 
 // Placeholder components for sections
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <Container style={{ marginBottom: '16px', padding: '16px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '16px' }}>
+  <Container style={{ marginBottom: '16px', padding: '16px', backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: '16px' }}>
     <Flex justify="space-between" align="center" style={{ marginBottom: '12px' }}>
       <Typography.Headline>{title}</Typography.Headline>
     </Flex>
@@ -63,7 +63,7 @@ export const HomePage: React.FC = () => {
 
             <PortfolioEvaluation portfolio={selectedPortfolio} />
 
-            <Flex justify="center" style={{ marginTop: '16px' }}>
+            <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
               <NewOrderButton />
             </Flex>
           </Flex>

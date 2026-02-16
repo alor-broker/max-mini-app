@@ -67,8 +67,9 @@ export const TradeDetailPage: React.FC = () => {
         >
           <Flex direction="column" gap={16}>
             {/* Navigation row */}
-            <Flex justify="space-between" align="center">
-              <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+            {/* Navigation row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
+              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <Button
                   onClick={() => navigate('/')}
                   style={{
@@ -83,9 +84,11 @@ export const TradeDetailPage: React.FC = () => {
                   ‹ {t('common.back')}
                 </Button>
               </div>
-              <Typography.Headline style={{ color: 'white' }}>{t('tradeDetail.title')}</Typography.Headline>
-              <div style={{ flex: 1 }}></div>
-            </Flex>
+              <Typography.Headline style={{ color: 'white', textAlign: 'center', whiteSpace: 'nowrap' }}>
+                {t('tradeDetail.title')}
+              </Typography.Headline>
+              <div></div>
+            </div>
 
             {/* Symbol & Badge */}
             <Flex direction="column" align="center" gap={8} style={{ width: '100%', textAlign: 'center' }}>

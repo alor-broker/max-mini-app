@@ -40,7 +40,7 @@ export const PositionsList: React.FC<PositionsListProps> = ({ portfolio }) => {
           <div
             key={pos.symbol}
             onClick={() => navigate('/order/new', { state: { symbol: pos.symbol, portfolio } })}
-            style={{ padding: '8px', borderBottom: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer' }}
+            style={{ padding: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer' }}
           >
             <Flex justify="space-between" align="center">
               <Flex direction="column">
