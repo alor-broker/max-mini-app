@@ -24,29 +24,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = await getRefreshToken();
-      if (token) {
-        try {
-          // Try to exchange refresh token for new access token
-          const result = await AuthService.refreshToken(token);
-          if (result) {
-            setAccessToken(result.jwt);
-            setUser(result.user);
-            setIsAuthenticated(true);
-            // If we restored a session, we default to locked state
-            setIsLocked(true);
-            const hasPin = !!(await storageManager.getItem('max_app_password'));
-            setIsLocked(!hasPin);
-          } else {
-            // Token invalid
+      try {
+        const token = await getRefreshToken();
+        if (token) {
+          try {
+            // Try to exchange refresh token for new access token
+            const result = await AuthService.refreshToken(token);
+            if (result) {
+              setAccessToken(result.jwt);
+              setUser(result.user);
+              setIsAuthenticated(true);
+              // If we restored a session, we default to locked state
+              setIsLocked(true);
+              const hasPin = !!(await storageManager.getItem('max_app_password'));
+              setIsLocked(!hasPin);
+            } else {
+              // Token invalid
+              await clearTokens();
+            }
+          } catch (error) {
+            console.error("Failed to restore session:", error);
             await clearTokens();
           }
-        } catch (error) {
-          console.error("Failed to restore session:", error);
-          await clearTokens();
         }
+      } catch (e) {
+        console.error("Auth init failed", e);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     };
 
     initAuth();

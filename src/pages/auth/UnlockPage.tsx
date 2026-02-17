@@ -72,15 +72,20 @@ export const UnlockPage: React.FC = () => {
 
   useEffect(() => {
     const init = async () => {
-      const savedPin = await storageManager.getItem(STORAGE_KEY_APP_PASSWORD);
+      try {
+        const savedPin = await storageManager.getItem(STORAGE_KEY_APP_PASSWORD);
 
-      if (!savedPin) {
-        // Logic for when no password is set
-        setStoredPin(null);
-      } else {
-        setStoredPin(savedPin);
+        if (!savedPin) {
+          // Logic for when no password is set
+          setStoredPin(null);
+        } else {
+          setStoredPin(savedPin);
+        }
+      } catch (e) {
+        console.error("Unlock init failed", e);
+      } finally {
+        setIsLoading(false);
       }
-      setIsLoading(false);
     }
     init();
   }, []);

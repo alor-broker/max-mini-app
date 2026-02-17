@@ -1,10 +1,10 @@
 
 export interface MaxWebApp {
   DeviceStorage: {
-    setItem: (key: string, value: string) => Promise<void> | void;
-    getItem: (key: string) => Promise<string | null> | string | null;
-    removeItem: (key: string) => Promise<void> | void;
-    clear: () => Promise<void> | void;
+    setItem: (key: string, value: string) => Promise<void>;
+    getItem: (key: string) => Promise<string | null>;
+    removeItem: (key: string) => Promise<void>;
+    clear: () => Promise<void>;
   };
 }
 
@@ -13,6 +13,27 @@ declare global {
     WebApp?: MaxWebApp;
   }
 }
+
+const TIME_OUT_MS = 100;
+
+const safeBridgeCall = async <T>(promise: Promise<T>): Promise<T> => {
+  let timeoutId: NodeJS.Timeout;
+
+  const timeoutPromise = new Promise<never>((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(new Error('Bridge call timed out'));
+    }, TIME_OUT_MS);
+  });
+
+  try {
+    const result = await Promise.race([promise, timeoutPromise]);
+    clearTimeout(timeoutId!);
+    return result;
+  } catch (error) {
+    clearTimeout(timeoutId!);
+    throw error;
+  }
+};
 
 /**
  * StorageManager handles data persistence based on the environment.
@@ -26,9 +47,20 @@ export const storageManager = {
    * @param value The value to store.
    */
   setItem: async (key: string, value: string): Promise<void> => {
+    console.log(`[StorageManager] setItem: ${key}`);
+    // Check for platform explicitly if possible, or blindly rely on availability + timeout
+    // In browser, platform might be 'unknown' or the bridge just hangs.
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      await window.WebApp.DeviceStorage.setItem(key, value);
+      console.log(`[StorageManager] Using DeviceStorage for ${key}`);
+      try {
+        await safeBridgeCall(window.WebApp.DeviceStorage.setItem(key, value));
+      } catch (e) {
+        console.warn(`[StorageManager] DeviceStorage.setItem failed or timed out for ${key}, falling back to localStorage`, e);
+        // Fallback
+        localStorage.setItem(key, value);
+      }
     } else {
+      console.log(`[StorageManager] Using localStorage for ${key}`);
       localStorage.setItem(key, value);
     }
   },
@@ -39,12 +71,24 @@ export const storageManager = {
    * @returns The stored value or null if not found.
    */
   getItem: async (key: string): Promise<string | null> => {
+    console.log(`[StorageManager] getItem: ${key}`);
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      const value = await window.WebApp.DeviceStorage.getItem(key);
-      // Ensure null is returned if the value is undefined or strictly null from the bridge
-      return value !== undefined ? value : null;
+      console.log(`[StorageManager] Using DeviceStorage for ${key}`);
+      try {
+        const value = await safeBridgeCall(window.WebApp.DeviceStorage.getItem(key));
+        const result = value !== undefined ? value : null;
+        console.log(`[StorageManager] DeviceStorage result for ${key}:`, result);
+        return result;
+      } catch (e) {
+        console.warn(`[StorageManager] DeviceStorage.getItem failed or timed out for ${key}, falling back to localStorage`, e);
+        const result = localStorage.getItem(key);
+        console.log(`[StorageManager] localStorage fallback result for ${key}:`, result);
+        return result;
+      }
     }
-    return localStorage.getItem(key);
+    const result = localStorage.getItem(key);
+    console.log(`[StorageManager] localStorage result for ${key}:`, result);
+    return result;
   },
 
   /**
@@ -52,8 +96,14 @@ export const storageManager = {
    * @param key The key to remove.
    */
   removeItem: async (key: string): Promise<void> => {
+    console.log(`[StorageManager] removeItem: ${key}`);
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      await window.WebApp.DeviceStorage.removeItem(key);
+      try {
+        await safeBridgeCall(window.WebApp.DeviceStorage.removeItem(key));
+      } catch (e) {
+        console.warn(`[StorageManager] DeviceStorage.removeItem failed or timed out for ${key}, falling back to localStorage`, e);
+        localStorage.removeItem(key);
+      }
     } else {
       localStorage.removeItem(key);
     }
@@ -63,8 +113,14 @@ export const storageManager = {
    * Clears all stored data.
    */
   clear: async (): Promise<void> => {
+    console.log(`[StorageManager] clear`);
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      await window.WebApp.DeviceStorage.clear();
+      try {
+        await safeBridgeCall(window.WebApp.DeviceStorage.clear());
+      } catch (e) {
+        console.warn('[StorageManager] DeviceStorage.clear failed or timed out, falling back to localStorage', e);
+        localStorage.clear();
+      }
     } else {
       localStorage.clear();
     }
