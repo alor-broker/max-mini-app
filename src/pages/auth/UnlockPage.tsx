@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Panel, Grid, Container, Flex, Typography, Button } from '@maxhub/max-ui';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
+import { storageManager } from '../../utils/storage-manager';
 import { useTranslation } from 'react-i18next';
 
 // Constants
@@ -70,7 +71,7 @@ export const UnlockPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const savedPin = localStorage.getItem(STORAGE_KEY_APP_PASSWORD);
+    const savedPin = storageManager.getItem(STORAGE_KEY_APP_PASSWORD);
 
     if (!savedPin) {
       // Logic for when no password is set
@@ -125,7 +126,7 @@ export const UnlockPage: React.FC = () => {
         }
       } else {
         // Create mode: Set PIN, save, and then Unlock
-        localStorage.setItem(STORAGE_KEY_APP_PASSWORD, pin);
+        storageManager.setItem(STORAGE_KEY_APP_PASSWORD, pin);
         handleSuccess();
       }
     } else {
@@ -225,7 +226,7 @@ export const UnlockPage: React.FC = () => {
             <Button
               style={{ marginTop: '16px', ...ghostButtonStyle, width: 'auto', padding: '0 16px', fontSize: '16px', color: '#1890ff' }}
               onClick={() => {
-                localStorage.removeItem(STORAGE_KEY_APP_PASSWORD);
+                storageManager.removeItem(STORAGE_KEY_APP_PASSWORD);
                 logout();
               }}
             >

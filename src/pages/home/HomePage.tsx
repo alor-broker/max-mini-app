@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Panel, Grid, Container, Flex, Typography, Button } from '@maxhub/max-ui';
 import { useAuth } from '../../auth/AuthContext';
+import { storageManager } from '../../utils/storage-manager';
 import { ClientService, ClientPortfolio } from '../../api/services';
 import { PortfolioSelector } from './PortfolioSelector';
 import { PortfolioEvaluation } from './PortfolioEvaluation';
@@ -34,8 +35,8 @@ export const HomePage: React.FC = () => {
         .then(data => {
           setPortfolios(data);
 
-          // Restore selection from localStorage or default to first
-          const savedPortfolioId = localStorage.getItem('MAX_APP_SELECTED_PORTFOLIO');
+          // Restore selection from storage or default to first
+          const savedPortfolioId = storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
           let portfolioToSelect = data.length > 0 ? data[0] : null;
 
           if (savedPortfolioId) {
@@ -53,7 +54,7 @@ export const HomePage: React.FC = () => {
 
   const handlePortfolioSelect = (p: ClientPortfolio) => {
     setSelectedPortfolio(p);
-    localStorage.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
+    storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
   };
 
   return (

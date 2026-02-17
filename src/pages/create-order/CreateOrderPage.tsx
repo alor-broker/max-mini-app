@@ -12,6 +12,7 @@ import {
   Quote
 } from '../../api/services';
 import { useAuth } from '../../auth/AuthContext';
+import { storageManager } from '../../utils/storage-manager';
 import { SearchInput } from '../../components/SearchInput';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { PortfolioSelector } from '../home/PortfolioSelector';
@@ -68,7 +69,7 @@ export const CreateOrderPage: React.FC = () => {
           }
         }
 
-        const savedId = localStorage.getItem('MAX_APP_SELECTED_PORTFOLIO');
+        const savedId = storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
         if (savedId) {
           const found = data.find(p => p.portfolio === savedId);
           if (found) {
@@ -202,7 +203,7 @@ export const CreateOrderPage: React.FC = () => {
               selectedPortfolio={selectedPortfolio}
               onSelect={(p) => {
                 setSelectedPortfolio(p);
-                localStorage.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
+                storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
               }}
               triggerStyle={{ color: '#333', borderColor: '#ccc', width: '100%', textAlign: 'left', justifyContent: 'flex-start' }}
             />

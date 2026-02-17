@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { AuthService, User } from '../api/services';
 import { getRefreshToken, setRefreshToken, setAccessToken, clearTokens } from '../api/token-manager';
+import { storageManager } from '../utils/storage-manager';
 
 interface AuthContextType {
   user: User | null;
@@ -69,7 +70,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // Check if PIN is set. If not, we must lock to force PIN creation.
         // If PIN is set, fresh login acts as an unlock.
-        const hasPin = !!localStorage.getItem('max_app_password');
+        const hasPin = !!storageManager.getItem('max_app_password');
         setIsLocked(!hasPin);
       } else {
         throw new Error("Failed to verify token");
