@@ -57,7 +57,7 @@ export const CreateOrderPage: React.FC = () => {
   // Initial Load
   useEffect(() => {
     if (user?.clientId && user?.login) {
-      ClientService.getActivePortfolios(user.clientId, user.login).then(data => {
+      ClientService.getActivePortfolios(user.clientId, user.login).then(async (data) => {
         setPortfolios(data);
 
         const state = location.state as { symbol?: string; portfolio?: ClientPortfolio };
@@ -69,7 +69,7 @@ export const CreateOrderPage: React.FC = () => {
           }
         }
 
-        const savedId = storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
+        const savedId = await storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
         if (savedId) {
           const found = data.find(p => p.portfolio === savedId);
           if (found) {
@@ -201,9 +201,9 @@ export const CreateOrderPage: React.FC = () => {
             <PortfolioSelector
               portfolios={portfolios}
               selectedPortfolio={selectedPortfolio}
-              onSelect={(p) => {
+              onSelect={async (p) => {
                 setSelectedPortfolio(p);
-                storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
+                await storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
               }}
               triggerStyle={{ color: '#333', borderColor: '#ccc', width: '100%', textAlign: 'left', justifyContent: 'flex-start' }}
             />

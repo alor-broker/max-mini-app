@@ -13,7 +13,7 @@ class Client {
     headers.set('Content-Type', 'application/json');
 
     if (!options?.skipAuth) {
-      const token = getAccessToken();
+      const token = await getAccessToken();
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }

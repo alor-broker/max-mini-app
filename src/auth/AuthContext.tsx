@@ -24,7 +24,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
-      const token = getRefreshToken();
+      const token = await getRefreshToken();
       if (token) {
         try {
           // Try to exchange refresh token for new access token
@@ -35,13 +35,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setIsAuthenticated(true);
             // If we restored a session, we default to locked state
             setIsLocked(true);
+            const hasPin = !!(await storageManager.getItem('max_app_password'));
+            setIsLocked(!hasPin);
           } else {
             // Token invalid
-            clearTokens();
+            await clearTokens();
           }
         } catch (error) {
           console.error("Failed to restore session:", error);
-          clearTokens();
+          await clearTokens();
         }
       }
       setIsLoading(false);
@@ -63,14 +65,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const result = await AuthService.refreshToken(refreshToken);
       if (result) {
-        setRefreshToken(refreshToken);
-        setAccessToken(result.jwt);
+        await setRefreshToken(refreshToken);
+        await setAccessToken(result.jwt);
         setUser(result.user);
         setIsAuthenticated(true);
 
         // Check if PIN is set. If not, we must lock to force PIN creation.
         // If PIN is set, fresh login acts as an unlock.
-        const hasPin = !!storageManager.getItem('max_app_password');
+        const hasPin = !!(await storageManager.getItem('max_app_password'));
         setIsLocked(!hasPin);
       } else {
         throw new Error("Failed to verify token");

@@ -1,10 +1,10 @@
 
 export interface MaxWebApp {
   DeviceStorage: {
-    setItem: (key: string, value: string) => void;
-    getItem: (key: string) => string | null;
-    removeItem: (key: string) => void;
-    clear: () => void;
+    setItem: (key: string, value: string) => Promise<void> | void;
+    getItem: (key: string) => Promise<string | null> | string | null;
+    removeItem: (key: string) => Promise<void> | void;
+    clear: () => Promise<void> | void;
   };
 }
 
@@ -25,9 +25,9 @@ export const storageManager = {
    * @param key The key to store.
    * @param value The value to store.
    */
-  setItem: (key: string, value: string): void => {
+  setItem: async (key: string, value: string): Promise<void> => {
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      window.WebApp.DeviceStorage.setItem(key, value);
+      await window.WebApp.DeviceStorage.setItem(key, value);
     } else {
       localStorage.setItem(key, value);
     }
@@ -38,9 +38,9 @@ export const storageManager = {
    * @param key The key to look up.
    * @returns The stored value or null if not found.
    */
-  getItem: (key: string): string | null => {
+  getItem: async (key: string): Promise<string | null> => {
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      const value = window.WebApp.DeviceStorage.getItem(key);
+      const value = await window.WebApp.DeviceStorage.getItem(key);
       // Ensure null is returned if the value is undefined or strictly null from the bridge
       return value !== undefined ? value : null;
     }
@@ -51,9 +51,9 @@ export const storageManager = {
    * Removes an item by key.
    * @param key The key to remove.
    */
-  removeItem: (key: string): void => {
+  removeItem: async (key: string): Promise<void> => {
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      window.WebApp.DeviceStorage.removeItem(key);
+      await window.WebApp.DeviceStorage.removeItem(key);
     } else {
       localStorage.removeItem(key);
     }
@@ -62,9 +62,9 @@ export const storageManager = {
   /**
    * Clears all stored data.
    */
-  clear: (): void => {
+  clear: async (): Promise<void> => {
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      window.WebApp.DeviceStorage.clear();
+      await window.WebApp.DeviceStorage.clear();
     } else {
       localStorage.clear();
     }

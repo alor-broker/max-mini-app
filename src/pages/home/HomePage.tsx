@@ -32,11 +32,11 @@ export const HomePage: React.FC = () => {
   useEffect(() => {
     if (user?.clientId && user?.login) {
       ClientService.getActivePortfolios(user.clientId, user.login)
-        .then(data => {
+        .then(async (data) => {
           setPortfolios(data);
 
           // Restore selection from storage or default to first
-          const savedPortfolioId = storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
+          const savedPortfolioId = await storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
           let portfolioToSelect = data.length > 0 ? data[0] : null;
 
           if (savedPortfolioId) {
@@ -52,9 +52,9 @@ export const HomePage: React.FC = () => {
     }
   }, [user]);
 
-  const handlePortfolioSelect = (p: ClientPortfolio) => {
+  const handlePortfolioSelect = async (p: ClientPortfolio) => {
     setSelectedPortfolio(p);
-    storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
+    await storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
   };
 
   return (

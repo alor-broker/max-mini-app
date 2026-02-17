@@ -71,15 +71,18 @@ export const UnlockPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const savedPin = storageManager.getItem(STORAGE_KEY_APP_PASSWORD);
+    const init = async () => {
+      const savedPin = await storageManager.getItem(STORAGE_KEY_APP_PASSWORD);
 
-    if (!savedPin) {
-      // Logic for when no password is set
-      setStoredPin(null);
-    } else {
-      setStoredPin(savedPin);
+      if (!savedPin) {
+        // Logic for when no password is set
+        setStoredPin(null);
+      } else {
+        setStoredPin(savedPin);
+      }
+      setIsLoading(false);
     }
-    setIsLoading(false);
+    init();
   }, []);
 
   useEffect(() => {
@@ -126,8 +129,11 @@ export const UnlockPage: React.FC = () => {
         }
       } else {
         // Create mode: Set PIN, save, and then Unlock
-        storageManager.setItem(STORAGE_KEY_APP_PASSWORD, pin);
-        handleSuccess();
+        const save = async () => {
+          await storageManager.setItem(STORAGE_KEY_APP_PASSWORD, pin);
+          handleSuccess();
+        }
+        save();
       }
     } else {
       if (error) setError(false);
@@ -225,8 +231,8 @@ export const UnlockPage: React.FC = () => {
           {!isCancelable && (
             <Button
               style={{ marginTop: '16px', ...ghostButtonStyle, width: 'auto', padding: '0 16px', fontSize: '16px', color: '#1890ff' }}
-              onClick={() => {
-                storageManager.removeItem(STORAGE_KEY_APP_PASSWORD);
+              onClick={async () => {
+                await storageManager.removeItem(STORAGE_KEY_APP_PASSWORD);
                 logout();
               }}
             >
