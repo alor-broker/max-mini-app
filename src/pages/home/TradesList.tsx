@@ -3,7 +3,7 @@ import { Flex, Typography, Grid } from '@maxhub/max-ui';
 import { PortfolioService, ClientPortfolio, PortfolioTrade, Side } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface TradesListProps {
   trades: PortfolioTrade[];
@@ -13,6 +13,7 @@ export const TradesList: React.FC<TradesListProps> = ({ trades }) => {
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (trades.length === 0) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_trades')}</Typography.Body>;
 
@@ -28,7 +29,7 @@ export const TradesList: React.FC<TradesListProps> = ({ trades }) => {
         return (
           <div
             key={trade.id}
-            onClick={() => navigate('/trade/detail', { state: { trade } })}
+            onClick={() => navigate('/trade/detail', { state: { trade, background: location } })}
             style={{ padding: '8px', borderBottom: '1px solid var(--stroke-separator-secondary)', cursor: 'pointer' }}
           >
             <Flex justify="space-between" align="center">

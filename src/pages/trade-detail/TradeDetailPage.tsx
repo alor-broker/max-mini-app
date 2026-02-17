@@ -25,12 +25,21 @@ export const TradeDetailPage: React.FC = () => {
 
   const trade = (location.state as { trade?: PortfolioTrade })?.trade;
 
+  const handleBack = () => {
+    const state = location.state as { background?: any };
+    if (state?.background) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   if (!trade) {
     return (
       <Panel>
         <Container style={{ padding: '24px 16px', textAlign: 'center' }}>
           <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('tradeDetail.not_found')}</Typography.Body>
-          <Button onClick={() => navigate('/')} style={{ marginTop: '16px' }}>
+          <Button onClick={handleBack} style={{ marginTop: '16px' }}>
             {t('common.back')}
           </Button>
         </Container>
@@ -71,7 +80,7 @@ export const TradeDetailPage: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <Button
-                  onClick={() => navigate('/')}
+                  onClick={handleBack}
                   style={{
                     background: 'transparent',
                     border: 'none',

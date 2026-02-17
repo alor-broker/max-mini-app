@@ -140,6 +140,15 @@ export const CreateOrderPage: React.FC = () => {
     setPrice(inst.minstep.toString());
   }
 
+  const handleBack = () => {
+    const state = location.state as { background?: any };
+    if (state?.background) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   // Auto-select effect
   useEffect(() => {
     if (autoSelectRef.current && instrumentsList.length > 0) {
@@ -174,7 +183,12 @@ export const CreateOrderPage: React.FC = () => {
         }, selectedPortfolio.portfolio);
       }
 
-      navigate('/');
+      const state = location.state as { background?: any };
+      if (state?.background) {
+        navigate(-1);
+      } else {
+        navigate('/');
+      }
     } catch (e) {
       console.error("Order failed", e);
       showNotification(t('order.failed_submit'), 'error');
@@ -189,7 +203,7 @@ export const CreateOrderPage: React.FC = () => {
         <Flex direction="column" gap={24} style={{ width: '100%' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-              <Button onClick={() => navigate('/')} style={{ background: 'transparent', color: '#333', border: 'none' }}>
+              <Button onClick={handleBack} style={{ background: 'transparent', color: '#333', border: 'none' }}>
                 &lt; {t('common.back')}
               </Button>
             </div>

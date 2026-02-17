@@ -36,12 +36,21 @@ export const OrderDetailPage: React.FC = () => {
 
   const order = (location.state as { order?: PortfolioOrder })?.order;
 
+  const handleBack = () => {
+    const state = location.state as { background?: any };
+    if (state?.background) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
+
   if (!order) {
     return (
       <Panel>
         <Container style={{ padding: '24px 16px', textAlign: 'center' }}>
           <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('orderDetail.not_found')}</Typography.Body>
-          <Button onClick={() => navigate('/')} style={{ marginTop: '16px' }}>
+          <Button onClick={handleBack} style={{ marginTop: '16px' }}>
             {t('common.back')}
           </Button>
         </Container>
@@ -69,7 +78,14 @@ export const OrderDetailPage: React.FC = () => {
     try {
       await OrdersService.cancelOrder(order.portfolio, order.id, order.exchange);
       showNotification(t('orderDetail.success_cancel'), 'success');
-      navigate('/');
+      showNotification(t('orderDetail.success_cancel'), 'success');
+
+      const state = location.state as { background?: any };
+      if (state?.background) {
+        navigate(-1);
+      } else {
+        navigate('/');
+      }
     } catch (e) {
       console.error(e);
       showNotification(t('common.error'), 'error');
@@ -97,7 +113,7 @@ export const OrderDetailPage: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
                 <Button
-                  onClick={() => navigate('/')}
+                  onClick={handleBack}
                   style={{
                     background: 'transparent',
                     border: 'none',
@@ -200,7 +216,7 @@ export const OrderDetailPage: React.FC = () => {
         {/* Action button */}
         <Container style={{ padding: '0 16px 16px' }}>
           <Button
-            onClick={() => navigate('/order/new', { state: { symbol: order.symbol } })}
+            onClick={() => navigate('/order/new', { state: { symbol: order.symbol, background: location } })}
             style={{
               width: '100%',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

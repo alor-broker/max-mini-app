@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Flex, Typography, Grid } from '@maxhub/max-ui';
 import { PortfolioService, ClientPortfolio, PortfolioOrder, Side, OrderStatus } from '../../api/services';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface CompletedOrdersListProps {
   orders: PortfolioOrder[];
@@ -12,6 +12,7 @@ export const CompletedOrdersList: React.FC<CompletedOrdersListProps> = ({ orders
   const [visibleCount, setVisibleCount] = useState(2);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   if (orders.length === 0) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_completed_orders')}</Typography.Body>;
 
@@ -32,7 +33,7 @@ export const CompletedOrdersList: React.FC<CompletedOrdersListProps> = ({ orders
         return (
           <div
             key={order.id}
-            onClick={() => navigate('/order/detail', { state: { order } })}
+            onClick={() => navigate('/order/detail', { state: { order, background: location } })}
             style={{ padding: '8px', borderBottom: '1px solid var(--stroke-separator-secondary)', cursor: 'pointer' }}
           >
             <Flex justify="space-between" align="center">

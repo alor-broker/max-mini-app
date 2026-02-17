@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Flex, Typography, Button } from '@maxhub/max-ui';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ClientPortfolio, OrdersService } from '../../api/services';
 import { useNotification } from '../../components/NotificationContext';
@@ -12,6 +12,7 @@ interface HomeActionsProps {
 
 export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrigger }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const { showNotification } = useNotification();
   const [showConfirm, setShowConfirm] = useState(false);
@@ -63,7 +64,7 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
         <ActionButton
           icon="+"
           label={t('home.new_order')}
-          onClick={() => navigate('/order/new', { state: { portfolio } })}
+          onClick={() => navigate('/order/new', { state: { portfolio, background: location } })}
         />
         <ActionButton
           icon="×"
