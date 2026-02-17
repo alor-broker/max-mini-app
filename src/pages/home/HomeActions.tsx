@@ -5,12 +5,14 @@ import { useTranslation } from 'react-i18next';
 import { ClientPortfolio, OrdersService } from '../../api/services';
 import { useNotification } from '../../components/NotificationContext';
 
+
 interface HomeActionsProps {
   portfolio?: ClientPortfolio | null;
   refreshTrigger?: () => void;
+  activeOrdersCount?: number;
 }
 
-export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrigger }) => {
+export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrigger, activeOrdersCount = 0 }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
@@ -70,11 +72,19 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
           icon="×"
           label={t('home.cancel_all_orders')}
           onClick={() => {
-            if (portfolio) setShowConfirm(true);
-            else showNotification(t('order.select_portfolio'), 'info');
+            if (!portfolio) {
+              showNotification(t('order.select_portfolio'), 'info');
+              return;
+            }
+            if (activeOrdersCount === 0) {
+              showNotification(t('home.no_active_orders'), 'info');
+              return;
+            }
+            setShowConfirm(true);
           }}
         />
       </Flex>
+
 
       {showConfirm && (
         <div style={{

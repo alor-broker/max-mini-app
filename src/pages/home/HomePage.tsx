@@ -188,7 +188,7 @@ export const HomePage: React.FC = () => {
 
                 <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
                   <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
-                    <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} />
+                    <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} activeOrdersCount={activeOrders.length} />
                   </Flex>
                 </Flex>
               </Flex>

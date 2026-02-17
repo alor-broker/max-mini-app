@@ -45,25 +45,42 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         {notifications.map(notification => (
           <div
             key={notification.id}
-            style={{
-              background: notification.type === 'error' ? '#ff4d4f' :
-                notification.type === 'success' ? '#4ade80' :
-                  'var(--background-surface-active)',
-              color: notification.type === 'success' ? '#000' : '#fff',
-              padding: '12px 24px',
-              borderRadius: 'var(--size-border-radius-semantic-border-radius-card)',
-              boxShadow: 'var(--shadow-elevation-3-primary)',
-              minWidth: '300px',
-              textAlign: 'center',
-              animation: 'fadeIn 0.3s ease-out',
-              pointerEvents: 'auto'
-            }}
+            className={`notification-item notification-${notification.type}`}
           >
             <Typography.Body style={{ fontWeight: 500 }}>{notification.message}</Typography.Body>
           </div>
         ))}
       </div>
       <style>{`
+        .notification-item {
+          padding: 12px 24px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          min-width: 300px;
+          text-align: center;
+          animation: fadeIn 0.3s ease-out;
+          pointer-events: auto;
+        }
+        .notification-success {
+          background: #4ade80;
+          color: #000;
+        }
+        .notification-error {
+          background: #ff4d4f;
+          color: #fff;
+        }
+        /* Default/Info: Dark on Light, Light on Dark */
+        .notification-info {
+          background: #1f1f1f;
+          color: #fff;
+        }
+        @media (prefers-color-scheme: dark) {
+          .notification-info {
+            background: #f0f0f0;
+            color: #000;
+          }
+        }
+        
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-10px); }
           to { opacity: 1; transform: translateY(0); }
