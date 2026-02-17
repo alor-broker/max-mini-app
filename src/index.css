@@ -1,5 +1,11 @@
-body {
+html, body, #root {
+  height: 100%;
   margin: 0;
+  padding: 0;
+  background-color: var(--background-page, #000000); /* Fallback to black for dark mode */
+}
+
+body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;

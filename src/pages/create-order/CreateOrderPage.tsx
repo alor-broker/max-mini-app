@@ -184,7 +184,7 @@ export const CreateOrderPage: React.FC = () => {
   };
 
   return (
-    <Panel>
+    <Panel style={{ minHeight: '100vh' }}>
       <div style={{ padding: '16px', width: '100%', boxSizing: 'border-box' }}>
         <Flex direction="column" gap={24} style={{ width: '100%' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>

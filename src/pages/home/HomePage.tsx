@@ -153,6 +153,7 @@ export const HomePage: React.FC = () => {
     <Panel
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
+      style={{ minHeight: '100vh' }}
     >
       {isInitialLoading ? (
         <Flex align="center" justify="center" style={{ height: '100vh', width: '100%' }}>

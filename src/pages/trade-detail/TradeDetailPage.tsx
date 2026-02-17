@@ -54,7 +54,7 @@ export const TradeDetailPage: React.FC = () => {
   };
 
   return (
-    <Panel>
+    <Panel style={{ minHeight: '100vh' }}>
       <Grid gap={16} cols={1}>
         {/* Gradient Header — full width, matching home page */}
         <Container
