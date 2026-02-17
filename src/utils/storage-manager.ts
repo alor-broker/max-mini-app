@@ -50,14 +50,14 @@ export const storageManager = {
    * @param value The value to store.
    */
   setItem: async (key: string, value: string): Promise<void> => {
-    console.log(`[StorageManager] setItem: ${key}`);
+    // console.log(`[StorageManager] setItem: ${key}`);
     // Always save to localStorage as a backup/cache because DeviceStorage might be flaky or fire-and-forget
     // preventing us from knowing if it actually succeeded.
     // This ensures that getItem's fallback to localStorage will always find the data.
     localStorage.setItem(key, value);
 
     if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      console.log(`[StorageManager] Using DeviceStorage for ${key}. Platform: ${window.WebApp.platform}, Version: ${window.WebApp.version}`);
+      // console.log(`[StorageManager] Using DeviceStorage for ${key}. Platform: ${window.WebApp.platform}, Version: ${window.WebApp.version}`);
       try {
         await safeBridgeCall(window.WebApp.DeviceStorage.setItem(key, value));
       } catch (e: any) {
@@ -68,7 +68,7 @@ export const storageManager = {
         }
       }
     } else {
-      console.log(`[StorageManager] Using localStorage for ${key}`);
+      // console.log(`[StorageManager] Using localStorage for ${key}`);
     }
   },
 
@@ -78,29 +78,29 @@ export const storageManager = {
    * @returns The stored value or null if not found.
    */
   getItem: async (key: string): Promise<string | null> => {
-    console.log(`[StorageManager] getItem: ${key}`);
+    // console.log(`[StorageManager] getItem: ${key}`);
 
     // Default to localStorage lookup function
     const getFromLocalStorage = () => {
       const value = localStorage.getItem(key);
-      console.log(`[StorageManager] localStorage result for ${key}:`, value);
+      // console.log(`[StorageManager] localStorage result for ${key}:`, value);
       return value;
     };
 
     if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      console.log(`[StorageManager] Using DeviceStorage for ${key}`);
+      // console.log(`[StorageManager] Using DeviceStorage for ${key}`);
       try {
         const value = await safeBridgeCall(window.WebApp.DeviceStorage.getItem(key));
 
         // If value is found in DeviceStorage, return it
         if (value !== undefined && value !== null) {
-          console.log(`[StorageManager] DeviceStorage result for ${key}:`, value);
+          // console.log(`[StorageManager] DeviceStorage result for ${key}:`, value);
           return value;
         }
 
         // If DeviceStorage returned null/undefined, it might mean the data was saved to 
         // localStorage during a previous failed write. Check localStorage.
-        console.log(`[StorageManager] DeviceStorage returned empty for ${key}, checking localStorage fallback`);
+        // console.log(`[StorageManager] DeviceStorage returned empty for ${key}, checking localStorage fallback`);
         return getFromLocalStorage();
 
       } catch (e: any) {
@@ -121,7 +121,7 @@ export const storageManager = {
    * @param key The key to remove.
    */
   removeItem: async (key: string): Promise<void> => {
-    console.log(`[StorageManager] removeItem: ${key}`);
+    // console.log(`[StorageManager] removeItem: ${key}`);
     if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
       try {
         await safeBridgeCall(window.WebApp.DeviceStorage.removeItem(key));
@@ -142,7 +142,7 @@ export const storageManager = {
    * Clears all stored data.
    */
   clear: async (): Promise<void> => {
-    console.log(`[StorageManager] clear`);
+    // console.log(`[StorageManager] clear`);
     if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
       try {
         await safeBridgeCall(window.WebApp.DeviceStorage.clear());
