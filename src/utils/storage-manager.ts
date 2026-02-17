@@ -3,10 +3,10 @@ export interface MaxWebApp {
   platform?: string;
   version?: string;
   DeviceStorage: {
-    setItem: (key: string, value: string) => Promise<void>;
-    getItem: (key: string) => Promise<string | null>;
-    removeItem: (key: string) => Promise<void>;
-    clear: () => Promise<void>;
+    setItem: (key: string, value: string, callback?: (error: Error | null, success: boolean) => void) => void;
+    getItem: (key: string, callback: (error: Error | null, value: string | null) => void) => void;
+    removeItem: (key: string, callback?: (error: Error | null, success: boolean) => void) => void;
+    clear: (callback?: (error: Error | null, success: boolean) => void) => void;
   };
 }
 
@@ -16,146 +16,109 @@ declare global {
   }
 }
 
-const TIME_OUT_MS = 3000;
-let isDeviceStorageSupported = true;
-
-const safeBridgeCall = async <T>(promise: Promise<T>): Promise<T> => {
-  let timeoutId: NodeJS.Timeout;
-
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timeoutId = setTimeout(() => {
-      reject(new Error('Bridge call timed out'));
-    }, TIME_OUT_MS);
-  });
-
-  try {
-    const result = await Promise.race([promise, timeoutPromise]);
-    clearTimeout(timeoutId!);
-    return result;
-  } catch (error) {
-    clearTimeout(timeoutId!);
-    throw error;
-  }
+const isDeviceStorageAvailable = (): boolean => {
+  return typeof window !== 'undefined' &&
+    !!window.WebApp?.DeviceStorage &&
+    // Optional: Add version check if known, e.g. window.WebApp.version >= '...'
+    true;
 };
 
-/**
- * StorageManager handles data persistence based on the environment.
- * If running inside Max Messenger, it uses window.WebApp.DeviceStorage.
- * Otherwise, falls back to localStorage.
- */
 export const storageManager = {
-  /**
-   * Saves a key-value pair to storage.
-   * @param key The key to store.
-   * @param value The value to store.
-   */
-  setItem: async (key: string, value: string): Promise<void> => {
-    console.log(`[StorageManager] setItem: ${key}`);
-    // Always save to localStorage as a backup/cache because DeviceStorage might be flaky or fire-and-forget
-    // preventing us from knowing if it actually succeeded.
-    // This ensures that getItem's fallback to localStorage will always find the data.
-    localStorage.setItem(key, value);
-
-    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      console.log(`[StorageManager] Using DeviceStorage for ${key}. Platform: ${window.WebApp.platform}, Version: ${window.WebApp.version}`);
-      try {
-        await safeBridgeCall(window.WebApp.DeviceStorage.setItem(key, value));
-      } catch (e: any) {
-        console.warn(`[StorageManager] DeviceStorage.setItem failed or timed out for ${key} (data already saved to localStorage)`, e);
-        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
-          console.warn('[StorageManager] DeviceStorage seems unsupported. Disabling DeviceStorage for this session and relying on localStorage.');
-          isDeviceStorageSupported = false;
-        }
-      }
-    } else {
-      console.log(`[StorageManager] Using localStorage for ${key}`);
-    }
-  },
-
-  /**
-   * Retrieves a value by key.
-   * @param key The key to look up.
-   * @returns The stored value or null if not found.
-   */
   getItem: async (key: string): Promise<string | null> => {
-    console.log(`[StorageManager] getItem: ${key}`);
-
-    // Default to localStorage lookup function
-    const getFromLocalStorage = () => {
-      const value = localStorage.getItem(key);
-      console.log(`[StorageManager] localStorage result for ${key}:`, value);
-      return value;
-    };
-
-    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      console.log(`[StorageManager] Using DeviceStorage for ${key}`);
-      try {
-        const value = await safeBridgeCall(window.WebApp.DeviceStorage.getItem(key));
-
-        // If value is found in DeviceStorage, return it
-        if (value !== undefined && value !== null) {
-          console.log(`[StorageManager] DeviceStorage result for ${key}:`, value);
-          return value;
-        }
-
-        // If DeviceStorage returned null/undefined, it might mean the data was saved to 
-        // localStorage during a previous failed write. Check localStorage.
-        console.log(`[StorageManager] DeviceStorage returned empty for ${key}, checking localStorage fallback`);
-        return getFromLocalStorage();
-
-      } catch (e: any) {
-        console.warn(`[StorageManager] DeviceStorage.getItem failed or timed out for ${key}, falling back to localStorage`, e);
-        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
-          console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
-          isDeviceStorageSupported = false;
-        }
-        return getFromLocalStorage();
-      }
+    if (!isDeviceStorageAvailable()) {
+      return localStorage.getItem(key);
     }
 
-    return getFromLocalStorage();
+    return new Promise<string | null>((resolve) => {
+      try {
+        window.WebApp!.DeviceStorage.getItem(key, (error, value) => {
+          if (error) {
+            console.warn('[StorageManager] DeviceStorage.getItem error:', error);
+            // Fallback to localStorage on error
+            resolve(localStorage.getItem(key));
+            return;
+          }
+          resolve((value?.length ?? 0) > 0 ? value : null);
+        });
+      } catch (e) {
+        console.error('[StorageManager] DeviceStorage.getItem exception:', e);
+        resolve(localStorage.getItem(key));
+      }
+    });
   },
 
-  /**
-   * Removes an item by key.
-   * @param key The key to remove.
-   */
+  setItem: async (key: string, value: string): Promise<void> => {
+    if (!isDeviceStorageAvailable()) {
+      localStorage.setItem(key, value);
+      return;
+    }
+
+    // Dual write for safety/fallback? 
+    // The Telegram logic only writes to ONE.
+    // usage: if (this.storage == null) { localStorage... } else { this.storage... }
+    // We will follow that.
+
+    return new Promise<void>((resolve) => {
+      try {
+        window.WebApp!.DeviceStorage.setItem(key, value, (error, success) => {
+          if (error) {
+            console.warn('[StorageManager] DeviceStorage.setItem error:', error);
+            // Fallback to localStorage on error
+            localStorage.setItem(key, value);
+          }
+          resolve();
+        });
+      } catch (e) {
+        console.error('[StorageManager] DeviceStorage.setItem exception:', e);
+        localStorage.setItem(key, value);
+        resolve();
+      }
+    });
+  },
+
   removeItem: async (key: string): Promise<void> => {
-    console.log(`[StorageManager] removeItem: ${key}`);
-    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      try {
-        await safeBridgeCall(window.WebApp.DeviceStorage.removeItem(key));
-      } catch (e: any) {
-        console.warn(`[StorageManager] DeviceStorage.removeItem failed or timed out for ${key}, falling back to localStorage`, e);
-        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
-          console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
-          isDeviceStorageSupported = false;
-        }
-        localStorage.removeItem(key);
-      }
-    } else {
+    if (!isDeviceStorageAvailable()) {
       localStorage.removeItem(key);
+      return;
     }
+
+    return new Promise<void>((resolve) => {
+      try {
+        window.WebApp!.DeviceStorage.removeItem(key, (error, success) => {
+          if (error) {
+            console.warn('[StorageManager] DeviceStorage.removeItem error:', error);
+            localStorage.removeItem(key);
+          }
+          resolve();
+        });
+      } catch (e) {
+        console.error('[StorageManager] DeviceStorage.removeItem exception:', e);
+        localStorage.removeItem(key);
+        resolve();
+      }
+    });
   },
 
-  /**
-   * Clears all stored data.
-   */
   clear: async (): Promise<void> => {
-    console.log(`[StorageManager] clear`);
-    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      try {
-        await safeBridgeCall(window.WebApp.DeviceStorage.clear());
-      } catch (e: any) {
-        console.warn('[StorageManager] DeviceStorage.clear failed or timed out, falling back to localStorage', e);
-        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
-          console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
-          isDeviceStorageSupported = false;
-        }
-        localStorage.clear();
-      }
-    } else {
+    if (!isDeviceStorageAvailable()) {
       localStorage.clear();
+      return;
     }
+
+    return new Promise<void>((resolve) => {
+      try {
+        window.WebApp!.DeviceStorage.clear((error, success) => {
+          if (error) {
+            console.warn('[StorageManager] DeviceStorage.clear error:', error);
+            localStorage.clear();
+          }
+          resolve();
+        });
+      } catch (e) {
+        console.error('[StorageManager] DeviceStorage.clear exception:', e);
+        localStorage.clear();
+        resolve();
+      }
+    });
   }
 };
