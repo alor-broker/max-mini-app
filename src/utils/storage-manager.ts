@@ -1,5 +1,7 @@
 
 export interface MaxWebApp {
+  platform?: string;
+  version?: string;
   DeviceStorage: {
     setItem: (key: string, value: string) => Promise<void>;
     getItem: (key: string) => Promise<string | null>;
@@ -14,7 +16,8 @@ declare global {
   }
 }
 
-const TIME_OUT_MS = 100;
+const TIME_OUT_MS = 3000;
+let isDeviceStorageSupported = true;
 
 const safeBridgeCall = async <T>(promise: Promise<T>): Promise<T> => {
   let timeoutId: NodeJS.Timeout;
@@ -53,12 +56,16 @@ export const storageManager = {
     // This ensures that getItem's fallback to localStorage will always find the data.
     localStorage.setItem(key, value);
 
-    if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      console.log(`[StorageManager] Using DeviceStorage for ${key}`);
+    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
+      console.log(`[StorageManager] Using DeviceStorage for ${key}. Platform: ${window.WebApp.platform}, Version: ${window.WebApp.version}`);
       try {
         await safeBridgeCall(window.WebApp.DeviceStorage.setItem(key, value));
-      } catch (e) {
+      } catch (e: any) {
         console.warn(`[StorageManager] DeviceStorage.setItem failed or timed out for ${key} (data already saved to localStorage)`, e);
+        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
+          console.warn('[StorageManager] DeviceStorage seems unsupported. Disabling DeviceStorage for this session and relying on localStorage.');
+          isDeviceStorageSupported = false;
+        }
       }
     } else {
       console.log(`[StorageManager] Using localStorage for ${key}`);
@@ -80,7 +87,7 @@ export const storageManager = {
       return value;
     };
 
-    if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
+    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
       console.log(`[StorageManager] Using DeviceStorage for ${key}`);
       try {
         const value = await safeBridgeCall(window.WebApp.DeviceStorage.getItem(key));
@@ -96,8 +103,12 @@ export const storageManager = {
         console.log(`[StorageManager] DeviceStorage returned empty for ${key}, checking localStorage fallback`);
         return getFromLocalStorage();
 
-      } catch (e) {
+      } catch (e: any) {
         console.warn(`[StorageManager] DeviceStorage.getItem failed or timed out for ${key}, falling back to localStorage`, e);
+        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
+          console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
+          isDeviceStorageSupported = false;
+        }
         return getFromLocalStorage();
       }
     }
@@ -111,11 +122,15 @@ export const storageManager = {
    */
   removeItem: async (key: string): Promise<void> => {
     console.log(`[StorageManager] removeItem: ${key}`);
-    if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
+    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
       try {
         await safeBridgeCall(window.WebApp.DeviceStorage.removeItem(key));
-      } catch (e) {
+      } catch (e: any) {
         console.warn(`[StorageManager] DeviceStorage.removeItem failed or timed out for ${key}, falling back to localStorage`, e);
+        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
+          console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
+          isDeviceStorageSupported = false;
+        }
         localStorage.removeItem(key);
       }
     } else {
@@ -128,11 +143,15 @@ export const storageManager = {
    */
   clear: async (): Promise<void> => {
     console.log(`[StorageManager] clear`);
-    if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
+    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
       try {
         await safeBridgeCall(window.WebApp.DeviceStorage.clear());
-      } catch (e) {
+      } catch (e: any) {
         console.warn('[StorageManager] DeviceStorage.clear failed or timed out, falling back to localStorage', e);
+        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
+          console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
+          isDeviceStorageSupported = false;
+        }
         localStorage.clear();
       }
     } else {
