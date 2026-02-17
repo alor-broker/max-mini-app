@@ -9,6 +9,7 @@ import { InvestmentIdeasPreview } from './InvestmentIdeasPreview';
 import { OrdersList } from './OrdersList';
 import { PositionsList } from './PositionsList';
 import { TradesList } from './TradesList';
+import { CompletedOrdersList } from './CompletedOrdersList';
 import { NewOrderButton } from './NewOrderButton';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
@@ -161,6 +162,11 @@ export const HomePage: React.FC = () => {
         {/* Trades */}
         <Section title={t('home.trades_today')}>
           <TradesList portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
+        </Section>
+
+        {/* Completed Orders */}
+        <Section title={t('home.completed_orders')}>
+          <CompletedOrdersList portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
         </Section>
       </Grid>
     </Panel>
