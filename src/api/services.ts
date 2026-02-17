@@ -347,6 +347,19 @@ export const OrdersService = {
 
   submitMarketOrder: async (order: NewMarketOrder, portfolio: string): Promise<NewOrderResponse> => {
     return getOrderRequest(order, portfolio, API_CONFIG, 'market');
+  },
+
+  cancelOrder: async (portfolio: string, orderId: string, exchange: string): Promise<void> => {
+    // Alor API docs: DELETE /commandapi/warptrans/TRADE/v2/client/orders/{orderId}
+    // But we might need params like exchange or portfolio in query or body?
+    // Using simple DELETE based on provided link: https://alor.dev/docs/api/http/commandapi-warptrans-trade-v-2-client-orders-order-id-delete
+    await apiClient.delete(`${API_CONFIG.apiUrl}/commandapi/warptrans/TRADE/v2/client/orders/${orderId}?portfolio=${portfolio}&exchange=${exchange}`);
+  },
+
+  cancelAllOrders: async (portfolio: string, exchange: string): Promise<void> => {
+    // https://alor.dev/docs/api/http/commandapi-warptrans-trade-v-2-client-orders-all-delete
+    // DELETE /commandapi/warptrans/TRADE/v2/client/orders/all?portfolio=...&exchange=...
+    await apiClient.delete(`${API_CONFIG.apiUrl}/commandapi/warptrans/TRADE/v2/client/orders/all?portfolio=${portfolio}&exchange=${exchange}&stop=false`);
   }
 }
 

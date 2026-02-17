@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Panel, Container, Flex, Typography, Button, Grid } from '@maxhub/max-ui';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PortfolioOrder, Side, OrderStatus, OrderType } from '../../api/services';
+import { PortfolioOrder, Side, OrderStatus, OrderType, OrdersService } from '../../api/services';
 import { useTranslation } from 'react-i18next';
+import { useNotification } from '../../components/NotificationContext';
 
 const statusColorMap: Record<OrderStatus, string> = {
   [OrderStatus.Working]: '#0a84ff',
@@ -29,6 +30,9 @@ export const OrderDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  const { showNotification } = useNotification();
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const order = (location.state as { order?: PortfolioOrder })?.order;
 
@@ -58,6 +62,21 @@ export const OrderDetailPage: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const handleCancelOrder = async () => {
+    setIsCanceling(true);
+    try {
+      await OrdersService.cancelOrder(order.portfolio, order.id, order.exchange);
+      showNotification(t('orderDetail.success_cancel'), 'success');
+      navigate('/');
+    } catch (e) {
+      console.error(e);
+      showNotification(t('common.error'), 'error');
+    } finally {
+      setIsCanceling(false);
+      setShowConfirm(false);
+    }
   };
 
   return (
@@ -196,7 +215,61 @@ export const OrderDetailPage: React.FC = () => {
             {t('orderDetail.new_order_for_symbol')}
           </Button>
         </Container>
+
+        {order.status === OrderStatus.Working && (
+          <Container style={{ padding: '0 16px 16px' }}>
+            <Button
+              onClick={() => setShowConfirm(true)}
+              disabled={isCanceling}
+              style={{
+                width: '100%',
+                background: 'transparent',
+                border: '1px solid #ef4444',
+                color: '#ef4444',
+                fontWeight: 600,
+                padding: '14px',
+                borderRadius: '12px',
+                fontSize: '15px',
+              }}
+            >
+              {isCanceling ? t('orderDetail.canceling') : t('orderDetail.cancel_order')}
+            </Button>
+          </Container>
+        )}
       </Grid>
+
+      {showConfirm && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          <div style={{
+            background: 'var(--background-surface-card)',
+            padding: '24px',
+            borderRadius: '16px',
+            width: '80%',
+            maxWidth: '320px',
+            textAlign: 'center'
+          }}>
+            <Typography.Headline style={{ marginBottom: '16px', fontSize: '18px' }}>
+              {t('orderDetail.cancel_confirm')}
+            </Typography.Headline>
+            <Flex gap={16} justify="center">
+              <Button onClick={() => setShowConfirm(false)} style={{ background: '#eee', color: '#333', border: 'none', flex: 1 }}>
+                {t('common.no')}
+              </Button>
+              <Button onClick={handleCancelOrder} style={{ background: '#ef4444', color: 'white', border: 'none', flex: 1 }}>
+                {t('common.yes')}
+              </Button>
+            </Flex>
+          </div>
+        </div>
+      )}
     </Panel>
   );
 };

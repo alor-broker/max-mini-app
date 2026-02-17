@@ -10,7 +10,7 @@ import { OrdersList } from './OrdersList';
 import { PositionsList } from './PositionsList';
 import { TradesList } from './TradesList';
 import { CompletedOrdersList } from './CompletedOrdersList';
-import { NewOrderButton } from './NewOrderButton';
+import { HomeActions } from './HomeActions';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 
@@ -139,7 +139,9 @@ export const HomePage: React.FC = () => {
             <PortfolioEvaluation portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
 
             <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
-              <NewOrderButton portfolio={selectedPortfolio} />
+              <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
+                <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} />
+              </Flex>
             </Flex>
           </Flex>
         </Container>
