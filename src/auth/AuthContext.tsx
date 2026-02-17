@@ -36,8 +36,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setIsAuthenticated(true);
               // If we restored a session, we default to locked state
               setIsLocked(true);
-              const hasPin = !!(await storageManager.getItem('max_app_password'));
-              setIsLocked(!hasPin);
             } else {
               // Token invalid
               await clearTokens();
