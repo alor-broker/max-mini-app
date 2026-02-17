@@ -5,30 +5,15 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 interface OrdersListProps {
-  portfolio: ClientPortfolio | null;
-  refreshTrigger?: number;
+  orders: PortfolioOrder[];
 }
 
-export const OrdersList: React.FC<OrdersListProps> = ({ portfolio, refreshTrigger }) => {
-  const [orders, setOrders] = useState<PortfolioOrder[]>([]);
-  const [loading, setLoading] = useState(false);
+export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!portfolio) return;
-    setLoading(true);
-    PortfolioService.getOrders(portfolio.exchange, portfolio.portfolio)
-      .then(data => {
-        setOrders(data.filter(o => o.status === OrderStatus.Working));
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [portfolio, refreshTrigger]);
-
-  if (!portfolio) return null;
-  if (orders.length === 0 && !loading) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_active_orders')}</Typography.Body>;
+  if (orders.length === 0) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_active_orders')}</Typography.Body>;
 
   const visibleOrders = orders.slice(0, visibleCount);
   const hasMore = visibleCount < orders.length;

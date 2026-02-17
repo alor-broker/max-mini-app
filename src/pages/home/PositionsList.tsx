@@ -6,28 +6,16 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 interface PositionsListProps {
+  positions: PortfolioPosition[];
   portfolio: ClientPortfolio | null;
-  refreshTrigger?: number;
 }
 
-export const PositionsList: React.FC<PositionsListProps> = ({ portfolio, refreshTrigger }) => {
-  const [positions, setPositions] = useState<PortfolioPosition[]>([]);
-  const [loading, setLoading] = useState(false);
+export const PositionsList: React.FC<PositionsListProps> = ({ positions, portfolio }) => {
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!portfolio) return;
-    setLoading(true);
-    PortfolioService.getPositions(portfolio.exchange, portfolio.portfolio)
-      .then(setPositions)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [portfolio, refreshTrigger]);
-
-  if (!portfolio) return null;
-  if (positions.length === 0 && !loading) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_positions')}</Typography.Body>;
+  if (positions.length === 0) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_positions')}</Typography.Body>;
 
   const visiblePositions = positions.slice(0, visibleCount);
   const hasMore = visibleCount < positions.length;

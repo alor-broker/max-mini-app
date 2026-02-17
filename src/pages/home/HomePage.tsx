@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Panel, Grid, Container, Flex, Typography, Button } from '@maxhub/max-ui';
+import { Panel, Grid, Container, Flex, Typography, Button, Spinner } from '@maxhub/max-ui';
 import { useAuth } from '../../auth/AuthContext';
 import { storageManager } from '../../utils/storage-manager';
-import { ClientService, ClientPortfolio } from '../../api/services';
+import { ClientService, ClientPortfolio, PortfolioSummary, PortfolioOrder, PortfolioPosition, PortfolioTrade, PortfolioService, OrderStatus } from '../../api/services';
 import { PortfolioSelector } from './PortfolioSelector';
 import { PortfolioEvaluation } from './PortfolioEvaluation';
 import { InvestmentIdeasPreview } from './InvestmentIdeasPreview';
@@ -29,14 +29,22 @@ export const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const [portfolios, setPortfolios] = useState<ClientPortfolio[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState<ClientPortfolio | null>(null);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+
+  // Data states
+  const [summary, setSummary] = useState<PortfolioSummary | null>(null);
+  const [activeOrders, setActiveOrders] = useState<PortfolioOrder[]>([]);
+  const [completedOrders, setCompletedOrders] = useState<PortfolioOrder[]>([]);
+  const [positions, setPositions] = useState<PortfolioPosition[]>([]);
+  const [trades, setTrades] = useState<PortfolioTrade[]>([]);
 
   useEffect(() => {
     if (user?.clientId && user?.login) {
+      setIsInitialLoading(true);
       ClientService.getActivePortfolios(user.clientId, user.login)
         .then(async (data) => {
           setPortfolios(data);
 
-          // Restore selection from storage or default to first
           const savedPortfolioId = await storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
           let portfolioToSelect = data.length > 0 ? data[0] : null;
 
@@ -48,10 +56,43 @@ export const HomePage: React.FC = () => {
           }
 
           setSelectedPortfolio(portfolioToSelect);
+          // Data will be fetched by the effect below when selectedPortfolio changes
         })
-        .catch(console.error);
+        .catch(console.error)
+        .finally(() => setIsInitialLoading(false));
+    } else {
+      setIsInitialLoading(false);
     }
   }, [user]);
+
+  // Fetch data when selected portfolio changes
+  useEffect(() => {
+    if (!selectedPortfolio) return;
+    fetchAllData(selectedPortfolio);
+  }, [selectedPortfolio]);
+
+  const fetchAllData = async (portfolio: ClientPortfolio) => {
+    try {
+      const [sum, ords, pos, trds] = await Promise.all([
+        PortfolioService.getSummary(portfolio.exchange, portfolio.portfolio),
+        PortfolioService.getOrders(portfolio.exchange, portfolio.portfolio),
+        PortfolioService.getPositions(portfolio.exchange, portfolio.portfolio),
+        PortfolioService.getTrades(portfolio.exchange, portfolio.portfolio)
+      ]);
+
+      setSummary(sum);
+      setActiveOrders(ords.filter(o => o.status === OrderStatus.Working));
+      // Filter completed orders (not working) and sort by time desc
+      const completed = ords.filter(o => o.status !== OrderStatus.Working);
+      completed.sort((a, b) => b.transTime.getTime() - a.transTime.getTime());
+      setCompletedOrders(completed);
+
+      setPositions(pos);
+      setTrades(trds);
+    } catch (e) {
+      console.error("Failed to fetch portfolio data", e);
+    }
+  };
 
   const handlePortfolioSelect = async (p: ClientPortfolio) => {
     setSelectedPortfolio(p);
@@ -64,16 +105,24 @@ export const HomePage: React.FC = () => {
 
   const refreshData = async () => {
     setIsRefreshing(true);
-    // Re-fetch portfolio data
+
+    // 1. Refresh portfolios list
     if (user?.clientId && user?.login) {
       try {
         const data = await ClientService.getActivePortfolios(user.clientId, user.login);
         setPortfolios(data);
 
-        // If we have a selected portfolio, ensure it's updated in the list or keep it
+        // 2. Refresh current portfolio data
         if (selectedPortfolio) {
+          // Check if selected portfolio still exists
           const found = data.find(p => p.portfolio === selectedPortfolio.portfolio);
-          if (found) setSelectedPortfolio(found);
+          if (found) {
+            // Update selected portfolio object if needed (though mostly just need ID)
+            // And fetch data
+            await fetchAllData(found);
+          } else if (data.length > 0) {
+            setSelectedPortfolio(data[0]); // This will trigger useEffect to fetch
+          }
         } else if (data.length > 0) {
           setSelectedPortfolio(data[0]);
         }
@@ -81,19 +130,11 @@ export const HomePage: React.FC = () => {
         console.error(e);
       }
     }
-    // Simulate a delay or wait for other components to update if they had ref methods
-    // Since child components depend on 'selectedPortfolio' prop, they might need a signal to refetch.
-    // For now, re-setting selectedPortfolio might trigger their useEffects if reference changes, 
-    // but better is to just wait a bit to show the spinner. 
-    // A more robust way is to have a 'refreshTrigger' prop passed down.
 
-    // Actually, simply toggling a refresh trigger state is better.
-    setRefreshTrigger(prev => prev + 1);
-
-    setTimeout(() => setIsRefreshing(false), 1000);
+    setIsRefreshing(false);
   };
 
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (window.scrollY === 0) {
@@ -113,64 +154,72 @@ export const HomePage: React.FC = () => {
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
     >
-      {isRefreshing && (
-        <Flex justify="center" style={{ padding: '10px', background: 'var(--background-surface-secondary)' }}>
-          <Typography.Body>{t('common.loading')}</Typography.Body>
+      {isInitialLoading ? (
+        <Flex align="center" justify="center" style={{ height: '100vh', width: '100%' }}>
+          <Spinner />
         </Flex>
-      )}
-      <Grid gap={16} cols={1}>
-        {/* Header / Portfolio Summary */}
-        <Container style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px' }}>
-          <Flex direction="column" gap={16}>
-
-            <Flex justify="space-between" align="center">
-              <PortfolioSelector
-                portfolios={portfolios}
-                selectedPortfolio={selectedPortfolio}
-                onSelect={handlePortfolioSelect}
-                triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
-              />
-              <Flex gap={8}>
-                <LanguageSwitcher />
-                <Button onClick={logout} style={{ color: 'white', borderColor: 'white' }}>{t('common.logout')}</Button>
-              </Flex>
+      ) : (
+        <>
+          {isRefreshing && (
+            <Flex justify="center" style={{ padding: '10px', background: 'var(--background-surface-secondary)' }}>
+              <Spinner />
             </Flex>
+          )}
+          <Grid gap={16} cols={1}>
+            {/* Header / Portfolio Summary */}
+            <Container style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px' }}>
+              <Flex direction="column" gap={16}>
 
-            <PortfolioEvaluation portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
+                <Flex justify="space-between" align="center">
+                  <PortfolioSelector
+                    portfolios={portfolios}
+                    selectedPortfolio={selectedPortfolio}
+                    onSelect={handlePortfolioSelect}
+                    triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
+                  />
+                  <Flex gap={8}>
+                    <LanguageSwitcher />
+                    <Button onClick={logout} style={{ color: 'white', borderColor: 'white' }}>{t('common.logout')}</Button>
+                  </Flex>
+                </Flex>
 
-            <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
-              <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
-                <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} />
+                <PortfolioEvaluation data={summary} />
+
+                <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
+                  <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
+                    <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} />
+                  </Flex>
+                </Flex>
               </Flex>
-            </Flex>
-          </Flex>
-        </Container>
+            </Container>
 
-        {/* Investment Ideas (API not implemented yet) */}
-        {/* <Section title={t('home.investment_ideas')}>
+            {/* Investment Ideas (API not implemented yet) */}
+            {/* <Section title={t('home.investment_ideas')}>
           <InvestmentIdeasPreview />
         </Section> */}
 
-        {/* Orders */}
-        <Section title={t('home.active_orders')}>
-          <OrdersList portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
-        </Section>
+            {/* Orders */}
+            <Section title={t('home.active_orders')}>
+              <OrdersList orders={activeOrders} />
+            </Section>
 
-        {/* Portfolio Positions */}
-        <Section title={t('home.positions')}>
-          <PositionsList portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
-        </Section>
+            {/* Portfolio Positions */}
+            <Section title={t('home.positions')}>
+              <PositionsList positions={positions} portfolio={selectedPortfolio} />
+            </Section>
 
-        {/* Trades */}
-        <Section title={t('home.trades_today')}>
-          <TradesList portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
-        </Section>
+            {/* Trades */}
+            <Section title={t('home.trades_today')}>
+              <TradesList trades={trades} />
+            </Section>
 
-        {/* Completed Orders */}
-        <Section title={t('home.completed_orders')}>
-          <CompletedOrdersList portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
-        </Section>
-      </Grid>
+            {/* Completed Orders */}
+            <Section title={t('home.completed_orders')}>
+              <CompletedOrdersList orders={completedOrders} />
+            </Section>
+          </Grid>
+        </>
+      )}
     </Panel>
   );
 };

@@ -4,26 +4,13 @@ import { PortfolioService, PortfolioSummary, ClientPortfolio } from '../../api/s
 import { useTranslation } from 'react-i18next';
 
 interface PortfolioEvaluationProps {
-  portfolio: ClientPortfolio | null;
-  refreshTrigger?: number;
+  data: PortfolioSummary | null;
 }
 
-export const PortfolioEvaluation: React.FC<PortfolioEvaluationProps> = ({ portfolio, refreshTrigger }) => {
-  const [summary, setSummary] = useState<PortfolioSummary | null>(null);
-  const [loading, setLoading] = useState(false);
+export const PortfolioEvaluation: React.FC<PortfolioEvaluationProps> = ({ data: summary }) => {
   const { t } = useTranslation();
 
-  useEffect(() => {
-    if (!portfolio) return;
-
-    setLoading(true);
-    PortfolioService.getSummary(portfolio.exchange, portfolio.portfolio)
-      .then(setSummary)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [portfolio, refreshTrigger]);
-
-  if (!portfolio || !summary) {
+  if (!summary) {
     return (
       <Flex direction="column" gap={8} align="center">
         <Typography.Body style={{ color: 'rgba(255,255,255,0.8)' }}>{t('portfolio.total_balance')}</Typography.Body>

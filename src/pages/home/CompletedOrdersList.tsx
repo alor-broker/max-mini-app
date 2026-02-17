@@ -5,34 +5,15 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 interface CompletedOrdersListProps {
-  portfolio: ClientPortfolio | null;
-  refreshTrigger?: number;
+  orders: PortfolioOrder[];
 }
 
-export const CompletedOrdersList: React.FC<CompletedOrdersListProps> = ({ portfolio, refreshTrigger }) => {
-  const [orders, setOrders] = useState<PortfolioOrder[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(2); // Start with fewer to save space
+export const CompletedOrdersList: React.FC<CompletedOrdersListProps> = ({ orders }) => {
+  const [visibleCount, setVisibleCount] = useState(2);
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!portfolio) return;
-    setLoading(true);
-    PortfolioService.getOrders(portfolio.exchange, portfolio.portfolio)
-      .then(data => {
-        // Filter for completed/non-working orders
-        const completed = data.filter(o => o.status !== OrderStatus.Working);
-        // Sort by time descending
-        completed.sort((a, b) => b.transTime.getTime() - a.transTime.getTime());
-        setOrders(completed);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, [portfolio, refreshTrigger]);
-
-  if (!portfolio) return null;
-  if (orders.length === 0 && !loading) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_completed_orders')}</Typography.Body>;
+  if (orders.length === 0) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_completed_orders')}</Typography.Body>;
 
   const visibleOrders = orders.slice(0, visibleCount);
   const hasMore = visibleCount < orders.length;
