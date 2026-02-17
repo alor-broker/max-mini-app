@@ -72,23 +72,37 @@ export const storageManager = {
    */
   getItem: async (key: string): Promise<string | null> => {
     console.log(`[StorageManager] getItem: ${key}`);
+
+    // Default to localStorage lookup function
+    const getFromLocalStorage = () => {
+      const value = localStorage.getItem(key);
+      console.log(`[StorageManager] localStorage result for ${key}:`, value);
+      return value;
+    };
+
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
       console.log(`[StorageManager] Using DeviceStorage for ${key}`);
       try {
         const value = await safeBridgeCall(window.WebApp.DeviceStorage.getItem(key));
-        const result = value !== undefined ? value : null;
-        console.log(`[StorageManager] DeviceStorage result for ${key}:`, result);
-        return result;
+
+        // If value is found in DeviceStorage, return it
+        if (value !== undefined && value !== null) {
+          console.log(`[StorageManager] DeviceStorage result for ${key}:`, value);
+          return value;
+        }
+
+        // If DeviceStorage returned null/undefined, it might mean the data was saved to 
+        // localStorage during a previous failed write. Check localStorage.
+        console.log(`[StorageManager] DeviceStorage returned empty for ${key}, checking localStorage fallback`);
+        return getFromLocalStorage();
+
       } catch (e) {
         console.warn(`[StorageManager] DeviceStorage.getItem failed or timed out for ${key}, falling back to localStorage`, e);
-        const result = localStorage.getItem(key);
-        console.log(`[StorageManager] localStorage fallback result for ${key}:`, result);
-        return result;
+        return getFromLocalStorage();
       }
     }
-    const result = localStorage.getItem(key);
-    console.log(`[StorageManager] localStorage result for ${key}:`, result);
-    return result;
+
+    return getFromLocalStorage();
   },
 
   /**
