@@ -48,20 +48,20 @@ export const storageManager = {
    */
   setItem: async (key: string, value: string): Promise<void> => {
     console.log(`[StorageManager] setItem: ${key}`);
-    // Check for platform explicitly if possible, or blindly rely on availability + timeout
-    // In browser, platform might be 'unknown' or the bridge just hangs.
+    // Always save to localStorage as a backup/cache because DeviceStorage might be flaky or fire-and-forget
+    // preventing us from knowing if it actually succeeded.
+    // This ensures that getItem's fallback to localStorage will always find the data.
+    localStorage.setItem(key, value);
+
     if (typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
       console.log(`[StorageManager] Using DeviceStorage for ${key}`);
       try {
         await safeBridgeCall(window.WebApp.DeviceStorage.setItem(key, value));
       } catch (e) {
-        console.warn(`[StorageManager] DeviceStorage.setItem failed or timed out for ${key}, falling back to localStorage`, e);
-        // Fallback
-        localStorage.setItem(key, value);
+        console.warn(`[StorageManager] DeviceStorage.setItem failed or timed out for ${key} (data already saved to localStorage)`, e);
       }
     } else {
       console.log(`[StorageManager] Using localStorage for ${key}`);
-      localStorage.setItem(key, value);
     }
   },
 
