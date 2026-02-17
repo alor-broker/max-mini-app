@@ -170,7 +170,7 @@ export const UnlockPage: React.FC = () => {
     return (
       <Panel>
         <Flex align="center" justify="center" style={{ height: '100vh' }}>
-          <Typography.Body>Loading...</Typography.Body>
+          <Typography.Body>{t('common.loading')}</Typography.Body>
         </Flex>
       </Panel>
     );
@@ -182,12 +182,12 @@ export const UnlockPage: React.FC = () => {
         <Flex direction="column" align="center" justify="center" style={{ minHeight: '100vh', padding: '20px' }}>
 
           <Typography.Headline style={{ marginBottom: '8px' }}>
-            {storedPin ? t('Enter Passcode', 'Enter Passcode') : t('Create Passcode', 'Create Passcode')}
+            {storedPin ? t('auth.enter_passcode') : t('auth.create_passcode')}
           </Typography.Headline>
 
           {error && (
             <Typography.Body style={{ color: '#ff4d4f', marginBottom: '16px' }}>
-              {t('Invalid Password', 'Invalid Password')} ({attemptsCount})
+              {t('auth.invalid_password')} ({attemptsCount})
             </Typography.Body>
           )}
           {!error && <div style={{ height: '24px', marginBottom: '16px' }} />}
@@ -229,7 +229,7 @@ export const UnlockPage: React.FC = () => {
               style={{ marginTop: '32px', ...ghostButtonStyle, width: 'auto', padding: '0 16px' }}
               onClick={() => navigate(-1)}
             >
-              {t('Cancel', 'Cancel')}
+              {t('common.cancel')}
             </Button>
           )}
 
@@ -241,7 +241,7 @@ export const UnlockPage: React.FC = () => {
                 logout();
               }}
             >
-              {t('Logout / Reset', 'Logout / Reset')}
+              {t('auth.logout_reset')}
             </Button>
           )}
 

@@ -253,15 +253,15 @@ export const CreateOrderPage: React.FC = () => {
               <div style={{ background: 'rgba(0,0,0,0.03)', padding: '12px', borderRadius: '8px', width: '100%', boxSizing: 'border-box' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '8px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>Symbol</Typography.Label>
+                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>{t('common.symbol')}</Typography.Label>
                     <Typography.Body style={{ fontWeight: 600, fontSize: '14px' }}>{selectedInstrument.symbol}</Typography.Body>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>Exchange</Typography.Label>
+                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>{t('common.exchange')}</Typography.Label>
                     <Typography.Body style={{ fontSize: '14px' }}>{selectedInstrument.exchange}</Typography.Body>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>Board</Typography.Label>
+                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>{t('common.board')}</Typography.Label>
                     <Typography.Body style={{ fontSize: '14px' }}>{selectedInstrument.primary_board}</Typography.Body>
                   </div>
                   <div style={{ gridColumn: 'span 3' }}>
@@ -272,32 +272,32 @@ export const CreateOrderPage: React.FC = () => {
                 {quote ? (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
                     <div>
-                      <Typography.Label style={{ fontSize: '11px', display: 'block' }}>Last</Typography.Label>
+                      <Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.last_price')}</Typography.Label>
                       <Typography.Body style={{ fontWeight: 600 }}>{quote.last_price}</Typography.Body>
                     </div>
                     <div style={{ gridColumn: 'span 2' }}>
-                      <Typography.Label style={{ fontSize: '11px', display: 'block' }}>Change</Typography.Label>
+                      <Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.change')}</Typography.Label>
                       <Typography.Body style={{ color: quote.change >= 0 ? '#4ade80' : '#ef4444' }}>
                         {quote.change > 0 ? '+' : ''}{quote.change} ({quote.change_percent}%)
                       </Typography.Body>
                     </div>
 
                     <div>
-                      <Typography.Label style={{ fontSize: '11px', display: 'block', color: 'gray' }}>Bid</Typography.Label>
+                      <Typography.Label style={{ fontSize: '11px', display: 'block', color: 'gray' }}>{t('common.bid')}</Typography.Label>
                       <Typography.Body style={{ color: '#4ade80' }}>{quote.bid}</Typography.Body>
                     </div>
                     <div>
-                      <Typography.Label style={{ fontSize: '11px', display: 'block', color: 'gray' }}>Ask</Typography.Label>
+                      <Typography.Label style={{ fontSize: '11px', display: 'block', color: 'gray' }}>{t('common.ask')}</Typography.Label>
                       <Typography.Body style={{ color: '#ef4444' }}>{quote.ask}</Typography.Body>
                     </div>
                     <div></div>
 
-                    <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>Open</Typography.Label><Typography.Body>{quote.open_price}</Typography.Body></div>
-                    <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>High</Typography.Label><Typography.Body>{quote.high_price}</Typography.Body></div>
-                    <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>Low</Typography.Label><Typography.Body>{quote.low_price}</Typography.Body></div>
+                    <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.open')}</Typography.Label><Typography.Body>{quote.open_price}</Typography.Body></div>
+                    <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.high')}</Typography.Label><Typography.Body>{quote.high_price}</Typography.Body></div>
+                    <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.low')}</Typography.Label><Typography.Body>{quote.low_price}</Typography.Body></div>
                   </div>
                 ) : (
-                  <Typography.Body style={{ textAlign: 'center', color: 'gray', fontSize: '12px' }}>Loading market data...</Typography.Body>
+                  <Typography.Body style={{ textAlign: 'center', color: 'gray', fontSize: '12px' }}>{t('common.loading_market_data')}</Typography.Body>
                 )}
               </div>
 

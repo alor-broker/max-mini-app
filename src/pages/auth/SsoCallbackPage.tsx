@@ -2,11 +2,13 @@ import React, { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { Typography, Panel, Flex } from '@maxhub/max-ui';
+import { useTranslation } from 'react-i18next';
 
 export const SsoCallbackPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { handleSsoCallback } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     const refreshToken = searchParams.get('refreshToken');
@@ -29,7 +31,7 @@ export const SsoCallbackPage: React.FC = () => {
   return (
     <Panel>
       <Flex align="center" justify="center" style={{ height: '100vh' }}>
-        <Typography.Headline>Authenticating...</Typography.Headline>
+        <Typography.Headline>{t('auth.authenticating')}</Typography.Headline>
       </Flex>
     </Panel>
   );

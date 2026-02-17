@@ -17,7 +17,26 @@
     "shares": "Shares",
     "lot_size": "Lot size",
     "error": "Error",
-    "avg": "Avg"
+    "avg": "Avg",
+    "cancel": "Cancel",
+    "loading_market_data": "Loading market data...",
+    "symbol": "Symbol",
+    "exchange": "Exchange",
+    "board": "Board",
+    "last_price": "Last",
+    "change": "Change",
+    "bid": "Bid",
+    "ask": "Ask",
+    "open": "Open",
+    "high": "High",
+    "low": "Low"
+  },
+  "auth": {
+    "enter_passcode": "Enter Passcode",
+    "create_passcode": "Create Passcode",
+    "invalid_password": "Invalid Password",
+    "logout_reset": "Logout / Reset",
+    "authenticating": "Authenticating..."
   },
   "home": {
     "new_order": "New Order",

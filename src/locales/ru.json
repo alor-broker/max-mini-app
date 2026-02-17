@@ -14,10 +14,29 @@
     "price": "Цена",
     "quantity": "Количество",
     "lots": "Лотов",
-    "shares": "Акций",
+    "shares": "шт.",
     "lot_size": "Размер лота",
     "error": "Ошибка",
-    "avg": "Сред."
+    "avg": "Сред.",
+    "cancel": "Отмена",
+    "loading_market_data": "Загрузка рыночных данных...",
+    "symbol": "Тикер",
+    "exchange": "Биржа",
+    "board": "Режим",
+    "last_price": "Последняя",
+    "change": "Изменение",
+    "bid": "Bid",
+    "ask": "Ask",
+    "open": "Откр.",
+    "high": "Макс.",
+    "low": "Мин."
+  },
+  "auth": {
+    "enter_passcode": "Введите код-пароль",
+    "create_passcode": "Создайте код-пароль",
+    "invalid_password": "Неверный пароль",
+    "logout_reset": "Выйти / Сбросить",
+    "authenticating": "Аутентификация..."
   },
   "home": {
     "new_order": "Новая заявка",
