@@ -248,7 +248,24 @@ export const CreateOrderPage: React.FC = () => {
             />
 
             {/* Search Results */}
-            {searchLoading && <Typography.Body>{t('common.searching')}</Typography.Body>}
+            {searchLoading && (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '16px' }}>
+                <div className="spinner" style={{
+                  width: '24px',
+                  height: '24px',
+                  border: '3px solid rgba(0,0,0,0.1)',
+                  borderLeftColor: 'var(--text-primary)',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+                <style>{`
+                  @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                `}</style>
+              </div>
+            )}
             {instrumentsList.length > 0 && (
               <div style={{ background: '#f5f5f5', borderRadius: '8px', padding: '8px', border: '1px solid #ddd' }}>
                 {instrumentsList.map(inst => (
@@ -266,22 +283,22 @@ export const CreateOrderPage: React.FC = () => {
 
           {selectedInstrument && (
             <Flex direction="column" gap={16} style={{ width: '100%' }}>
-              <div style={{ background: 'rgba(0,0,0,0.03)', padding: '12px', borderRadius: '8px', width: '100%', boxSizing: 'border-box' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px', borderBottom: '1px solid rgba(0,0,0,0.05)', paddingBottom: '8px' }}>
+              <div style={{ background: 'var(--background-secondary, rgba(255,255,255,0.05))', padding: '12px', borderRadius: '8px', width: '100%', boxSizing: 'border-box' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>{t('common.symbol')}</Typography.Label>
                     <Typography.Body style={{ fontWeight: 600, fontSize: '14px' }}>{selectedInstrument.symbol}</Typography.Body>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>{t('common.exchange')}</Typography.Label>
+                    <Typography.Label style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{t('common.exchange')}</Typography.Label>
                     <Typography.Body style={{ fontSize: '14px' }}>{selectedInstrument.exchange}</Typography.Body>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>{t('common.board')}</Typography.Label>
+                    <Typography.Label style={{ fontSize: '10px', color: 'var(--text-secondary)' }}>{t('common.board')}</Typography.Label>
                     <Typography.Body style={{ fontSize: '14px' }}>{selectedInstrument.primary_board}</Typography.Body>
                   </div>
                   <div style={{ gridColumn: 'span 3' }}>
-                    <Typography.Label style={{ fontSize: '12px', color: 'gray' }}>{selectedInstrument.shortname}</Typography.Label>
+                    <Typography.Label style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{selectedInstrument.shortname}</Typography.Label>
                   </div>
                 </div>
 
@@ -394,7 +411,14 @@ export const CreateOrderPage: React.FC = () => {
               <Button
                 onClick={handleSubmit}
                 disabled={loading}
-                style={{ marginTop: '16px', width: '100%' }}
+                style={{
+                  marginTop: '16px',
+                  width: '100%',
+                  background: 'var(--button-primary-background, #007aff)',
+                  color: 'white',
+                  border: 'none',
+                  fontWeight: 600
+                }}
               >
                 {loading ? t('order.submitting') : (side === Side.Buy ? t('order.submit_buy_order') : t('order.submit_sell_order'))}
               </Button>
