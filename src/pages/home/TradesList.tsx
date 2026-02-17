@@ -7,9 +7,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface TradesListProps {
   portfolio: ClientPortfolio | null;
+  refreshTrigger?: number;
 }
 
-export const TradesList: React.FC<TradesListProps> = ({ portfolio }) => {
+export const TradesList: React.FC<TradesListProps> = ({ portfolio, refreshTrigger }) => {
   const [trades, setTrades] = useState<PortfolioTrade[]>([]);
   const [loading, setLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
@@ -23,7 +24,7 @@ export const TradesList: React.FC<TradesListProps> = ({ portfolio }) => {
       .then(setTrades)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [portfolio]);
+  }, [portfolio, refreshTrigger]);
 
   if (!portfolio) return null;
   if (trades.length === 0 && !loading) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_trades')}</Typography.Body>;

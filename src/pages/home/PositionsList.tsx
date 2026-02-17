@@ -7,9 +7,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface PositionsListProps {
   portfolio: ClientPortfolio | null;
+  refreshTrigger?: number;
 }
 
-export const PositionsList: React.FC<PositionsListProps> = ({ portfolio }) => {
+export const PositionsList: React.FC<PositionsListProps> = ({ portfolio, refreshTrigger }) => {
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
   const [loading, setLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
@@ -23,7 +24,7 @@ export const PositionsList: React.FC<PositionsListProps> = ({ portfolio }) => {
       .then(setPositions)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [portfolio]);
+  }, [portfolio, refreshTrigger]);
 
   if (!portfolio) return null;
   if (positions.length === 0 && !loading) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_positions')}</Typography.Body>;

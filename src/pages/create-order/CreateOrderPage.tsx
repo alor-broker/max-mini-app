@@ -17,12 +17,14 @@ import { SearchInput } from '../../components/SearchInput';
 import { SegmentedControl } from '../../components/SegmentedControl';
 import { PortfolioSelector } from '../home/PortfolioSelector';
 import { useTranslation } from 'react-i18next';
+import { useNotification } from '../../components/NotificationContext';
 
 export const CreateOrderPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const { t } = useTranslation();
+  const { showNotification } = useNotification();
 
   // State
   const [portfolios, setPortfolios] = useState<ClientPortfolio[]>([]);
@@ -175,7 +177,7 @@ export const CreateOrderPage: React.FC = () => {
       navigate('/');
     } catch (e) {
       console.error("Order failed", e);
-      alert(t('order.failed_submit'));
+      showNotification(t('order.failed_submit'), 'error');
     } finally {
       setLoading(false);
     }

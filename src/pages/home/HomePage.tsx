@@ -57,8 +57,66 @@ export const HomePage: React.FC = () => {
     await storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
   };
 
+  // Pull to refresh logic
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [touchStart, setTouchStart] = useState(0);
+
+  const refreshData = async () => {
+    setIsRefreshing(true);
+    // Re-fetch portfolio data
+    if (user?.clientId && user?.login) {
+      try {
+        const data = await ClientService.getActivePortfolios(user.clientId, user.login);
+        setPortfolios(data);
+
+        // If we have a selected portfolio, ensure it's updated in the list or keep it
+        if (selectedPortfolio) {
+          const found = data.find(p => p.portfolio === selectedPortfolio.portfolio);
+          if (found) setSelectedPortfolio(found);
+        } else if (data.length > 0) {
+          setSelectedPortfolio(data[0]);
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    // Simulate a delay or wait for other components to update if they had ref methods
+    // Since child components depend on 'selectedPortfolio' prop, they might need a signal to refetch.
+    // For now, re-setting selectedPortfolio might trigger their useEffects if reference changes, 
+    // but better is to just wait a bit to show the spinner. 
+    // A more robust way is to have a 'refreshTrigger' prop passed down.
+
+    // Actually, simply toggling a refresh trigger state is better.
+    setRefreshTrigger(prev => prev + 1);
+
+    setTimeout(() => setIsRefreshing(false), 1000);
+  };
+
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      setTouchStart(e.targetTouches[0].clientY);
+    }
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const touchY = e.targetTouches[0].clientY;
+    if (window.scrollY === 0 && touchY - touchStart > 100 && !isRefreshing) {
+      refreshData();
+    }
+  };
+
   return (
-    <Panel>
+    <Panel
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+    >
+      {isRefreshing && (
+        <Flex justify="center" style={{ padding: '10px', background: 'var(--background-surface-secondary)' }}>
+          <Typography.Body>{t('common.loading')}</Typography.Body>
+        </Flex>
+      )}
       <Grid gap={16} cols={1}>
         {/* Header / Portfolio Summary */}
         <Container style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px' }}>
@@ -77,7 +135,7 @@ export const HomePage: React.FC = () => {
               </Flex>
             </Flex>
 
-            <PortfolioEvaluation portfolio={selectedPortfolio} />
+            <PortfolioEvaluation portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
 
             <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
               <NewOrderButton portfolio={selectedPortfolio} />
@@ -92,17 +150,17 @@ export const HomePage: React.FC = () => {
 
         {/* Orders */}
         <Section title={t('home.active_orders')}>
-          <OrdersList portfolio={selectedPortfolio} />
+          <OrdersList portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
         </Section>
 
         {/* Portfolio Positions */}
         <Section title={t('home.positions')}>
-          <PositionsList portfolio={selectedPortfolio} />
+          <PositionsList portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
         </Section>
 
         {/* Trades */}
         <Section title={t('home.trades_today')}>
-          <TradesList portfolio={selectedPortfolio} />
+          <TradesList portfolio={selectedPortfolio} refreshTrigger={refreshTrigger} />
         </Section>
       </Grid>
     </Panel>

@@ -11,49 +11,53 @@ import { TradeDetailPage } from './pages/trade-detail/TradeDetailPage';
 import { MaxUI } from '@maxhub/max-ui';
 import '@maxhub/max-ui/dist/styles.css';
 
+import { NotificationProvider } from './components/NotificationContext';
+
 function App() {
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/auth/unlock" element={<UnlockPage />} />
-          <Route path="/auth/sso" element={<SsoCallbackPage />} />
-          <Route
-            path="/"
-            element={
-              <RequireAuth>
-                <HomePage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/order/new"
-            element={
-              <RequireAuth>
-                <CreateOrderPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/order/detail"
-            element={
-              <RequireAuth>
-                <OrderDetailPage />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/trade/detail"
-            element={
-              <RequireAuth>
-                <TradeDetailPage />
-              </RequireAuth>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+    <NotificationProvider>
+      <AuthProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth/unlock" element={<UnlockPage />} />
+            <Route path="/auth/sso" element={<SsoCallbackPage />} />
+            <Route
+              path="/"
+              element={
+                <RequireAuth>
+                  <HomePage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/order/new"
+              element={
+                <RequireAuth>
+                  <CreateOrderPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/order/detail"
+              element={
+                <RequireAuth>
+                  <OrderDetailPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/trade/detail"
+              element={
+                <RequireAuth>
+                  <TradeDetailPage />
+                </RequireAuth>
+              }
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </BrowserRouter>
+      </AuthProvider>
+    </NotificationProvider>
   );
 }
 

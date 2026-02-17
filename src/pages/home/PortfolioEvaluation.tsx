@@ -5,9 +5,10 @@ import { useTranslation } from 'react-i18next';
 
 interface PortfolioEvaluationProps {
   portfolio: ClientPortfolio | null;
+  refreshTrigger?: number;
 }
 
-export const PortfolioEvaluation: React.FC<PortfolioEvaluationProps> = ({ portfolio }) => {
+export const PortfolioEvaluation: React.FC<PortfolioEvaluationProps> = ({ portfolio, refreshTrigger }) => {
   const [summary, setSummary] = useState<PortfolioSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const { t } = useTranslation();
@@ -20,7 +21,7 @@ export const PortfolioEvaluation: React.FC<PortfolioEvaluationProps> = ({ portfo
       .then(setSummary)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [portfolio]);
+  }, [portfolio, refreshTrigger]);
 
   if (!portfolio || !summary) {
     return (

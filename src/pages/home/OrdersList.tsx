@@ -6,9 +6,10 @@ import { useNavigate } from 'react-router-dom';
 
 interface OrdersListProps {
   portfolio: ClientPortfolio | null;
+  refreshTrigger?: number;
 }
 
-export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
+export const OrdersList: React.FC<OrdersListProps> = ({ portfolio, refreshTrigger }) => {
   const [orders, setOrders] = useState<PortfolioOrder[]>([]);
   const [loading, setLoading] = useState(false);
   const [visibleCount, setVisibleCount] = useState(5);
@@ -24,7 +25,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [portfolio]);
+  }, [portfolio, refreshTrigger]);
 
   if (!portfolio) return null;
   if (orders.length === 0 && !loading) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_active_orders')}</Typography.Body>;
