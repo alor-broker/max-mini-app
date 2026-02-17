@@ -8,8 +8,8 @@ export interface ApiConfig {
   superAppUrl: string;
 }
 
-const isProd = process.env.NODE_ENV === 'production';
-const environment = isProd ? prodEnv : devEnv;
+const isDev = process.env.NODE_ENV === 'development' || process.env.REACT_APP_ENV === 'development';
+const environment = isDev ? devEnv : prodEnv;
 
 // Configuration from tg-app environment
 export const API_CONFIG: ApiConfig = {

@@ -1,6 +1,14 @@
 # Build stage
 FROM node:18-alpine AS build
 
+# Build argument for environment (development or production)
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+# App environment override (e.g. development, production)
+ARG REACT_APP_ENV
+ENV REACT_APP_ENV=${REACT_APP_ENV}
+
 # Install pnpm
 RUN npm install -g pnpm
 
