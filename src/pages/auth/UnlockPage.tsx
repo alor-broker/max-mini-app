@@ -50,7 +50,7 @@ export const UnlockPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { logout, unlock } = useAuth();
+  const { logout, unlock, isLocked, isAuthenticated } = useAuth();
 
   const [pin, setPin] = useState('');
   const [storedPin, setStoredPin] = useState<string | null>(null);
@@ -81,11 +81,19 @@ export const UnlockPage: React.FC = () => {
     setIsLoading(false);
   }, []);
 
+  useEffect(() => {
+    // If we are authenticated and NOT locked, we should not be here.
+    // Navigate away to the redirectUrl or root.
+    if (!isLoading && !isLocked && isAuthenticated) {
+      navigate(redirectUrl, { replace: true });
+    }
+  }, [isLoading, isLocked, isAuthenticated, navigate, redirectUrl]);
+
   const handleSuccess = useCallback(() => {
     vibrate(50);
     unlock();
-    navigate(redirectUrl, { replace: true });
-  }, [vibrate, navigate, redirectUrl, unlock]);
+    // Navigation is handled by the useEffect above when isLocked becomes false
+  }, [vibrate, unlock]);
 
   const handleFailure = useCallback(() => {
     vibrate([50, 50, 50]);
