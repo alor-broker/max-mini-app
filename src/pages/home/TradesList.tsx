@@ -26,7 +26,7 @@ export const TradesList: React.FC<TradesListProps> = ({ portfolio }) => {
   }, [portfolio]);
 
   if (!portfolio) return null;
-  if (trades.length === 0 && !loading) return <Typography.Body style={{ color: 'gray' }}>{t('home.no_trades')}</Typography.Body>;
+  if (trades.length === 0 && !loading) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_trades')}</Typography.Body>;
 
   const visibleTrades = trades.slice(0, visibleCount);
   const hasMore = visibleCount < trades.length;
@@ -35,18 +35,18 @@ export const TradesList: React.FC<TradesListProps> = ({ portfolio }) => {
     <Grid gap={8} cols={1}>
       {visibleTrades.map(trade => {
         const isBuy = trade.side === Side.Buy;
-        const color = isBuy ? '#4ade80' : '#ef4444';
+        const color = isBuy ? 'var(--text-positive)' : 'var(--text-negative)';
 
         return (
           <div
             key={trade.id}
             onClick={() => navigate('/trade/detail', { state: { trade } })}
-            style={{ padding: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer' }}
+            style={{ padding: '8px', borderBottom: '1px solid var(--stroke-separator-secondary)', cursor: 'pointer' }}
           >
             <Flex justify="space-between" align="center">
               <Flex direction="column">
                 <Typography.Body style={{ fontWeight: 600 }}>{trade.symbol}</Typography.Body>
-                <Typography.Label style={{ color: 'gray' }}>
+                <Typography.Label style={{ color: 'var(--text-secondary)' }}>
                   {trade.date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </Typography.Label>
               </Flex>
@@ -67,7 +67,7 @@ export const TradesList: React.FC<TradesListProps> = ({ portfolio }) => {
             textAlign: 'center',
             padding: '8px',
             cursor: 'pointer',
-            color: '#0a84ff',
+            color: 'var(--text-themed)',
             fontWeight: 500,
             marginTop: '8px'
           }}

@@ -205,7 +205,17 @@ export const CreateOrderPage: React.FC = () => {
                 setSelectedPortfolio(p);
                 await storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
               }}
-              triggerStyle={{ color: '#333', borderColor: '#ccc', width: '100%', textAlign: 'left', justifyContent: 'flex-start' }}
+              triggerStyle={{
+                color: 'var(--text-primary)',
+                background: 'var(--background-accent-neutral-fade)',
+                border: 'none',
+                width: '100%',
+                textAlign: 'left',
+                justifyContent: 'flex-start',
+                paddingLeft: 'var(--spacing-size-xl)',
+                height: '52px',
+                borderRadius: 'var(--size-border-radius-semantic-border-radius-card)'
+              }}
             />
           </Flex>
 

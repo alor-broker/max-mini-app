@@ -10,11 +10,11 @@ const DetailRow: React.FC<{ label: string; value: React.ReactNode; valueColor?: 
     align="center"
     style={{
       padding: '14px 0',
-      borderBottom: '1px solid rgba(0,0,0,0.06)',
+      borderBottom: '1px solid var(--stroke-separator-secondary)',
     }}
   >
-    <Typography.Label style={{ color: '#888', fontSize: '14px' }}>{label}</Typography.Label>
-    <Typography.Body style={{ fontWeight: 500, color: valueColor || '#333', fontSize: '14px' }}>{value}</Typography.Body>
+    <Typography.Label style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{label}</Typography.Label>
+    <Typography.Body style={{ fontWeight: 500, color: valueColor || 'var(--text-primary)', fontSize: '14px' }}>{value}</Typography.Body>
   </Flex>
 );
 
@@ -29,7 +29,7 @@ export const TradeDetailPage: React.FC = () => {
     return (
       <Panel>
         <Container style={{ padding: '24px 16px', textAlign: 'center' }}>
-          <Typography.Body style={{ color: 'gray' }}>{t('tradeDetail.not_found')}</Typography.Body>
+          <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('tradeDetail.not_found')}</Typography.Body>
           <Button onClick={() => navigate('/')} style={{ marginTop: '16px' }}>
             {t('common.back')}
           </Button>
@@ -125,7 +125,7 @@ export const TradeDetailPage: React.FC = () => {
         <Container
           style={{
             padding: '16px',
-            backgroundColor: 'rgba(0,0,0,0.03)',
+            backgroundColor: 'var(--background-surface-tertiary)',
             borderRadius: '16px',
           }}
         >

@@ -27,7 +27,7 @@ export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios
 
   return (
     <div style={{ position: 'relative' }}>
-      <Button onClick={toggleOpen} style={{ background: 'transparent', border: '1px solid rgba(0,0,0,0.1)', color: 'inherit', ...triggerStyle }}>
+      <Button onClick={toggleOpen} style={{ background: 'transparent', border: '1px solid var(--stroke-separator-primary)', color: 'inherit', ...triggerStyle }}>
         {selectedPortfolio ? `${selectedPortfolio.portfolio} (${selectedPortfolio.exchange})` : t('order.select_portfolio')}
       </Button>
 
@@ -37,12 +37,12 @@ export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios
           top: '100%',
           left: 0,
           zIndex: 10,
-          background: '#2c2c2e',
-          border: '1px solid #3a3a3c',
+          background: 'var(--background-surface-floating)',
+          border: '1px solid var(--stroke-separator-primary)',
           borderRadius: '8px',
           padding: '8px',
           minWidth: '200px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+          boxShadow: 'var(--shadow-elevation-3-primary)',
           marginTop: '4px'
         }}>
           <Grid gap={4} cols={1}>
@@ -53,18 +53,18 @@ export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios
                 style={{
                   padding: '8px 12px',
                   cursor: 'pointer',
-                  background: selectedPortfolio?.portfolio === p.portfolio ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  background: selectedPortfolio?.portfolio === p.portfolio ? 'var(--background-accent-neutral-fade)' : 'transparent',
                   borderRadius: '6px',
                   transition: 'background 0.2s'
                 }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = selectedPortfolio?.portfolio === p.portfolio ? 'rgba(255,255,255,0.1)' : 'transparent'}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--states-background-hovered-neutral-fade)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = selectedPortfolio?.portfolio === p.portfolio ? 'var(--background-accent-neutral-fade)' : 'transparent'}
               >
                 {/* Manually style typography since MAX_UI might default to black */}
-                <div style={{ color: 'white', fontWeight: 500, fontSize: '14px' }}>
+                <div style={{ color: 'var(--text-primary)', fontWeight: 500, fontSize: '14px' }}>
                   {p.portfolio}
                 </div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px' }}>
+                <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
                   {p.exchange}
                 </div>
               </div>

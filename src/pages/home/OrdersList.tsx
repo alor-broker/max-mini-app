@@ -27,7 +27,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
   }, [portfolio]);
 
   if (!portfolio) return null;
-  if (orders.length === 0 && !loading) return <Typography.Body style={{ color: 'gray' }}>{t('home.no_active_orders')}</Typography.Body>;
+  if (orders.length === 0 && !loading) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_active_orders')}</Typography.Body>;
 
   const visibleOrders = orders.slice(0, visibleCount);
   const hasMore = visibleCount < orders.length;
@@ -36,18 +36,18 @@ export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
     <Grid gap={8} cols={1}>
       {visibleOrders.map(order => {
         const isBuy = order.side === Side.Buy;
-        const sideColor = isBuy ? '#4ade80' : '#ef4444';
+        const sideColor = isBuy ? 'var(--text-positive)' : 'var(--text-negative)';
 
         return (
           <div
             key={order.id}
             onClick={() => navigate('/order/detail', { state: { order } })}
-            style={{ padding: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer' }}
+            style={{ padding: '8px', borderBottom: '1px solid var(--stroke-separator-secondary)', cursor: 'pointer' }}
           >
             <Flex justify="space-between" align="center">
               <Flex direction="column">
                 <Typography.Body style={{ fontWeight: 600 }}>{order.symbol}</Typography.Body>
-                <Typography.Label style={{ color: 'gray' }}>
+                <Typography.Label style={{ color: 'var(--text-secondary)' }}>
                   {order.type}
                 </Typography.Label>
               </Flex>
@@ -68,7 +68,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ portfolio }) => {
             textAlign: 'center',
             padding: '8px',
             cursor: 'pointer',
-            color: '#0a84ff',
+            color: 'var(--text-themed)',
             fontWeight: 500,
             marginTop: '8px'
           }}

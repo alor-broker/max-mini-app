@@ -26,7 +26,7 @@ export const PositionsList: React.FC<PositionsListProps> = ({ portfolio }) => {
   }, [portfolio]);
 
   if (!portfolio) return null;
-  if (positions.length === 0 && !loading) return <Typography.Body style={{ color: 'gray' }}>{t('home.no_positions')}</Typography.Body>;
+  if (positions.length === 0 && !loading) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_positions')}</Typography.Body>;
 
   const visiblePositions = positions.slice(0, visibleCount);
   const hasMore = visibleCount < positions.length;
@@ -34,18 +34,18 @@ export const PositionsList: React.FC<PositionsListProps> = ({ portfolio }) => {
   return (
     <Grid gap={8} cols={1}>
       {visiblePositions.map(pos => {
-        const plColor = pos.unrealisedPl >= 0 ? '#4ade80' : '#ef4444';
+        const plColor = pos.unrealisedPl >= 0 ? 'var(--text-positive)' : 'var(--text-negative)';
 
         return (
           <div
             key={pos.symbol}
             onClick={() => navigate('/order/new', { state: { symbol: pos.symbol, portfolio } })}
-            style={{ padding: '8px', borderBottom: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer' }}
+            style={{ padding: '8px', borderBottom: '1px solid var(--stroke-separator-secondary)', cursor: 'pointer' }}
           >
             <Flex justify="space-between" align="center">
               <Flex direction="column">
                 <Typography.Body style={{ fontWeight: 600 }}>{pos.symbol}</Typography.Body>
-                <Typography.Label style={{ color: 'gray' }}>
+                <Typography.Label style={{ color: 'var(--text-secondary)' }}>
                   {pos.qtyUnits} {t('common.shares')} | {t('common.avg')}: {pos.avgPrice.toFixed(2)}
                 </Typography.Label>
               </Flex>
@@ -68,7 +68,7 @@ export const PositionsList: React.FC<PositionsListProps> = ({ portfolio }) => {
             textAlign: 'center',
             padding: '8px',
             cursor: 'pointer',
-            color: '#0a84ff',
+            color: 'var(--text-themed)',
             fontWeight: 500,
             marginTop: '8px'
           }}

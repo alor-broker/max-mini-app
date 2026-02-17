@@ -36,14 +36,14 @@ const baseButtonStyle: React.CSSProperties = {
 
 const numberButtonStyle: React.CSSProperties = {
   ...baseButtonStyle,
-  backgroundColor: '#f5f5f5', // Light gray core for numbers
-  color: '#000',
+  backgroundColor: 'var(--background-accent-neutral-fade)',
+  color: 'var(--text-primary)',
 };
 
 const ghostButtonStyle: React.CSSProperties = {
   ...baseButtonStyle,
   backgroundColor: 'transparent',
-  color: '#000',
+  color: 'var(--text-primary)',
 };
 
 export const UnlockPage: React.FC = () => {
