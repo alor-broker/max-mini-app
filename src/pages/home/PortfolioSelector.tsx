@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Button, Typography, Panel, Grid, Container } from '@maxhub/max-ui';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, Typography, Grid } from '@maxhub/max-ui';
 import { ClientPortfolio } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +12,20 @@ interface PortfolioSelectorProps {
 
 export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios, selectedPortfolio, onSelect, triggerStyle }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
+
+  useEffect(() => {
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (!rootRef.current) return;
+      if (!rootRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    return () => document.removeEventListener('mousedown', closeOnOutsideClick);
+  }, []);
 
   if (portfolios.length === 0) {
     return <Typography.Body>{t('order.no_portfolios')}</Typography.Body>;
@@ -26,8 +39,17 @@ export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      <Button onClick={toggleOpen} style={{ background: 'transparent', border: '1px solid var(--stroke-separator-primary)', color: 'inherit', ...triggerStyle }}>
+    <div ref={rootRef} style={{ position: 'relative' }}>
+      <Button
+        onClick={toggleOpen}
+        style={{
+          minHeight: '40px',
+          background: 'rgba(255, 255, 255, 0.1)',
+          border: '1px solid rgba(255, 255, 255, 0.35)',
+          color: 'inherit',
+          ...triggerStyle
+        }}
+      >
         {selectedPortfolio ? `${selectedPortfolio.portfolio} (${selectedPortfolio.exchange})` : t('order.select_portfolio')}
       </Button>
 
@@ -36,26 +58,28 @@ export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios
           position: 'absolute',
           top: '100%',
           left: 0,
-          zIndex: 10,
-          background: 'var(--background-surface-floating)',
-          border: '1px solid var(--stroke-separator-primary)',
-          borderRadius: '8px',
+          zIndex: 24,
+          background: 'rgba(255, 255, 255, 0.98)',
+          border: '1px solid rgba(15, 23, 42, 0.1)',
+          borderRadius: '12px',
           padding: '8px',
-          minWidth: '200px',
-          boxShadow: 'var(--shadow-elevation-3-primary)',
-          marginTop: '4px'
+          minWidth: '240px',
+          maxHeight: '300px',
+          overflowY: 'auto',
+          boxShadow: '0 20px 36px rgba(15, 23, 42, 0.18)',
+          marginTop: '6px'
         }}>
-          <Grid gap={4} cols={1}>
+          <Grid gap={6} cols={1}>
             {portfolios.map(p => (
               <div
                 key={`${p.exchange}-${p.portfolio}`}
                 onClick={() => handleSelect(p)}
                 style={{
-                  padding: '8px 12px',
+                  padding: '10px 12px',
                   cursor: 'pointer',
                   background: selectedPortfolio?.portfolio === p.portfolio ? 'var(--background-accent-neutral-fade)' : 'transparent',
-                  borderRadius: '6px',
-                  transition: 'background 0.2s'
+                  borderRadius: '8px',
+                  transition: 'background 0.18s'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.background = 'var(--states-background-hovered-neutral-fade)'}
                 onMouseLeave={(e) => e.currentTarget.style.background = selectedPortfolio?.portfolio === p.portfolio ? 'var(--background-accent-neutral-fade)' : 'transparent'}

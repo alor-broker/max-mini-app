@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Panel, Grid, Container, Flex, Typography, Button, Spinner } from '@maxhub/max-ui';
+import { Panel, Grid, Container, Flex, Typography, Spinner } from '@maxhub/max-ui';
 import { useAuth } from '../../auth/AuthContext';
 import { storageManager } from '../../utils/storage-manager';
 import { ClientService, ClientPortfolio, PortfolioSummary, PortfolioOrder, PortfolioPosition, PortfolioTrade, PortfolioService, OrderStatus } from '../../api/services';
 import { PortfolioSelector } from './PortfolioSelector';
 import { PortfolioEvaluation } from './PortfolioEvaluation';
-import { InvestmentIdeasPreview } from './InvestmentIdeasPreview';
 import { OrdersList } from './OrdersList';
 import { PositionsList } from './PositionsList';
 import { TradesList } from './TradesList';
@@ -17,9 +16,17 @@ import { IconLogout, HeaderBackgroundWave } from '../../components/Icons';
 
 // Placeholder components for sections
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <Container style={{ marginBottom: '16px', padding: '16px', backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: '16px' }}>
+  <Container style={{
+    marginBottom: '18px',
+    padding: '18px 16px',
+    background: 'rgba(255, 255, 255, 0.82)',
+    border: '1px solid rgba(17, 24, 39, 0.08)',
+    borderRadius: '16px',
+    boxShadow: '0 10px 24px rgba(15, 23, 42, 0.06)',
+    backdropFilter: 'blur(6px)'
+  }}>
     <Flex justify="space-between" align="center" style={{ marginBottom: '12px' }}>
-      <Typography.Headline>{title}</Typography.Headline>
+      <Typography.Headline style={{ fontSize: '24px', lineHeight: 1.2 }}>{title}</Typography.Headline>
     </Flex>
     {children}
   </Container>
@@ -154,7 +161,11 @@ export const HomePage: React.FC = () => {
     <Panel
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      style={{ minHeight: '100vh' }}
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(180deg, rgba(102, 126, 234, 0.08) 0%, rgba(248, 250, 252, 1) 35%)',
+        padding: '8px 0 18px'
+      }}
     >
       {isInitialLoading ? (
         <Flex align="center" justify="center" style={{ height: '100vh', width: '100%' }}>
@@ -167,22 +178,42 @@ export const HomePage: React.FC = () => {
               <Spinner />
             </Flex>
           )}
-          <Grid gap={16} cols={1}>
+          <Grid gap={18} cols={1}>
             {/* Header / Portfolio Summary */}
-            <Container style={{ padding: '14px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px', position: 'relative', overflow: 'visible' }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
+            <Container style={{
+              padding: '14px 16px 12px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              borderRadius: '16px',
+              position: 'relative',
+              overflow: 'visible',
+              boxShadow: '0 16px 30px rgba(76, 81, 191, 0.24)'
+            }}>
+              <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.2 }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '56px', background: 'linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 100%)' }} />
+              </div>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none', opacity: 0.7 }}>
                 <HeaderBackgroundWave />
               </div>
               <Flex direction="column" gap={16} style={{ position: 'relative', zIndex: 1 }}>
 
-                <Flex justify="space-between" align="center" style={{ width: '100%' }}>
+                <Flex justify="space-between" align="center" style={{
+                  width: '100%',
+                  position: 'sticky',
+                  top: '8px',
+                  zIndex: 8,
+                  padding: '6px 4px',
+                  borderRadius: '12px',
+                  background: 'rgba(69, 47, 129, 0.16)',
+                  backdropFilter: 'blur(4px)'
+                }}>
                   <PortfolioSelector
                     portfolios={portfolios}
                     selectedPortfolio={selectedPortfolio}
                     onSelect={handlePortfolioSelect}
                     triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
                   />
-                  <Flex gap={12} align="center" style={{ marginLeft: 'auto' }}>
+                  <Flex gap={12} align="center" style={{ marginLeft: 'auto', minHeight: '40px' }}>
                     <LanguageSwitcher />
                     <Flex
                       onClick={logout}
@@ -200,10 +231,8 @@ export const HomePage: React.FC = () => {
 
                 <PortfolioEvaluation data={summary} />
 
-                <Flex justify="center" style={{ marginTop: '2px', width: '100%' }}>
-                  <Flex justify="center" style={{ marginTop: '2px', width: '100%' }}>
-                    <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} activeOrdersCount={activeOrders.length} />
-                  </Flex>
+                <Flex justify="center" style={{ marginTop: '4px', width: '100%' }}>
+                  <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} activeOrdersCount={activeOrders.length} />
                 </Flex>
               </Flex>
             </Container>
