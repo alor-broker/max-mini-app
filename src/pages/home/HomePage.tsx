@@ -150,12 +150,71 @@ export const HomePage: React.FC = () => {
     }
   };
 
+  // Scroll tracking for sticky header
+  const [showStickyHeader, setShowStickyHeader] = useState(false);
+  const headerRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (headerRef.current) {
+        const headerHeight = headerRef.current.offsetHeight;
+        // Show sticky header when scrolled past 80% of the purple header or a fixed amount
+        setShowStickyHeader(window.scrollY > headerHeight - 60);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    handleScroll(); // Check immediately
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isInitialLoading]);
+
   return (
     <Panel
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      style={{ minHeight: '100vh' }}
+      style={{ minHeight: '100vh', position: 'relative' }}
     >
+      {/* Sticky Header */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        padding: '12px 16px',
+        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%)', // Matches purple theme with transparency
+        backdropFilter: 'blur(12px)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        transition: 'transform 0.3s ease, opacity 0.3s ease',
+        transform: showStickyHeader ? 'translateY(0)' : 'translateY(-100%)',
+        opacity: showStickyHeader ? 1 : 0,
+        pointerEvents: showStickyHeader ? 'auto' : 'none',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+      }}>
+        <PortfolioSelector
+          portfolios={portfolios}
+          selectedPortfolio={selectedPortfolio}
+          onSelect={handlePortfolioSelect}
+          triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)', fontSize: '14px', padding: '4px 12px', height: '32px' }}
+        />
+        <Flex gap={12} align="center">
+          <LanguageSwitcher />
+          <Flex
+            onClick={logout}
+            gap={8}
+            align="center"
+            justify="end"
+            style={{ cursor: 'pointer', color: 'white' }}
+            title={t('common.logout')}
+          >
+            <IconLogout width={20} height={20} />
+          </Flex>
+        </Flex>
+      </div>
+
       {isInitialLoading ? (
         <Flex align="center" justify="center" style={{ height: '100vh', width: '100%' }}>
           <Spinner />
@@ -169,44 +228,46 @@ export const HomePage: React.FC = () => {
           )}
           <Grid gap={16} cols={1}>
             {/* Header / Portfolio Summary */}
-            <Container style={{ padding: '14px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px', position: 'relative', overflow: 'visible' }}>
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
-                <HeaderBackgroundWave />
-              </div>
-              <Flex direction="column" gap={16} style={{ position: 'relative', zIndex: 1 }}>
+            <div ref={headerRef}>
+              <Container style={{ padding: '14px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px', position: 'relative', overflow: 'visible' }}>
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
+                  <HeaderBackgroundWave />
+                </div>
+                <Flex direction="column" gap={16} style={{ position: 'relative', zIndex: 1 }}>
 
-                <Flex justify="space-between" align="center" style={{ width: '100%' }}>
-                  <PortfolioSelector
-                    portfolios={portfolios}
-                    selectedPortfolio={selectedPortfolio}
-                    onSelect={handlePortfolioSelect}
-                    triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
-                  />
-                  <Flex gap={12} align="center" style={{ marginLeft: 'auto' }}>
-                    <LanguageSwitcher />
-                    <Flex
-                      onClick={logout}
-                      gap={8}
-                      align="center"
-                      justify="end"
-                      style={{ cursor: 'pointer', color: 'white' }}
-                      title={t('common.logout')}
-                    >
-                      <span style={{ fontSize: '14px', fontWeight: 500 }}>{t('common.logout')}</span>
-                      <IconLogout />
+                  <Flex justify="space-between" align="center" style={{ width: '100%' }}>
+                    <PortfolioSelector
+                      portfolios={portfolios}
+                      selectedPortfolio={selectedPortfolio}
+                      onSelect={handlePortfolioSelect}
+                      triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
+                    />
+                    <Flex gap={12} align="center" style={{ marginLeft: 'auto' }}>
+                      <LanguageSwitcher />
+                      <Flex
+                        onClick={logout}
+                        gap={8}
+                        align="center"
+                        justify="end"
+                        style={{ cursor: 'pointer', color: 'white' }}
+                        title={t('common.logout')}
+                      >
+                        <span style={{ fontSize: '14px', fontWeight: 500 }}>{t('common.logout')}</span>
+                        <IconLogout />
+                      </Flex>
+                    </Flex>
+                  </Flex>
+
+                  <PortfolioEvaluation data={summary} />
+
+                  <Flex justify="center" style={{ marginTop: '2px', width: '100%' }}>
+                    <Flex justify="center" style={{ marginTop: '2px', width: '100%' }}>
+                      <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} activeOrdersCount={activeOrders.length} />
                     </Flex>
                   </Flex>
                 </Flex>
-
-                <PortfolioEvaluation data={summary} />
-
-                <Flex justify="center" style={{ marginTop: '2px', width: '100%' }}>
-                  <Flex justify="center" style={{ marginTop: '2px', width: '100%' }}>
-                    <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} activeOrdersCount={activeOrders.length} />
-                  </Flex>
-                </Flex>
-              </Flex>
-            </Container>
+              </Container>
+            </div>
 
             {/* Investment Ideas (API not implemented yet) */}
             {/* <Section title={t('home.investment_ideas')}>
