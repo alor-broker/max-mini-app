@@ -288,12 +288,24 @@ export const CreateOrderPage: React.FC = () => {
                   </div>
                 )}
                 {instrumentsList.length > 0 && (
-                  <div style={{ background: 'var(--background-secondary, #f5f5f5)', borderRadius: '12px', padding: '8px', border: '1px solid var(--border-default, #ddd)' }}>
+                  <div
+                    style={{
+                      background: 'var(--background-surface-card)',
+                      borderRadius: '12px',
+                      padding: '8px',
+                      border: '1px solid var(--stroke-separator-primary)'
+                    }}
+                  >
                     {instrumentsList.map(inst => (
                       <div
                         key={inst.symbol}
                         onClick={() => handleSelectInstrument(inst)}
-                        style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid var(--border-default, #eee)', color: 'var(--text-primary)' }}
+                        style={{
+                          padding: '8px',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid var(--stroke-separator-primary)',
+                          color: 'var(--text-primary)'
+                        }}
                       >
                         <b>{inst.symbol}</b> - {inst.shortname}
                       </div>

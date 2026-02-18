@@ -62,10 +62,35 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
     return value || fallback;
   };
 
+  const parseRgb = (value: string): { r: number; g: number; b: number } | null => {
+    const match = value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
+    if (!match) {
+      return null;
+    }
+    return {
+      r: Number(match[1]),
+      g: Number(match[2]),
+      b: Number(match[3])
+    };
+  };
+
+  const isDarkTheme = (): boolean => {
+    const surface = getThemeColor('--background-surface-primary', 'rgb(255, 255, 255)');
+    const rgb = parseRgb(surface);
+    if (!rgb) {
+      return false;
+    }
+
+    const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
+    return luminance < 0.5;
+  };
+
   const getThemePalette = () => ({
     textPrimary: getThemeColor('--text-primary', '#1f2937'),
     textSecondary: getThemeColor('--text-secondary', '#6b7280'),
-    strokeGrid: getThemeColor('--stroke-separator-primary', 'rgba(0,0,0,0.12)'),
+    strokeGrid: isDarkTheme()
+      ? getThemeColor('--text-tertiary', 'rgba(255,255,255,0.28)')
+      : getThemeColor('--stroke-separator-contrast', 'rgba(12,13,14,0.10)'),
     positive: getThemeColor('--stroke-positive', '#2bc644'),
     negative: getThemeColor('--stroke-negative', '#ce4257')
   });
@@ -150,10 +175,10 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
 
   useEffect(() => {
     let cancelled = false;
-    const now = Math.floor(Date.now() / 1000);
-    const from = now - HISTORY_RANGE_TO_SECONDS[range];
 
     const fetchHistory = async () => {
+      const now = Math.floor(Date.now() / 1000);
+      const from = now - HISTORY_RANGE_TO_SECONDS[range];
       setLoading(true);
       setError(null);
 
@@ -188,9 +213,11 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
     };
 
     fetchHistory();
+    const interval = setInterval(fetchHistory, 10_000);
 
     return () => {
       cancelled = true;
+      clearInterval(interval);
     };
   }, [instrument.exchange, instrument.symbol, range, t]);
 
@@ -234,8 +261,7 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
         marginBottom: '12px',
         padding: '10px',
         borderRadius: '12px',
-        background: 'transparent',
-        border: '1px solid var(--stroke-separator-secondary, rgba(0, 0, 0, 0.08))'
+        background: 'transparent'
       }}
     >
       <div style={{ height: '128px', position: 'relative' }}>
