@@ -178,21 +178,22 @@ export const HomePage: React.FC = () => {
       {/* Sticky Header */}
       <div style={{
         position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
+        top: '12px',
+        left: '16px',
+        right: '16px',
         zIndex: 1000,
-        padding: '12px 16px',
-        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.9) 0%, rgba(118, 75, 162, 0.9) 100%)', // Matches purple theme with transparency
+        padding: '10px 16px',
+        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%)',
         backdropFilter: 'blur(12px)',
+        borderRadius: '100px', // Fully round capsule shape
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        transition: 'transform 0.3s ease, opacity 0.3s ease',
-        transform: showStickyHeader ? 'translateY(0)' : 'translateY(-100%)',
+        transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+        transform: showStickyHeader ? 'translateY(0)' : 'translateY(-100px)',
         opacity: showStickyHeader ? 1 : 0,
         pointerEvents: showStickyHeader ? 'auto' : 'none',
-        boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
       }}>
         <PortfolioSelector
           portfolios={portfolios}
