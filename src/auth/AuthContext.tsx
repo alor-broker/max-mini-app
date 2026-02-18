@@ -31,7 +31,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             // Try to exchange refresh token for new access token
             const result = await AuthService.refreshToken(token);
             if (result) {
-              setAccessToken(result.jwt);
+              await setAccessToken(result.jwt);
               setUser(result.user);
               setIsAuthenticated(true);
               // If we restored a session, we default to locked state

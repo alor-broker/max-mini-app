@@ -1,14 +1,57 @@
-import { getAccessToken } from './token-manager';
+import { getAccessToken, getRefreshToken, setAccessToken } from './token-manager';
 import { API_CONFIG } from './config';
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 interface ApiRequestOptions extends RequestInit {
   skipAuth?: boolean;
+  _retriedAfterRefresh?: boolean;
 }
 
 class Client {
+  private refreshInFlight: Promise<boolean> | null = null;
+
+  private async refreshAccessToken(): Promise<boolean> {
+    if (this.refreshInFlight) {
+      return this.refreshInFlight;
+    }
+
+    this.refreshInFlight = (async () => {
+      const refreshToken = await getRefreshToken();
+      if (!refreshToken) {
+        return false;
+      }
+
+      try {
+        const response = await fetch(`${API_CONFIG.userDataUrl}/auth/actions/refresh`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refreshToken, context: { skipAuthorization: true } })
+        });
+
+        if (!response.ok) {
+          return false;
+        }
+
+        const data = await response.json() as { jwt?: string };
+        if (!data?.jwt) {
+          return false;
+        }
+
+        await setAccessToken(data.jwt);
+        return true;
+      } catch {
+        return false;
+      } finally {
+        this.refreshInFlight = null;
+      }
+    })();
+
+    return this.refreshInFlight;
+  }
+
   private async request<T>(url: string, method: HttpMethod, body?: any, options?: ApiRequestOptions): Promise<T> {
+    const { _retriedAfterRefresh, ...requestOptions } = options ?? {};
     const headers = new Headers(options?.headers);
     headers.set('Content-Type', 'application/json');
 
@@ -20,7 +63,7 @@ class Client {
     }
 
     const config: RequestInit = {
-      ...options,
+      ...requestOptions,
       method,
       headers,
       body: body ? JSON.stringify(body) : undefined,
@@ -29,6 +72,12 @@ class Client {
     const fullUrl = url.startsWith('http') ? url : `${API_CONFIG.apiUrl}${url}`;
 
     const response = await fetch(fullUrl, config);
+    if (response.status === 401 && !options?.skipAuth && !options?._retriedAfterRefresh) {
+      const refreshed = await this.refreshAccessToken();
+      if (refreshed) {
+        return this.request<T>(url, method, body, { ...options, _retriedAfterRefresh: true });
+      }
+    }
 
     if (!response.ok) {
       const errorBody = await response.text();
