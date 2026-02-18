@@ -23,8 +23,11 @@ const HISTORY_RANGE_TO_SECONDS: Record<HistoryRange, number> = {
 };
 
 const getTimeframe = (range: HistoryRange): string => {
-  if (range === '1D' || range === '7D') {
+  if (range === '1D') {
     return '60';
+  }
+  if (range === '7D') {
+    return '240';
   }
   return 'D';
 };
@@ -197,7 +200,9 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
     }
 
     const palette = getThemePalette();
-    const trendUp = historyData.length > 1 && historyData[historyData.length - 1].price >= historyData[0].price;
+    const firstPrice = historyData.length > 0 ? historyData[0].price : 0;
+    const lastPrice = historyData.length > 0 ? historyData[historyData.length - 1].price : 0;
+    const isDown = historyData.length > 1 && firstPrice > lastPrice;
 
     chartRef.current.applyOptions({
       layout: { textColor: palette.textSecondary },
@@ -208,7 +213,7 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
     });
 
     seriesRef.current.applyOptions({
-      color: trendUp ? palette.positive : palette.negative
+      color: isDown ? palette.negative : palette.positive
     });
 
     const data = historyData.map(point => ({
@@ -253,7 +258,17 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
         )}
       </div>
 
-      <Flex gap={8} style={{ width: '100%', marginTop: '8px' }}>
+      <Flex
+        gap={0}
+        style={{
+          width: '100%',
+          marginTop: '8px',
+          padding: '4px',
+          borderRadius: '999px',
+          background: 'var(--background-accent-neutral-fade-secondary, rgba(0, 0, 0, 0.04))',
+          border: '1px solid var(--stroke-separator-secondary, rgba(0, 0, 0, 0.08))'
+        }}
+      >
         {(['1D', '7D', '1M', '1Y'] as HistoryRange[]).map(item => (
           <Button
             key={item}
@@ -262,9 +277,10 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
               flex: 1,
               border: 'none',
               fontWeight: 600,
+              borderRadius: '999px',
               background: range === item
                 ? 'var(--states-background-pressed-neutral-fade, rgba(0, 0, 0, 0.12))'
-                : 'var(--background-accent-neutral-fade-secondary, rgba(0, 0, 0, 0.04))',
+                : 'transparent',
               color: 'var(--text-primary)'
             }}
           >
