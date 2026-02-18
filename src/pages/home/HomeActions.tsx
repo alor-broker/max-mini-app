@@ -38,38 +38,32 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
   };
 
   const ActionButton = ({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) => (
-    <div onClick={onClick} style={{ cursor: 'pointer', textAlign: 'center', minWidth: '86px' }}>
+    <div onClick={onClick} style={{ cursor: 'pointer', textAlign: 'center', minWidth: '80px' }}>
       <Flex direction="column" align="center" gap={8}>
         <div style={{
-          width: '52px',
-          height: '52px',
+          width: '48px',
+          height: '48px',
           borderRadius: '50%',
-          background: 'rgba(255, 255, 255, 0.18)',
+          background: 'rgba(255, 255, 255, 0.2)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           border: '1px solid rgba(255, 255, 255, 0.4)',
-          transition: 'transform 0.2s, background 0.2s',
+          transition: 'transform 0.2s',
         }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'scale(1.08)';
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.26)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'scale(1)';
-            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.18)';
-          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
           {icon}
         </div>
-        <Typography.Label style={{ color: 'white', fontSize: '12px', textAlign: 'center', lineHeight: 1.2 }}>{label}</Typography.Label>
+        <Typography.Label style={{ color: 'white', fontSize: '11px', textAlign: 'center' }}>{label}</Typography.Label>
       </Flex>
     </div>
   );
 
   return (
     <>
-      <Flex gap={24} justify="center" style={{ width: '100%', marginTop: '8px' }}>
+      <Flex gap={24} justify="center" style={{ width: '100%', marginTop: '16px' }}>
         <ActionButton
           icon={<IconNewOrder />}
           label={t('home.new_order')}
@@ -97,20 +91,19 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
         <div style={{
           position: 'fixed',
           top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.45)',
+          background: 'rgba(0,0,0,0.5)',
           zIndex: 1000,
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
         }}>
           <div style={{
-            background: 'rgba(255, 255, 255, 0.98)',
+            background: 'var(--background-surface-card)',
             padding: '24px',
             borderRadius: '16px',
             width: '80%',
             maxWidth: '320px',
-            textAlign: 'center',
-            boxShadow: '0 20px 40px rgba(15, 23, 42, 0.24)'
+            textAlign: 'center'
           }}>
             <Typography.Headline style={{ marginBottom: '16px', fontSize: '18px' }}>
               {t('orderDetail.cancel_all_confirm')}
