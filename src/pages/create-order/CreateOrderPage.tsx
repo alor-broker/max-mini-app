@@ -18,6 +18,7 @@ import { SegmentedControl } from '../../components/SegmentedControl';
 import { PortfolioSelector } from '../home/PortfolioSelector';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../components/NotificationContext';
+import { PriceHistoryChart } from './PriceHistoryChart';
 
 export const CreateOrderPage: React.FC = () => {
   const navigate = useNavigate();
@@ -323,6 +324,8 @@ export const CreateOrderPage: React.FC = () => {
                     <Typography.Label style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{selectedInstrument.shortname}</Typography.Label>
                   </div>
                 </div>
+
+                <PriceHistoryChart instrument={selectedInstrument} />
 
                 {quote ? (
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>

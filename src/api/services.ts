@@ -316,6 +316,22 @@ export interface Quote {
   last_price_timestamp?: number;
 }
 
+export interface HistoryBar {
+  time?: number;
+  t?: number;
+  timestamp?: number;
+  close?: number;
+  c?: number;
+}
+
+export interface HistoryRequest {
+  exchange: string;
+  symbol: string;
+  tf: string;
+  from: number;
+  to: number;
+}
+
 
 export const InstrumentsService = {
   searchInstruments: async (filters: SearchFilter): Promise<Instrument[]> => {
@@ -336,6 +352,33 @@ export const InstrumentsService = {
   getQuotes: async (exchange: string, symbol: string): Promise<Quote | null> => {
     const quotes = await apiClient.get<Quote[]>(`${API_CONFIG.apiUrl}/md/v2/Securities/${exchange}:${symbol}/quotes`);
     return Array.isArray(quotes) && quotes.length > 0 ? quotes[0] : null;
+  },
+
+  getHistory: async (request: HistoryRequest): Promise<HistoryBar[]> => {
+    const params = new URLSearchParams();
+    params.append('exchange', request.exchange);
+    params.append('symbol', request.symbol);
+    params.append('tf', request.tf);
+    params.append('from', String(request.from));
+    params.append('to', String(request.to));
+
+    const response = await apiClient.get<HistoryBar[] | { history?: HistoryBar[]; candles?: HistoryBar[] }>(
+      `${API_CONFIG.apiUrl}/md/v2/history?${params.toString()}`
+    );
+
+    if (Array.isArray(response)) {
+      return response;
+    }
+
+    if (Array.isArray(response.history)) {
+      return response.history;
+    }
+
+    if (Array.isArray(response.candles)) {
+      return response.candles;
+    }
+
+    return [];
   }
 }
 
