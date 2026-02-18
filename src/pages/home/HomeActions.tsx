@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ClientPortfolio, OrdersService } from '../../api/services';
 import { useNotification } from '../../components/NotificationContext';
+import { IconNewOrder, IconCancelAll } from '../../components/Icons';
 
 
 interface HomeActionsProps {
@@ -64,21 +65,12 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
     <>
       <Flex gap={24} justify="center" style={{ width: '100%', marginTop: '16px' }}>
         <ActionButton
-          icon={
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 4V20M4 12H20" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          }
+          icon={<IconNewOrder />}
           label={t('home.new_order')}
           onClick={() => navigate('/order/new', { state: { portfolio, background: location } })}
         />
         <ActionButton
-          icon={
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18.36 6.64L6.64 18.36" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M6.64 6.64L18.36 18.36" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          }
+          icon={<IconCancelAll />}
           label={t('home.cancel_all_orders')}
           onClick={() => {
             if (!portfolio) {

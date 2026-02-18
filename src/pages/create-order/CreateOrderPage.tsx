@@ -430,6 +430,7 @@ export const CreateOrderPage: React.FC = () => {
               >
                 {loading ? t('order.submitting') : (side === Side.Buy ? t('order.submit_buy_order') : t('order.submit_sell_order'))}
               </Button>
+              <br />
             </Flex>
           )}
 

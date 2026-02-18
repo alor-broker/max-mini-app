@@ -13,6 +13,7 @@ import { CompletedOrdersList } from './CompletedOrdersList';
 import { HomeActions } from './HomeActions';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
+import { IconLogout, HeaderBackgroundWave } from '../../components/Icons';
 
 // Placeholder components for sections
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -168,8 +169,11 @@ export const HomePage: React.FC = () => {
           )}
           <Grid gap={16} cols={1}>
             {/* Header / Portfolio Summary */}
-            <Container style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px' }}>
-              <Flex direction="column" gap={16}>
+            <Container style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
+                <HeaderBackgroundWave />
+              </div>
+              <Flex direction="column" gap={16} style={{ position: 'relative', zIndex: 1 }}>
 
                 <Flex justify="space-between" align="center" style={{ width: '100%' }}>
                   <PortfolioSelector
@@ -189,9 +193,7 @@ export const HomePage: React.FC = () => {
                       title={t('common.logout')}
                     >
                       <span style={{ fontSize: '14px', fontWeight: 500 }}>{t('common.logout')}</span>
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M17 16L21 12M21 12L17 8M21 12H9M13 16V17C13 18.6569 11.6569 20 10 20H6C4.34315 20 3 18.6569 3 17V7C3 5.34315 4.34315 4 6 4H10C11.6569 4 13 5.34315 13 7V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                      <IconLogout />
                     </Flex>
                   </Flex>
                 </Flex>
