@@ -169,7 +169,7 @@ export const HomePage: React.FC = () => {
           )}
           <Grid gap={16} cols={1}>
             {/* Header / Portfolio Summary */}
-            <Container style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px', position: 'relative', overflow: 'hidden' }}>
+            <Container style={{ padding: '14px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px', position: 'relative', overflow: 'visible' }}>
               <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
                 <HeaderBackgroundWave />
               </div>
@@ -200,8 +200,8 @@ export const HomePage: React.FC = () => {
 
                 <PortfolioEvaluation data={summary} />
 
-                <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
-                  <Flex justify="center" style={{ marginTop: '16px', width: '100%' }}>
+                <Flex justify="center" style={{ marginTop: '2px', width: '100%' }}>
+                  <Flex justify="center" style={{ marginTop: '2px', width: '100%' }}>
                     <HomeActions portfolio={selectedPortfolio} refreshTrigger={refreshData} activeOrdersCount={activeOrders.length} />
                   </Flex>
                 </Flex>
