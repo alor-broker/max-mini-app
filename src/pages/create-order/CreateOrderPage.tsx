@@ -197,6 +197,16 @@ export const CreateOrderPage: React.FC = () => {
     }
   };
 
+  const cardStyle: React.CSSProperties = {
+    width: '100%',
+    boxSizing: 'border-box',
+    background: 'var(--background-accent-neutral-fade, rgba(0, 0, 0, 0.04))',
+    border: '1px solid var(--border-default, rgba(0, 0, 0, 0.08))',
+    borderRadius: '16px',
+    padding: '16px',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04)'
+  };
+
   return (
     <Panel style={{ minHeight: '100%', background: 'var(--background-surface-primary)' }}>
       <div
@@ -219,79 +229,83 @@ export const CreateOrderPage: React.FC = () => {
             <div></div>
           </div>
 
-          {/* Portfolio Selector */}
-          <Flex direction="column" gap={8} style={{ width: '100%' }}>
-            <Typography.Label>{t('order.portfolio')}</Typography.Label>
-            <PortfolioSelector
-              portfolios={portfolios}
-              selectedPortfolio={selectedPortfolio}
-              onSelect={async (p) => {
-                setSelectedPortfolio(p);
-                await storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
-              }}
-              triggerStyle={{
-                color: 'var(--text-primary)',
-                background: 'var(--background-accent-neutral-fade)',
-                border: 'none',
-                width: '100%',
-                textAlign: 'left',
-                justifyContent: 'flex-start',
-                paddingLeft: 'var(--spacing-size-xl)',
-                height: '52px',
-                borderRadius: 'var(--size-border-radius-semantic-border-radius-card)'
-              }}
-            />
-          </Flex>
+          <div style={cardStyle}>
+            <Flex direction="column" gap={16} style={{ width: '100%' }}>
+              {/* Portfolio Selector */}
+              <Flex direction="column" gap={8} style={{ width: '100%' }}>
+                <Typography.Label>{t('order.portfolio')}</Typography.Label>
+                <PortfolioSelector
+                  portfolios={portfolios}
+                  selectedPortfolio={selectedPortfolio}
+                  onSelect={async (p) => {
+                    setSelectedPortfolio(p);
+                    await storageManager.setItem('MAX_APP_SELECTED_PORTFOLIO', p.portfolio);
+                  }}
+                  triggerStyle={{
+                    color: 'var(--text-primary)',
+                    background: 'var(--background-secondary, rgba(0, 0, 0, 0.04))',
+                    border: '1px solid var(--border-default, rgba(0, 0, 0, 0.08))',
+                    width: '100%',
+                    textAlign: 'left',
+                    justifyContent: 'flex-start',
+                    paddingLeft: 'var(--spacing-size-xl)',
+                    height: '52px',
+                    borderRadius: '12px'
+                  }}
+                />
+              </Flex>
 
-          {/* Instrument Search */}
-          <Flex direction="column" gap={8}>
-            <Typography.Label>{t('order.instrument')}</Typography.Label>
-            <SearchInput
-              value={searchQuery}
-              onChange={(e) => {
-                autoSelectRef.current = false;
-                setSearchQuery(e.target.value);
-              }}
-              placeholder={t('common.search_placeholder')}
-            />
+              {/* Instrument Search */}
+              <Flex direction="column" gap={8}>
+                <Typography.Label>{t('order.instrument')}</Typography.Label>
+                <SearchInput
+                  value={searchQuery}
+                  onChange={(e) => {
+                    autoSelectRef.current = false;
+                    setSearchQuery(e.target.value);
+                  }}
+                  placeholder={t('common.search_placeholder')}
+                />
 
-            {/* Search Results */}
-            {searchLoading && (
-              <div style={{ display: 'flex', justifyContent: 'center', padding: '16px' }}>
-                <div className="spinner" style={{
-                  width: '24px',
-                  height: '24px',
-                  border: '3px solid rgba(0,0,0,0.1)',
-                  borderLeftColor: 'var(--text-primary)',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }} />
-                <style>{`
-                  @keyframes spin {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
-                  }
-                `}</style>
-              </div>
-            )}
-            {instrumentsList.length > 0 && (
-              <div style={{ background: '#f5f5f5', borderRadius: '8px', padding: '8px', border: '1px solid #ddd' }}>
-                {instrumentsList.map(inst => (
-                  <div
-                    key={inst.symbol}
-                    onClick={() => handleSelectInstrument(inst)}
-                    style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid #eee', color: '#333' }}
-                  >
-                    <b>{inst.symbol}</b> - {inst.shortname}
+                {/* Search Results */}
+                {searchLoading && (
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '16px' }}>
+                    <div className="spinner" style={{
+                      width: '24px',
+                      height: '24px',
+                      border: '3px solid rgba(0,0,0,0.1)',
+                      borderLeftColor: 'var(--text-primary)',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite'
+                    }} />
+                    <style>{`
+                      @keyframes spin {
+                        0% { transform: rotate(0deg); }
+                        100% { transform: rotate(360deg); }
+                      }
+                    `}</style>
                   </div>
-                ))}
-              </div>
-            )}
-          </Flex>
+                )}
+                {instrumentsList.length > 0 && (
+                  <div style={{ background: 'var(--background-secondary, #f5f5f5)', borderRadius: '12px', padding: '8px', border: '1px solid var(--border-default, #ddd)' }}>
+                    {instrumentsList.map(inst => (
+                      <div
+                        key={inst.symbol}
+                        onClick={() => handleSelectInstrument(inst)}
+                        style={{ padding: '8px', cursor: 'pointer', borderBottom: '1px solid var(--border-default, #eee)', color: 'var(--text-primary)' }}
+                      >
+                        <b>{inst.symbol}</b> - {inst.shortname}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </Flex>
+            </Flex>
+          </div>
 
           {selectedInstrument && (
             <Flex direction="column" gap={16} style={{ width: '100%' }}>
-              <div style={{ background: 'var(--background-secondary, rgba(255,255,255,0.05))', padding: '12px', borderRadius: '8px', width: '100%', boxSizing: 'border-box' }}>
+              <div style={{ ...cardStyle, padding: '12px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>{t('common.symbol')}</Typography.Label>
@@ -342,95 +356,85 @@ export const CreateOrderPage: React.FC = () => {
                 )}
               </div>
 
-              {/* Order Type Tabs */}
-              {/* Note: I need to update SegmentedControl to handle labels vs values, or just use strings if I changed SegmentedControl. 
-                  For now, I'll pass simple strings and let state be the localized string, BUT this breaks handleSubmit logic.
-                  
-                  Let's do this: I will conditionally render a manual control here OR update SegmentedControl.
-                  I will update SegmentedControl in next step. For now I assume it takes options={[{label, value}]} and value={currentValue}. 
-                  
-                  Wait, to be safe, I'm passing objects to options now.
-              */}
-              <SegmentedControl
-                options={[
-                  { label: t('common.limit'), value: 'Limit' },
-                  { label: t('common.market'), value: 'Market' }
-                ]}
-                value={orderType}
-                onChange={setOrderType}
-              />
-
-              {/* Side Tabs */}
-              <Flex gap={8} style={{ width: '100%' }}>
-                <Button
-                  style={{
-                    flex: 1,
-                    background: side === Side.Buy ? '#4ade80' : '#eee',
-                    color: side === Side.Buy ? 'black' : 'gray',
-                    border: 'none'
-                  }}
-                  onClick={() => setSide(Side.Buy)}
-                >
-                  {t('common.buy')}
-                </Button>
-                <Button
-                  style={{
-                    flex: 1,
-                    background: side === Side.Sell ? '#ef4444' : '#eee',
-                    color: side === Side.Sell ? 'white' : 'gray',
-                    border: 'none'
-                  }}
-                  onClick={() => setSide(Side.Sell)}
-                >
-                  {t('common.sell')}
-                </Button>
-              </Flex>
-
-              {/* Price Input (Limit only) */}
-              {orderType === 'Limit' && (
-                <Flex direction="column" gap={8}>
-                  <Typography.Label>{t('common.price')}</Typography.Label>
-                  <Input
-                    type="number"
-                    value={price}
-                    onChange={(e) => setPrice(e.target.value)}
-                    step={selectedInstrument.minstep}
-                    style={{ width: '100%' }}
+              <div style={cardStyle}>
+                <Flex direction="column" gap={16} style={{ width: '100%' }}>
+                  <SegmentedControl
+                    options={[
+                      { label: t('common.limit'), value: 'Limit' },
+                      { label: t('common.market'), value: 'Market' }
+                    ]}
+                    value={orderType}
+                    onChange={setOrderType}
                   />
+
+                  <Flex gap={8} style={{ width: '100%' }}>
+                    <Button
+                      style={{
+                        flex: 1,
+                        background: side === Side.Buy ? '#4ade80' : '#eee',
+                        color: side === Side.Buy ? 'black' : 'gray',
+                        border: 'none'
+                      }}
+                      onClick={() => setSide(Side.Buy)}
+                    >
+                      {t('common.buy')}
+                    </Button>
+                    <Button
+                      style={{
+                        flex: 1,
+                        background: side === Side.Sell ? '#ef4444' : '#eee',
+                        color: side === Side.Sell ? 'white' : 'gray',
+                        border: 'none'
+                      }}
+                      onClick={() => setSide(Side.Sell)}
+                    >
+                      {t('common.sell')}
+                    </Button>
+                  </Flex>
+
+                  {orderType === 'Limit' && (
+                    <Flex direction="column" gap={8}>
+                      <Typography.Label>{t('common.price')}</Typography.Label>
+                      <Input
+                        type="number"
+                        value={price}
+                        onChange={(e) => setPrice(e.target.value)}
+                        step={selectedInstrument.minstep}
+                        style={{ width: '100%' }}
+                      />
+                    </Flex>
+                  )}
+
+                  <Flex direction="column" gap={8}>
+                    <Typography.Label>{t('common.quantity')} ({t('common.lots')})</Typography.Label>
+                    <Input
+                      type="number"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      step="1"
+                      style={{ width: '100%' }}
+                    />
+                    <Typography.Label style={{ color: 'gray', fontSize: '12px' }}>
+                      {t('common.lot_size')}: {selectedInstrument.lotsize ?? 1}
+                    </Typography.Label>
+                  </Flex>
+
+                  <Button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    style={{
+                      marginTop: '8px',
+                      width: '100%',
+                      background: 'var(--button-primary-background, #007aff)',
+                      color: 'white',
+                      border: 'none',
+                      fontWeight: 600
+                    }}
+                  >
+                    {loading ? t('order.submitting') : (side === Side.Buy ? t('order.submit_buy_order') : t('order.submit_sell_order'))}
+                  </Button>
                 </Flex>
-              )}
-
-              {/* Quantity Input */}
-              <Flex direction="column" gap={8}>
-                <Typography.Label>{t('common.quantity')} ({t('common.lots')})</Typography.Label>
-                <Input
-                  type="number"
-                  value={quantity}
-                  onChange={(e) => setQuantity(e.target.value)}
-                  step="1"
-                  style={{ width: '100%' }}
-                />
-                <Typography.Label style={{ color: 'gray', fontSize: '12px' }}>
-                  {t('common.lot_size')}: {selectedInstrument.lotsize ?? 1}
-                </Typography.Label>
-              </Flex>
-
-              {/* Submit Button */}
-              <Button
-                onClick={handleSubmit}
-                disabled={loading}
-                style={{
-                  marginTop: '16px',
-                  width: '100%',
-                  background: 'var(--button-primary-background, #007aff)',
-                  color: 'white',
-                  border: 'none',
-                  fontWeight: 600
-                }}
-              >
-                {loading ? t('order.submitting') : (side === Side.Buy ? t('order.submit_buy_order') : t('order.submit_sell_order'))}
-              </Button>
-              <br />
+              </div>
             </Flex>
           )}
 
