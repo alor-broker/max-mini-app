@@ -171,16 +171,28 @@ export const HomePage: React.FC = () => {
             <Container style={{ padding: '24px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px' }}>
               <Flex direction="column" gap={16}>
 
-                <Flex justify="space-between" align="center">
+                <Flex justify="space-between" align="center" style={{ width: '100%' }}>
                   <PortfolioSelector
                     portfolios={portfolios}
                     selectedPortfolio={selectedPortfolio}
                     onSelect={handlePortfolioSelect}
                     triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
                   />
-                  <Flex gap={8}>
+                  <Flex gap={12} align="center" style={{ marginLeft: 'auto' }}>
                     <LanguageSwitcher />
-                    <Button onClick={logout} style={{ color: 'white', borderColor: 'white' }}>{t('common.logout')}</Button>
+                    <Flex
+                      onClick={logout}
+                      gap={8}
+                      align="center"
+                      justify="end"
+                      style={{ cursor: 'pointer', color: 'white' }}
+                      title={t('common.logout')}
+                    >
+                      <span style={{ fontSize: '14px', fontWeight: 500 }}>{t('common.logout')}</span>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17 16L21 12M21 12L17 8M21 12H9M13 16V17C13 18.6569 11.6569 20 10 20H6C4.34315 20 3 18.6569 3 17V7C3 5.34315 4.34315 4 6 4H10C11.6569 4 13 5.34315 13 7V8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </Flex>
                   </Flex>
                 </Flex>
 
