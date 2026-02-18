@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { Panel } from '@maxhub/max-ui';
 
 interface ModalLayoutProps {
   children: React.ReactNode;
@@ -54,7 +53,7 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({ children, onClose }) =
       <div style={{
         width: '100%',
         height: '92%', // Almost full screen
-        background: 'var(--background-page)', // Use theme background
+        background: 'var(--background-surface-primary)',
         borderTopLeftRadius: '16px',
         borderTopRightRadius: '16px',
         transform: isVisible ? 'translateY(0)' : 'translateY(100%)',
@@ -81,7 +80,14 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({ children, onClose }) =
         </div>
 
         {/* Content Area */}
-        <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden' }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            background: 'var(--background-surface-primary)'
+          }}
+        >
           {children}
         </div>
       </div>
