@@ -42,6 +42,7 @@
   },
   "home": {
     "new_order": "Новая заявка",
+    "operations_history": "История",
     "portfolio_summary": "Сводка портфеля",
     "investment_ideas": "Инвестидеи",
     "active_orders": "Активные заявки",
@@ -49,7 +50,6 @@
     "completed_orders": "Неактивные заявки",
     "positions": "Позиции",
     "trades_today": "Сделки сегодня",
-    "grades_today": "Сделки сегодня",
     "no_active_orders": "Нет активных заявок",
     "no_completed_orders": "Нет завершенных заявок",
     "no_positions": "Нет открытых позиций",
@@ -57,6 +57,12 @@
     "view_all_orders_soon": "Просмотр всех заявок скоро будет доступен",
     "view_all_positions_soon": "Просмотр всех позиций скоро будет доступен",
     "view_all_trades_soon": "Просмотр всех сделок скоро будет доступен"
+  },
+  "history": {
+    "title": "История операций",
+    "operation": "Операция",
+    "empty": "Зачисления, списания и переводы не найдены",
+    "loading_more": "Загрузка..."
   },
   "order": {
     "title": "Новая заявка",

@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, Flex, Panel, Spinner, Typography } from '@maxhub/max-ui';
+import { Button, CellList, CellSimple, Flex, Panel, Spinner, Typography } from '@maxhub/max-ui';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../auth/AuthContext';
@@ -146,43 +146,32 @@ export const OperationsHistoryPage: React.FC = () => {
               {t('history.empty', { defaultValue: 'No deposits, withdrawals, or transfers found' })}
             </Typography.Body>
           ) : (
-            <Flex direction="column" gap={8}>
+            <CellList mode="island" filled>
               {items.map((item) => {
                 const amount = getAmount(item);
+                const amountText = typeof amount === 'number'
+                  ? `${amount > 0 ? '+' : ''}${formatter.format(amount)} ${item.currency ?? item.data?.currency ?? ''}`.trim()
+                  : '-';
+
                 return (
-                  <div
+                  <CellSimple
                     key={item.id}
-                    style={{
-                      border: '1px solid var(--border-default, rgba(0,0,0,0.08))',
-                      borderRadius: '12px',
-                      padding: '12px 14px',
-                      background: 'var(--background-surface-card)'
-                    }}
-                  >
-                    <Flex justify="space-between" align="center" gap={8}>
-                      <Flex direction="column" gap={4}>
-                        <Typography.Body style={{ fontWeight: 600 }}>
-                          {item.title || item.subType || t('history.operation', { defaultValue: 'Operation' })}
-                        </Typography.Body>
-                        <Typography.Label style={{ color: 'var(--text-secondary)' }}>
-                          {new Date(item.date).toLocaleString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
-                        </Typography.Label>
-                      </Flex>
-                      <Flex direction="column" gap={4} style={{ alignItems: 'flex-end' }}>
+                    title={item.title || item.subType || t('history.operation', { defaultValue: 'Operation' })}
+                    subtitle={new Date(item.date).toLocaleString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
+                    after={(
+                      <Flex direction="column" gap={2} style={{ alignItems: 'flex-end' }}>
                         <Typography.Body style={{ color: getAmountColor(amount), fontWeight: 700 }}>
-                          {typeof amount === 'number'
-                            ? `${amount > 0 ? '+' : ''}${formatter.format(amount)} ${item.currency ?? item.data?.currency ?? ''}`.trim()
-                            : '-'}
+                          {amountText}
                         </Typography.Body>
                         <Typography.Label style={{ color: 'var(--text-secondary)' }}>
                           {item.statusName || item.status}
                         </Typography.Label>
                       </Flex>
-                    </Flex>
-                  </div>
+                    )}
+                  />
                 );
               })}
-            </Flex>
+            </CellList>
           )}
 
           {hasMore && (
