@@ -8,9 +8,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   isLocked: boolean;
+  isLoggingOut: boolean;
   login: () => void;
   handleSsoCallback: (refreshToken: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   unlock: () => void;
 }
 
@@ -21,6 +22,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLocked, setIsLocked] = useState<boolean>(false);
+  const [isLoggingOut, setIsLoggingOut] = useState<boolean>(false);
 
   useEffect(() => {
     const initAuth = async () => {
@@ -88,16 +90,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const logout = () => {
-    clearTokens();
+  const logout = async () => {
+    setIsLoggingOut(true);
+    setIsLoading(true);
     setUser(null);
     setIsAuthenticated(false);
     setIsLocked(false);
-    AuthService.redirectToSso(true);
+
+    try {
+      await clearTokens();
+    } catch (error) {
+      console.error("Failed to clear tokens during logout:", error);
+    } finally {
+      AuthService.redirectToSso(true);
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, isLocked, login, handleSsoCallback, logout, unlock }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, isLoading, isLocked, isLoggingOut, login, handleSsoCallback, logout, unlock }}>
       {children}
     </AuthContext.Provider>
   );

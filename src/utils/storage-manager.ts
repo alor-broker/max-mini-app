@@ -122,6 +122,9 @@ export const storageManager = {
    */
   removeItem: async (key: string): Promise<void> => {
     // console.log(`[StorageManager] removeItem: ${key}`);
+    // Always remove local backup to keep consistency with setItem fallback strategy.
+    localStorage.removeItem(key);
+
     if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
       try {
         await safeBridgeCall(window.WebApp.DeviceStorage.removeItem(key));
@@ -131,10 +134,7 @@ export const storageManager = {
           console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
           isDeviceStorageSupported = false;
         }
-        localStorage.removeItem(key);
       }
-    } else {
-      localStorage.removeItem(key);
     }
   },
 
@@ -143,6 +143,9 @@ export const storageManager = {
    */
   clear: async (): Promise<void> => {
     // console.log(`[StorageManager] clear`);
+    // Always clear local backup to keep consistency with setItem fallback strategy.
+    localStorage.clear();
+
     if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
       try {
         await safeBridgeCall(window.WebApp.DeviceStorage.clear());
@@ -152,10 +155,7 @@ export const storageManager = {
           console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
           isDeviceStorageSupported = false;
         }
-        localStorage.clear();
       }
-    } else {
-      localStorage.clear();
     }
   }
 };

@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Panel, Grid, Container, Flex, Typography, Button } from '@maxhub/max-ui';
+import { Panel, Grid, Container, Flex, Typography, Button, Spinner } from '@maxhub/max-ui';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { storageManager } from '../../utils/storage-manager';
 import { useTranslation } from 'react-i18next';
+import { useLogoutAction } from '../../auth/useLogoutAction';
 
 // Constants
 const PIN_LENGTH = 4;
@@ -51,7 +52,10 @@ export const UnlockPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { logout, unlock, isLocked, isAuthenticated, login } = useAuth();
+  const { unlock, isLocked, isAuthenticated, login, isLoading: isAuthLoading } = useAuth();
+  const { runLogout, isLoggingOut } = useLogoutAction(async () => {
+    await storageManager.removeItem(STORAGE_KEY_APP_PASSWORD);
+  });
 
   const [pin, setPin] = useState('');
   const [storedPin, setStoredPin] = useState<string | null>(null);
@@ -92,7 +96,7 @@ export const UnlockPage: React.FC = () => {
 
   useEffect(() => {
     // If we are unlocked (or was never locked) and loading is done
-    if (!isLoading && !isLocked) {
+    if (!isLoading && !isAuthLoading && !isLoggingOut && !isLocked) {
       if (isAuthenticated) {
         navigate(redirectUrl, { replace: true });
       } else {
@@ -100,7 +104,7 @@ export const UnlockPage: React.FC = () => {
         login();
       }
     }
-  }, [isLoading, isLocked, isAuthenticated, navigate, redirectUrl, login]);
+  }, [isLoading, isAuthLoading, isLoggingOut, isLocked, isAuthenticated, navigate, redirectUrl, login]);
 
   const handleSuccess = useCallback(() => {
     vibrate(50);
@@ -115,11 +119,11 @@ export const UnlockPage: React.FC = () => {
     setAttemptsCount(prev => {
       const newCount = prev - 1;
       if (newCount <= 0) {
-        logout();
+        void runLogout();
       }
       return newCount;
     });
-  }, [vibrate, logout]);
+  }, [vibrate, runLogout]);
 
   useEffect(() => {
     if (pin.length === PIN_LENGTH) {
@@ -237,11 +241,10 @@ export const UnlockPage: React.FC = () => {
             <Button
               style={{ marginTop: '16px', ...ghostButtonStyle, width: 'auto', padding: '0 16px', fontSize: '16px', color: '#1890ff' }}
               onClick={async () => {
-                await storageManager.removeItem(STORAGE_KEY_APP_PASSWORD);
-                logout();
+                await runLogout();
               }}
             >
-              {t('auth.logout_reset')}
+              {isLoggingOut ? <Spinner /> : t('auth.logout_reset')}
             </Button>
           )}
 

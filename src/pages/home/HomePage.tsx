@@ -14,6 +14,7 @@ import { HomeActions } from './HomeActions';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 import { IconLogout, HeaderBackgroundWave } from '../../components/Icons';
+import { useLogoutAction } from '../../auth/useLogoutAction';
 
 // Placeholder components for sections
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -26,7 +27,8 @@ const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title
 );
 
 export const HomePage: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
+  const { runLogout, isLoggingOut } = useLogoutAction();
   const { t } = useTranslation();
   const [portfolios, setPortfolios] = useState<ClientPortfolio[]>([]);
   const [selectedPortfolio, setSelectedPortfolio] = useState<ClientPortfolio | null>(null);
@@ -204,14 +206,14 @@ export const HomePage: React.FC = () => {
         <Flex gap={12} align="center">
           <LanguageSwitcher />
           <Flex
-            onClick={logout}
+            onClick={() => { void runLogout(); }}
             gap={8}
             align="center"
             justify="end"
             style={{ cursor: 'pointer', color: 'white' }}
             title={t('common.logout')}
           >
-            <IconLogout width={20} height={20} />
+            {isLoggingOut ? <Spinner /> : <IconLogout width={20} height={20} />}
           </Flex>
         </Flex>
       </div>
@@ -246,15 +248,17 @@ export const HomePage: React.FC = () => {
                     <Flex gap={12} align="center" style={{ marginLeft: 'auto' }}>
                       <LanguageSwitcher />
                       <Flex
-                        onClick={logout}
+                        onClick={() => { void runLogout(); }}
                         gap={8}
                         align="center"
                         justify="end"
                         style={{ cursor: 'pointer', color: 'white' }}
                         title={t('common.logout')}
                       >
-                        <span style={{ fontSize: '14px', fontWeight: 500 }}>{t('common.logout')}</span>
-                        <IconLogout />
+                        <span style={{ fontSize: '14px', fontWeight: 500 }}>
+                          {isLoggingOut ? t('common.loading') : t('common.logout')}
+                        </span>
+                        {isLoggingOut ? <Spinner /> : <IconLogout />}
                       </Flex>
                     </Flex>
                   </Flex>
