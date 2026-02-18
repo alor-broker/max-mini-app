@@ -98,8 +98,18 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
         horzLines: { visible: true, color: palette.strokeGrid }
       },
       crosshair: {
-        vertLine: { visible: false, labelVisible: false },
-        horzLine: { visible: false, labelVisible: false }
+        vertLine: {
+          visible: true,
+          labelVisible: false,
+          color: palette.strokeGrid,
+          width: 1
+        },
+        horzLine: {
+          visible: true,
+          labelVisible: true,
+          color: palette.strokeGrid,
+          width: 1
+        }
       },
       handleScroll: false,
       handleScale: false
@@ -219,8 +229,8 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
         marginBottom: '12px',
         padding: '10px',
         borderRadius: '12px',
-        background: 'var(--background-accent-neutral-fade, rgba(0, 0, 0, 0.04))',
-        border: '1px solid var(--stroke-separator-primary, rgba(0, 0, 0, 0.08))'
+        background: 'transparent',
+        border: '1px solid var(--stroke-separator-secondary, rgba(0, 0, 0, 0.08))'
       }}
     >
       <div style={{ height: '128px', position: 'relative' }}>
