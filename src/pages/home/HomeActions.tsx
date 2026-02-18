@@ -53,7 +53,7 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
           onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
           onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <span style={{ fontSize: '24px', color: 'white', lineHeight: 1 }}>{icon}</span>
+          {icon}
         </div>
         <Typography.Label style={{ color: 'white', fontSize: '11px', textAlign: 'center' }}>{label}</Typography.Label>
       </Flex>
@@ -64,12 +64,21 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
     <>
       <Flex gap={24} justify="center" style={{ width: '100%', marginTop: '16px' }}>
         <ActionButton
-          icon="+"
+          icon={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 4V20M4 12H20" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          }
           label={t('home.new_order')}
           onClick={() => navigate('/order/new', { state: { portfolio, background: location } })}
         />
         <ActionButton
-          icon="×"
+          icon={
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18.36 6.64L6.64 18.36" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M6.64 6.64L18.36 18.36" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          }
           label={t('home.cancel_all_orders')}
           onClick={() => {
             if (!portfolio) {
