@@ -8,6 +8,7 @@ import { SsoCallbackPage } from './pages/auth/SsoCallbackPage';
 import { CreateOrderPage } from './pages/create-order/CreateOrderPage';
 import { OrderDetailPage } from './pages/order-detail/OrderDetailPage';
 import { TradeDetailPage } from './pages/trade-detail/TradeDetailPage';
+import { OperationsHistoryPage } from './pages/operations-history/OperationsHistoryPage';
 import { MaxUI } from '@maxhub/max-ui';
 import '@maxhub/max-ui/dist/styles.css';
 
@@ -58,6 +59,14 @@ function AppRoutes() {
             </RequireAuth>
           }
         />
+        <Route
+          path="/operations/history"
+          element={
+            <RequireAuth>
+              <OperationsHistoryPage />
+            </RequireAuth>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
@@ -82,6 +91,13 @@ function AppRoutes() {
             <RequireAuth>
               <ModalLayout onClose={() => window.history.back()}>
                 <TradeDetailPage />
+              </ModalLayout>
+            </RequireAuth>
+          } />
+          <Route path="/operations/history" element={
+            <RequireAuth>
+              <ModalLayout onClose={() => window.history.back()}>
+                <OperationsHistoryPage />
               </ModalLayout>
             </RequireAuth>
           } />

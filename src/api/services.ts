@@ -87,6 +87,61 @@ export interface InvestmentIdea {
   validTo: Date | null;
 }
 
+export interface HistoryItemData {
+  order?: string;
+  amount?: number;
+  accountFrom?: string;
+  accountTo?: string;
+  subportfolioFrom?: string;
+  subportfolioTo?: string;
+  currency?: string;
+  currencyExchange?: string;
+  accountNumber?: string;
+  orderType?: string;
+  issuer?: string;
+  price?: number;
+  extCurrency?: string | null;
+}
+
+export type HistorySearchType = 'deal' | 'moneymove' | 'operation';
+export type HistoryEndpoint = 'all' | 'operations';
+
+export interface HistoryItem {
+  id: string;
+  type: 'moneymove' | 'operation' | string;
+  date: string;
+  status: string;
+  statusName?: string;
+  icon?: string;
+  title?: string;
+  subType?: string;
+  sum?: number;
+  currency?: string;
+  data?: HistoryItemData;
+  documents?: unknown[];
+  files?: unknown[];
+  refuseReason?: string | null;
+  cancelling?: boolean;
+  agreementId?: string;
+}
+
+export interface HistoryResponse {
+  list: HistoryItem[];
+  total?: number;
+}
+
+export interface HistoryFilters {
+  endpoint?: HistoryEndpoint;
+  limit?: number;
+  offset?: number;
+  dateFrom?: string;
+  dateTo?: string;
+  status?: string;
+  search?: string;
+  searchType?: HistorySearchType;
+  loadDocuments?: boolean;
+}
+
 export interface PortfolioPosition {
   symbol: string;
   brokerSymbol: string;
@@ -422,3 +477,37 @@ export const InvestmentIdeasService = {
     }));
   }
 }
+
+export const OperationsHistoryService = {
+  getHistory: async (
+    agreementId: string,
+    filters: HistoryFilters = {}
+  ): Promise<HistoryResponse> => {
+    const endpoint = filters.endpoint ?? 'all';
+    const params = new URLSearchParams();
+
+    params.append('limit', String(filters.limit ?? 30));
+    params.append('offset', String(filters.offset ?? 0));
+    if (filters.dateFrom) params.append('dateFrom', filters.dateFrom);
+    if (filters.dateTo) params.append('dateTo', filters.dateTo);
+    if (filters.status) params.append('status', filters.status);
+    if (filters.search) params.append('search', filters.search);
+    if (filters.searchType) params.append('searchType', filters.searchType);
+    if (typeof filters.loadDocuments === 'boolean') {
+      params.append('loadDocuments', String(filters.loadDocuments));
+    }
+
+    const raw = await apiClient.get<HistoryResponse | HistoryItem[]>(
+      `${API_CONFIG.historyApiUrl}/client/v1.0/history/${agreementId}/${endpoint}?${params.toString()}`
+    );
+
+    if (Array.isArray(raw)) {
+      return { list: raw, total: raw.length };
+    }
+
+    return {
+      list: Array.isArray(raw?.list) ? raw.list : [],
+      total: raw?.total
+    };
+  }
+};

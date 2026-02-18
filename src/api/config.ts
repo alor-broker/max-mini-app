@@ -4,6 +4,7 @@ import { environment as devEnv } from '../environments/environment.dev';
 export interface ApiConfig {
   apiUrl: string;
   userDataUrl: string;
+  historyApiUrl: string;
   ssoUrl: string;
   superAppUrl: string;
 }
@@ -15,6 +16,7 @@ const environment = isDev ? devEnv : prodEnv;
 export const API_CONFIG: ApiConfig = {
   apiUrl: environment.apiUrl,
   userDataUrl: environment.userDataUrl,
+  historyApiUrl: environment.historyApiUrl ?? environment.userDataUrl,
   ssoUrl: environment.ssoUrl,
   superAppUrl: environment.superAppUrl
 };

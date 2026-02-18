@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ClientPortfolio, OrdersService } from '../../api/services';
 import { useNotification } from '../../components/NotificationContext';
-import { IconNewOrder, IconCancelAll } from '../../components/Icons';
+import { IconNewOrder, IconCancelAll, IconOperationsHistory } from '../../components/Icons';
 
 
 interface HomeActionsProps {
@@ -68,6 +68,11 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
           icon={<IconNewOrder />}
           label={t('home.new_order')}
           onClick={() => navigate('/order/new', { state: { portfolio, background: location } })}
+        />
+        <ActionButton
+          icon={<IconOperationsHistory />}
+          label={t('home.operations_history', { defaultValue: 'History' })}
+          onClick={() => navigate('/operations/history', { state: { portfolio, background: location } })}
         />
         <ActionButton
           icon={<IconCancelAll />}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Panel, Container, Flex, Typography, Button, Grid } from '@maxhub/max-ui';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { PortfolioOrder, Side, OrderStatus, OrderType, OrdersService } from '../../api/services';
+import { PortfolioOrder, Side, OrderStatus, OrdersService } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../components/NotificationContext';
 
