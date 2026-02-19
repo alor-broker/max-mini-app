@@ -37,21 +37,10 @@ export const OrderDetailPage: React.FC = () => {
 
   const order = (location.state as { order?: PortfolioOrder })?.order;
 
-  const handleBack = () => {
-    const state = location.state as { background?: any };
-    if (state?.background) {
-      navigate(-1);
-    } else {
-      navigate('/');
-    }
-  };
-
   if (!order) {
     return (
       <ModalPageLayout
         title={t('orderDetail.title')}
-        onBack={handleBack}
-        backLabel={t('common.back')}
       >
         <Container style={{ padding: '24px 16px', textAlign: 'center' }}>
           <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('orderDetail.not_found')}</Typography.Body>
@@ -111,26 +100,10 @@ export const OrderDetailPage: React.FC = () => {
         >
           <Flex direction="column" gap={16}>
             {/* Navigation row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <Button
-                  onClick={handleBack}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'white',
-                    fontWeight: 500,
-                    fontSize: '15px',
-                    padding: '4px 0',
-                  }}
-                >
-                  ‹ {t('common.back')}
-                </Button>
-              </div>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
               <Typography.Headline style={{ color: 'white', textAlign: 'center', whiteSpace: 'nowrap' }}>
                 {t('orderDetail.title')}
               </Typography.Headline>
-              <div></div>
             </div>
 
             {/* Symbol & Badges */}

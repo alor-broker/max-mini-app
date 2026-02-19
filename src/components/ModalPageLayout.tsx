@@ -1,11 +1,9 @@
 import React from 'react';
-import { Button, Flex, Panel, Typography } from '@maxhub/max-ui';
+import { Flex, Panel, Typography } from '@maxhub/max-ui';
 
 interface ModalPageLayoutProps {
   children: React.ReactNode;
   title?: React.ReactNode;
-  onBack?: () => void;
-  backLabel?: string;
   header?: React.ReactNode;
   contentGap?: number;
   padding?: string;
@@ -15,22 +13,14 @@ interface ModalPageLayoutProps {
 export const ModalPageLayout: React.FC<ModalPageLayoutProps> = ({
   children,
   title,
-  onBack,
-  backLabel,
   header,
   contentGap = 16,
   padding = '16px',
   background = 'var(--background-surface-primary)',
 }) => {
-  const defaultHeader = (title && onBack) ? (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-        <Button onClick={onBack} style={{ background: 'transparent', color: 'var(--text-primary)', border: 'none' }}>
-          &lt; {backLabel}
-        </Button>
-      </div>
+  const defaultHeader = title ? (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', paddingBottom: '16px' }}>
       <Typography.Headline style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{title}</Typography.Headline>
-      <div />
     </div>
   ) : null;
 

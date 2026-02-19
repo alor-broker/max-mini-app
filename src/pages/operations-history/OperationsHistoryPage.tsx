@@ -28,16 +28,6 @@ export const OperationsHistoryPage: React.FC = () => {
 
   const agreementId = portfolio?.agreement ?? '';
 
-  const handleBack = () => {
-    const state = location.state as { background?: unknown };
-    if (state?.background) {
-      navigate(-1);
-      return;
-    }
-
-    navigate('/');
-  };
-
   useEffect(() => {
     const state = location.state as { portfolio?: ClientPortfolio };
     if (state?.portfolio) {
@@ -125,8 +115,6 @@ export const OperationsHistoryPage: React.FC = () => {
   return (
     <ModalPageLayout
       title={t('history.title', { defaultValue: 'Operations History' })}
-      onBack={handleBack}
-      backLabel={t('common.back')}
     >
       {loading ? (
         <Flex justify="center" style={{ padding: '32px 0' }}>

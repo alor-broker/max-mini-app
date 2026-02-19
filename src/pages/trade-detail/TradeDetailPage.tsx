@@ -26,21 +26,10 @@ export const TradeDetailPage: React.FC = () => {
 
   const trade = (location.state as { trade?: PortfolioTrade })?.trade;
 
-  const handleBack = () => {
-    const state = location.state as { background?: any };
-    if (state?.background) {
-      navigate(-1);
-    } else {
-      navigate('/');
-    }
-  };
-
   if (!trade) {
     return (
       <ModalPageLayout
         title={t('tradeDetail.title')}
-        onBack={handleBack}
-        backLabel={t('common.back')}
       >
         <Container style={{ padding: '24px 16px', textAlign: 'center' }}>
           <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('tradeDetail.not_found')}</Typography.Body>
@@ -78,27 +67,10 @@ export const TradeDetailPage: React.FC = () => {
         >
           <Flex direction="column" gap={16}>
             {/* Navigation row */}
-            {/* Navigation row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
-              <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <Button
-                  onClick={handleBack}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    color: 'white',
-                    fontWeight: 500,
-                    fontSize: '15px',
-                    padding: '4px 0',
-                  }}
-                >
-                  ‹ {t('common.back')}
-                </Button>
-              </div>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%' }}>
               <Typography.Headline style={{ color: 'white', textAlign: 'center', whiteSpace: 'nowrap' }}>
                 {t('tradeDetail.title')}
               </Typography.Headline>
-              <div></div>
             </div>
 
             {/* Symbol & Badge */}
