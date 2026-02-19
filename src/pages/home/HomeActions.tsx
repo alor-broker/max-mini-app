@@ -38,7 +38,7 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
   };
 
   const ActionButton = ({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) => (
-    <div onClick={onClick} style={{ cursor: 'pointer', textAlign: 'center', minWidth: '80px' }}>
+    <div onClick={onClick} data-no-pull-refresh="true" style={{ cursor: 'pointer', textAlign: 'center', minWidth: '80px' }}>
       <Flex direction="column" align="center" gap={8}>
         <div style={{
           width: '48px',

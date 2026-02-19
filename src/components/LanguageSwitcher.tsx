@@ -14,6 +14,7 @@ export const LanguageSwitcher: React.FC = () => {
   return (
     <div
       onClick={toggleLanguage}
+      data-no-pull-refresh="true"
       style={{
         cursor: 'pointer',
         display: 'flex',

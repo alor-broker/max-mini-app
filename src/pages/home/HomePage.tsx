@@ -150,7 +150,15 @@ export const HomePage: React.FC = () => {
 
   // Pull to refresh logic
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [touchStart, setTouchStart] = useState(0);
+  const touchStartRef = React.useRef<number | null>(null);
+  const shouldHandlePullRef = React.useRef(false);
+
+  const isInteractiveTouchTarget = (target: EventTarget | null) => {
+    if (!(target instanceof Element)) return false;
+    return Boolean(
+      target.closest('button, a, input, select, textarea, [role="button"], [data-no-pull-refresh="true"]')
+    );
+  };
 
   const refreshData = async () => {
     setIsRefreshing(true);
@@ -186,16 +194,31 @@ export const HomePage: React.FC = () => {
 
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (window.scrollY === 0) {
-      setTouchStart(e.targetTouches[0].clientY);
+    if (window.scrollY !== 0 || isRefreshing || isInteractiveTouchTarget(e.target)) {
+      shouldHandlePullRef.current = false;
+      touchStartRef.current = null;
+      return;
     }
+
+    shouldHandlePullRef.current = true;
+    touchStartRef.current = e.targetTouches[0].clientY;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    const touchY = e.targetTouches[0].clientY;
-    if (window.scrollY === 0 && touchY - touchStart > 100 && !isRefreshing) {
-      refreshData();
+    if (!shouldHandlePullRef.current || touchStartRef.current === null || isRefreshing) {
+      return;
     }
+
+    const touchY = e.targetTouches[0].clientY;
+    if (window.scrollY === 0 && touchY - touchStartRef.current > 100) {
+      shouldHandlePullRef.current = false;
+      void refreshData();
+    }
+  };
+
+  const handleTouchEnd = () => {
+    shouldHandlePullRef.current = false;
+    touchStartRef.current = null;
   };
 
   // Scroll tracking for sticky header
@@ -221,6 +244,7 @@ export const HomePage: React.FC = () => {
     <Panel
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       style={{ minHeight: '100vh', position: 'relative' }}
     >
       {/* Sticky Header */}
@@ -251,14 +275,15 @@ export const HomePage: React.FC = () => {
         />
         <Flex gap={12} align="center">
           <LanguageSwitcher />
-          <Flex
-            onClick={() => { void runLogout(); }}
-            gap={8}
-            align="center"
-            justify="end"
-            style={{ cursor: 'pointer', color: 'white' }}
-            title={t('common.logout')}
-          >
+                      <Flex
+                        onClick={() => { void runLogout(); }}
+                        gap={8}
+                        align="center"
+                        justify="end"
+                        data-no-pull-refresh="true"
+                        style={{ cursor: 'pointer', color: 'white' }}
+                        title={t('common.logout')}
+                      >
             {isLoggingOut ? <Spinner /> : <IconLogout width={20} height={20} />}
           </Flex>
         </Flex>
@@ -298,6 +323,7 @@ export const HomePage: React.FC = () => {
                         gap={8}
                         align="center"
                         justify="end"
+                        data-no-pull-refresh="true"
                         style={{ cursor: 'pointer', color: 'white' }}
                         title={t('common.logout')}
                       >
