@@ -98,19 +98,18 @@ export const OrderDetailPage: React.FC = () => {
   };
 
   return (
-    <ModalPageLayout>
-      <Grid gap={16} cols={1}>
+    <ModalPageLayout padding="0" contentGap={0}>
+      <Flex direction="column" align="stretch" gap={0} style={{ width: '100%' }}>
         {/* Gradient Header — full width, matching home page */}
         <Container
           style={{
             padding: '24px 16px',
             background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
             color: 'white',
-            borderRadius: '16px',
+            borderRadius: '0',
           }}
         >
           <Flex direction="column" gap={16}>
-            {/* Navigation row */}
             {/* Navigation row */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
               <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
@@ -178,83 +177,91 @@ export const OrderDetailPage: React.FC = () => {
           </Flex>
         </Container>
 
-        {/* Details section */}
-        <Container
-          style={{
-            padding: '16px',
-            backgroundColor: 'var(--background-surface-tertiary)',
-            borderRadius: '16px',
-          }}
+        {/* Details section & Buttons */}
+        <Flex
+          direction="column"
+          align="stretch"
+          gap={16}
+          style={{ width: '100%', padding: '16px', boxSizing: 'border-box' }}
         >
-          <DetailRow label={t('orderDetail.exchange')} value={order.exchange} />
-          <DetailRow label={t('orderDetail.portfolio')} value={order.portfolio} />
-          <DetailRow
-            label={t('orderDetail.order_type')}
-            value={t(`orderDetail.type.${order.type}`)}
-          />
-          <DetailRow
-            label={t('orderDetail.side')}
-            value={isBuy ? t('common.buy') : t('common.sell')}
-            valueColor={sideColor}
-          />
-          <DetailRow
-            label={t('orderDetail.quantity')}
-            value={`${order.filledQtyUnits} / ${order.qtyUnits}`}
-          />
-          <DetailRow
-            label={t('orderDetail.price')}
-            value={`${order.price.toLocaleString()} ₽`}
-          />
-          <DetailRow
-            label={t('orderDetail.trans_time')}
-            value={formatDate(order.transTime)}
-          />
-          <DetailRow
-            label={t('orderDetail.end_time')}
-            value={formatDate(order.endTime)}
-          />
-        </Container>
-
-        {/* Action button */}
-        <Container style={{ padding: '0 16px 16px' }}>
-          <Button
-            onClick={() => navigate('/order/new', { state: { symbol: order.symbol, background: location } })}
+          <Container
             style={{
               width: '100%',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              border: 'none',
-              color: 'white',
-              fontWeight: 600,
-              padding: '14px',
-              borderRadius: '12px',
-              fontSize: '15px',
+              padding: '16px',
+              backgroundColor: 'var(--background-surface-tertiary)',
+              borderRadius: '16px',
+              boxSizing: 'border-box',
             }}
           >
-            {t('orderDetail.new_order_for_symbol')}
-          </Button>
-        </Container>
+            <DetailRow label={t('orderDetail.exchange')} value={order.exchange} />
+            <DetailRow label={t('orderDetail.portfolio')} value={order.portfolio} />
+            <DetailRow
+              label={t('orderDetail.order_type')}
+              value={t(`orderDetail.type.${order.type}`)}
+            />
+            <DetailRow
+              label={t('orderDetail.side')}
+              value={isBuy ? t('common.buy') : t('common.sell')}
+              valueColor={sideColor}
+            />
+            <DetailRow
+              label={t('orderDetail.quantity')}
+              value={`${order.filledQtyUnits} / ${order.qtyUnits}`}
+            />
+            <DetailRow
+              label={t('orderDetail.price')}
+              value={`${order.price.toLocaleString()} ₽`}
+            />
+            <DetailRow
+              label={t('orderDetail.trans_time')}
+              value={formatDate(order.transTime)}
+            />
+            <DetailRow
+              label={t('orderDetail.end_time')}
+              value={formatDate(order.endTime)}
+            />
+          </Container>
 
-        {order.status === OrderStatus.Working && (
-          <Container style={{ padding: '0 16px 16px' }}>
+          <Container style={{ width: '100%', padding: 0 }}>
             <Button
-              onClick={() => setShowConfirm(true)}
-              disabled={isCanceling}
+              onClick={() => navigate('/order/new', { state: { symbol: order.symbol, background: location } })}
               style={{
                 width: '100%',
-                background: 'transparent',
-                border: '1px solid #ef4444',
-                color: '#ef4444',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                border: 'none',
+                color: 'white',
                 fontWeight: 600,
                 padding: '14px',
                 borderRadius: '12px',
                 fontSize: '15px',
               }}
             >
-              {isCanceling ? t('orderDetail.canceling') : t('orderDetail.cancel_order')}
+              {t('orderDetail.new_order_for_symbol')}
             </Button>
           </Container>
-        )}
-      </Grid>
+
+          {order.status === OrderStatus.Working && (
+            <Container style={{ width: '100%', padding: 0 }}>
+              <Button
+                onClick={() => setShowConfirm(true)}
+                disabled={isCanceling}
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: '1px solid #ef4444',
+                  color: '#ef4444',
+                  fontWeight: 600,
+                  padding: '14px',
+                  borderRadius: '12px',
+                  fontSize: '15px',
+                }}
+              >
+                {isCanceling ? t('orderDetail.canceling') : t('orderDetail.cancel_order')}
+              </Button>
+            </Container>
+          )}
+        </Flex>
+      </Flex>
 
       {showConfirm && (
         <div style={{

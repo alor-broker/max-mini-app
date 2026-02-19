@@ -35,7 +35,7 @@ export const ModalPageLayout: React.FC<ModalPageLayoutProps> = ({
   ) : null;
 
   return (
-    <Panel style={{ minHeight: '100%', background }}>
+    <Panel style={{ minHeight: '100%', width: '100%', background }}>
       <div
         style={{
           padding,
@@ -45,7 +45,7 @@ export const ModalPageLayout: React.FC<ModalPageLayoutProps> = ({
           background
         }}
       >
-        <Flex direction="column" gap={contentGap} style={{ width: '100%' }}>
+        <Flex direction="column" align="stretch" gap={contentGap} style={{ width: '100%' }}>
           {header ?? defaultHeader}
           {children}
         </Flex>
