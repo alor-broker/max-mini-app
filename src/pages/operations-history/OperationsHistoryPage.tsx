@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Button, CellList, CellSimple, Flex, Panel, Spinner, Typography } from '@maxhub/max-ui';
+import { Button, CellList, CellSimple, Flex, Spinner, Typography } from '@maxhub/max-ui';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../auth/AuthContext';
 import { storageManager } from '../../utils/storage-manager';
+import { ModalPageLayout } from '../../components/ModalPageLayout';
 import {
   ClientPortfolio,
   ClientService,
@@ -122,69 +123,57 @@ export const OperationsHistoryPage: React.FC = () => {
   };
 
   return (
-    <Panel style={{ minHeight: '100%', background: 'var(--background-surface-primary)' }}>
-      <div style={{ padding: '16px', width: '100%', boxSizing: 'border-box' }}>
-        <Flex direction="column" gap={16} style={{ width: '100%' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-              <Button onClick={handleBack} style={{ background: 'transparent', color: '#333', border: 'none' }}>
-                &lt; {t('common.back')}
-              </Button>
-            </div>
-            <Typography.Headline style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
-              {t('history.title', { defaultValue: 'Operations History' })}
-            </Typography.Headline>
-            <div />
-          </div>
-
-          {loading ? (
-            <Flex justify="center" style={{ padding: '32px 0' }}>
-              <Spinner />
-            </Flex>
-          ) : items.length === 0 ? (
-            <Typography.Body style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '24px 0' }}>
-              {t('history.empty', { defaultValue: 'No deposits, withdrawals, or transfers found' })}
-            </Typography.Body>
-          ) : (
-            <CellList mode="island" filled>
-              {items.map((item) => {
-                const amount = getAmount(item);
-                const amountText = typeof amount === 'number'
-                  ? `${amount > 0 ? '+' : ''}${formatter.format(amount)} ${item.currency ?? item.data?.currency ?? ''}`.trim()
-                  : '-';
-
-                return (
-                  <CellSimple
-                    key={item.id}
-                    title={item.title || item.subType || t('history.operation', { defaultValue: 'Operation' })}
-                    subtitle={new Date(item.date).toLocaleString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
-                    after={(
-                      <Flex direction="column" gap={2} style={{ alignItems: 'flex-end' }}>
-                        <Typography.Body style={{ color: getAmountColor(amount), fontWeight: 700 }}>
-                          {amountText}
-                        </Typography.Body>
-                        <Typography.Label style={{ color: 'var(--text-secondary)' }}>
-                          {item.statusName || item.status}
-                        </Typography.Label>
-                      </Flex>
-                    )}
-                  />
-                );
-              })}
-            </CellList>
-          )}
-
-          {hasMore && (
-            <Button
-              onClick={onLoadMore}
-              disabled={loadingMore}
-              style={{ width: '100%', border: 'none', fontWeight: 600 }}
-            >
-              {loadingMore ? t('history.loading_more', { defaultValue: 'Loading...' }) : t('common.load_more')}
-            </Button>
-          )}
+    <ModalPageLayout
+      title={t('history.title', { defaultValue: 'Operations History' })}
+      onBack={handleBack}
+      backLabel={t('common.back')}
+    >
+      {loading ? (
+        <Flex justify="center" style={{ padding: '32px 0' }}>
+          <Spinner />
         </Flex>
-      </div>
-    </Panel>
+      ) : items.length === 0 ? (
+        <Typography.Body style={{ textAlign: 'center', color: 'var(--text-secondary)', padding: '24px 0' }}>
+          {t('history.empty', { defaultValue: 'No deposits, withdrawals, or transfers found' })}
+        </Typography.Body>
+      ) : (
+        <CellList mode="island" filled>
+          {items.map((item) => {
+            const amount = getAmount(item);
+            const amountText = typeof amount === 'number'
+              ? `${amount > 0 ? '+' : ''}${formatter.format(amount)} ${item.currency ?? item.data?.currency ?? ''}`.trim()
+              : '-';
+
+            return (
+              <CellSimple
+                key={item.id}
+                title={item.title || item.subType || t('history.operation', { defaultValue: 'Operation' })}
+                subtitle={new Date(item.date).toLocaleString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
+                after={(
+                  <Flex direction="column" gap={2} style={{ alignItems: 'flex-end' }}>
+                    <Typography.Body style={{ color: getAmountColor(amount), fontWeight: 700 }}>
+                      {amountText}
+                    </Typography.Body>
+                    <Typography.Label style={{ color: 'var(--text-secondary)' }}>
+                      {item.statusName || item.status}
+                    </Typography.Label>
+                  </Flex>
+                )}
+              />
+            );
+          })}
+        </CellList>
+      )}
+
+      {hasMore && (
+        <Button
+          onClick={onLoadMore}
+          disabled={loadingMore}
+          style={{ width: '100%', border: 'none', fontWeight: 600 }}
+        >
+          {loadingMore ? t('history.loading_more', { defaultValue: 'Loading...' }) : t('common.load_more')}
+        </Button>
+      )}
+    </ModalPageLayout>
   );
 };

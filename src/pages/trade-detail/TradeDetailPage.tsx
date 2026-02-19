@@ -1,8 +1,9 @@
 import React from 'react';
-import { Panel, Container, Flex, Typography, Button, Grid } from '@maxhub/max-ui';
+import { Container, Flex, Typography, Button, Grid } from '@maxhub/max-ui';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PortfolioTrade, Side } from '../../api/services';
 import { useTranslation } from 'react-i18next';
+import { ModalPageLayout } from '../../components/ModalPageLayout';
 
 const DetailRow: React.FC<{ label: string; value: React.ReactNode; valueColor?: string }> = ({ label, value, valueColor }) => (
   <Flex
@@ -36,14 +37,15 @@ export const TradeDetailPage: React.FC = () => {
 
   if (!trade) {
     return (
-      <Panel>
+      <ModalPageLayout
+        title={t('tradeDetail.title')}
+        onBack={handleBack}
+        backLabel={t('common.back')}
+      >
         <Container style={{ padding: '24px 16px', textAlign: 'center' }}>
           <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('tradeDetail.not_found')}</Typography.Body>
-          <Button onClick={handleBack} style={{ marginTop: '16px' }}>
-            {t('common.back')}
-          </Button>
         </Container>
-      </Panel>
+      </ModalPageLayout>
     );
   }
 
@@ -63,7 +65,7 @@ export const TradeDetailPage: React.FC = () => {
   };
 
   return (
-    <Panel style={{ minHeight: '100%', background: 'var(--background-surface-primary)' }}>
+    <ModalPageLayout>
       <Grid gap={16} cols={1}>
         {/* Gradient Header — full width, matching home page */}
         <Container
@@ -182,6 +184,6 @@ export const TradeDetailPage: React.FC = () => {
           </Button>
         </Container>
       </Grid>
-    </Panel>
+    </ModalPageLayout>
   );
 };

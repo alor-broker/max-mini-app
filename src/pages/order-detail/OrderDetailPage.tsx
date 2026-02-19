@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Panel, Container, Flex, Typography, Button, Grid } from '@maxhub/max-ui';
+import { Container, Flex, Typography, Button, Grid } from '@maxhub/max-ui';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { PortfolioOrder, Side, OrderStatus, OrdersService } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../components/NotificationContext';
+import { ModalPageLayout } from '../../components/ModalPageLayout';
 
 const statusColorMap: Record<OrderStatus, string> = {
   [OrderStatus.Working]: '#0a84ff',
@@ -47,14 +48,15 @@ export const OrderDetailPage: React.FC = () => {
 
   if (!order) {
     return (
-      <Panel>
+      <ModalPageLayout
+        title={t('orderDetail.title')}
+        onBack={handleBack}
+        backLabel={t('common.back')}
+      >
         <Container style={{ padding: '24px 16px', textAlign: 'center' }}>
           <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('orderDetail.not_found')}</Typography.Body>
-          <Button onClick={handleBack} style={{ marginTop: '16px' }}>
-            {t('common.back')}
-          </Button>
         </Container>
-      </Panel>
+      </ModalPageLayout>
     );
   }
 
@@ -96,7 +98,7 @@ export const OrderDetailPage: React.FC = () => {
   };
 
   return (
-    <Panel style={{ minHeight: '100%', background: 'var(--background-surface-primary)' }}>
+    <ModalPageLayout>
       <Grid gap={16} cols={1}>
         {/* Gradient Header — full width, matching home page */}
         <Container
@@ -286,6 +288,6 @@ export const OrderDetailPage: React.FC = () => {
           </div>
         </div>
       )}
-    </Panel>
+    </ModalPageLayout>
   );
 };

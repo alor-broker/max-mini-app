@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Panel, Grid, Container, Flex, Typography, Button, Input } from '@maxhub/max-ui';
+import { Flex, Typography, Button, Input } from '@maxhub/max-ui';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ClientService,
@@ -19,6 +19,7 @@ import { PortfolioSelector } from '../home/PortfolioSelector';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../components/NotificationContext';
 import { PriceHistoryChart } from './PriceHistoryChart';
+import { ModalPageLayout } from '../../components/ModalPageLayout';
 
 export const CreateOrderPage: React.FC = () => {
   const navigate = useNavigate();
@@ -211,28 +212,13 @@ export const CreateOrderPage: React.FC = () => {
   };
 
   return (
-    <Panel style={{ minHeight: '100%', background: 'var(--background-surface-primary)' }}>
-      <div
-        style={{
-          padding: '16px',
-          width: '100%',
-          boxSizing: 'border-box',
-          minHeight: '100%',
-          background: 'var(--background-surface-primary)'
-        }}
-      >
-        <Flex direction="column" gap={24} style={{ width: '100%' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
-              <Button onClick={handleBack} style={{ background: 'transparent', color: '#333', border: 'none' }}>
-                &lt; {t('common.back')}
-              </Button>
-            </div>
-            <Typography.Headline style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>{t('order.title')}</Typography.Headline>
-            <div></div>
-          </div>
-
-          <div style={cardStyle}>
+    <ModalPageLayout
+      title={t('order.title')}
+      onBack={handleBack}
+      backLabel={t('common.back')}
+      contentGap={24}
+    >
+      <div style={cardStyle}>
             <Flex direction="column" gap={16} style={{ width: '100%' }}>
               {/* Portfolio Selector */}
               <Flex direction="column" gap={8} style={{ width: '100%' }}>
@@ -318,9 +304,9 @@ export const CreateOrderPage: React.FC = () => {
             </Flex>
           </div>
 
-          {selectedInstrument && (
-            <Flex direction="column" gap={16} style={{ width: '100%' }}>
-              <div style={{ ...cardStyle, padding: '12px' }}>
+      {selectedInstrument && (
+        <Flex direction="column" gap={16} style={{ width: '100%' }}>
+          <div style={{ ...cardStyle, padding: '12px' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '8px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }}>
                     <Typography.Label style={{ fontSize: '10px', color: 'gray' }}>{t('common.symbol')}</Typography.Label>
@@ -373,8 +359,8 @@ export const CreateOrderPage: React.FC = () => {
                 )}
               </div>
 
-              <div style={cardStyle}>
-                <Flex direction="column" gap={16} style={{ width: '100%' }}>
+          <div style={cardStyle}>
+            <Flex direction="column" gap={16} style={{ width: '100%' }}>
                   <SegmentedControl
                     options={[
                       { label: t('common.limit'), value: 'Limit' },
@@ -450,13 +436,10 @@ export const CreateOrderPage: React.FC = () => {
                   >
                     {loading ? t('order.submitting') : (side === Side.Buy ? t('order.submit_buy_order') : t('order.submit_sell_order'))}
                   </Button>
-                </Flex>
-              </div>
             </Flex>
-          )}
-
+          </div>
         </Flex>
-      </div>
-    </Panel>
+      )}
+    </ModalPageLayout>
   );
 };
