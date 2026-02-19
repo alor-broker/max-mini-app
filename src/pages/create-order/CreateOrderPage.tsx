@@ -38,6 +38,7 @@ export const CreateOrderPage: React.FC = () => {
 
   // Ref to track if we should auto-select the first search result (from navigation)
   const autoSelectRef = useRef(false);
+  const latestSearchRequestIdRef = useRef(0);
 
   // Initial State from Navigation
   useEffect(() => {
@@ -87,31 +88,43 @@ export const CreateOrderPage: React.FC = () => {
   }, [user, location.state]);
 
   useEffect(() => {
-    if (!searchQuery) {
+    const normalizedQuery = searchQuery.trim();
+    if (!normalizedQuery) {
       setInstrumentsList([]);
+      setSearchLoading(false);
       return;
     }
 
-    if (selectedInstrument && searchQuery === selectedInstrument.symbol) {
+    if (selectedInstrument && normalizedQuery.toUpperCase() === selectedInstrument.symbol.toUpperCase()) {
+      setInstrumentsList([]);
+      setSearchLoading(false);
       return;
     }
 
     // Debounce search
     const timer = setTimeout(async () => {
+      const requestId = latestSearchRequestIdRef.current + 1;
+      latestSearchRequestIdRef.current = requestId;
       setSearchLoading(true);
       try {
-        const results = await InstrumentsService.searchInstruments({ query: searchQuery, limit: 10 });
-        setInstrumentsList(results);
+        const results = await InstrumentsService.searchInstruments({ query: normalizedQuery, limit: 20 });
+        if (latestSearchRequestIdRef.current === requestId) {
+          setInstrumentsList(results);
+        }
       } catch (e) {
         console.error(e);
-        setInstrumentsList([]);
+        if (latestSearchRequestIdRef.current === requestId) {
+          setInstrumentsList([]);
+        }
       } finally {
-        setSearchLoading(false);
+        if (latestSearchRequestIdRef.current === requestId) {
+          setSearchLoading(false);
+        }
       }
-    }, 500);
+    }, 350);
 
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, selectedInstrument]);
 
   useEffect(() => {
     if (!selectedInstrument) {
@@ -135,6 +148,8 @@ export const CreateOrderPage: React.FC = () => {
   }, [selectedInstrument]);
 
   const handleSelectInstrument = (inst: Instrument) => {
+    latestSearchRequestIdRef.current += 1;
+    setSearchLoading(false);
     setSelectedInstrument(inst);
     setInstrumentsList([]);
     setSearchQuery(inst.symbol);
@@ -274,7 +289,7 @@ export const CreateOrderPage: React.FC = () => {
               >
                 {instrumentsList.map(inst => (
                   <div
-                    key={inst.symbol}
+                    key={`${inst.exchange}:${inst.symbol}:${inst.board ?? inst.primary_board}`}
                     onClick={() => handleSelectInstrument(inst)}
                     style={{
                       padding: '8px',
@@ -283,7 +298,7 @@ export const CreateOrderPage: React.FC = () => {
                       color: 'var(--text-primary)'
                     }}
                   >
-                    <b>{inst.symbol}</b> - {inst.shortname}
+                    <b>{inst.symbol}</b> ({inst.exchange}) - {inst.shortname}
                   </div>
                 ))}
               </div>

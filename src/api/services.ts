@@ -391,13 +391,30 @@ export interface HistoryRequest {
 
 export const InstrumentsService = {
   searchInstruments: async (filters: SearchFilter): Promise<Instrument[]> => {
+    const query = filters.query.trim();
+    if (!query) return [];
+
     const params = new URLSearchParams();
-    params.append('query', filters.query);
+    params.append('query', query);
     params.append('limit', String(filters.limit));
     if (filters.exchange) params.append('exchange', filters.exchange);
 
     const instruments = await apiClient.get<Instrument[]>(`${API_CONFIG.apiUrl}/md/v2/Securities?${params.toString()}&IncludeUnknownBoards=false`);
-    return instruments.map(i => ({ ...i, board: i.board ?? i.primary_board, minstep: i.minstep ?? 0.01 }));
+    const normalized = instruments.map(i => ({
+      ...i,
+      board: i.board ?? i.primary_board,
+      minstep: i.minstep ?? 0.01
+    }));
+
+    const unique = new Map<string, Instrument>();
+    for (const inst of normalized) {
+      const key = `${inst.exchange}:${inst.symbol}:${inst.board ?? inst.primary_board}`;
+      if (!unique.has(key)) {
+        unique.set(key, inst);
+      }
+    }
+
+    return Array.from(unique.values());
   },
 
   getInstrument: async (instrument: InstrumentKey): Promise<Instrument> => {
