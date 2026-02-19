@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Typography, Panel, Grid, Container } from '@maxhub/max-ui';
+import { Button, Typography } from '@maxhub/max-ui';
 import { ClientPortfolio } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 
@@ -12,7 +12,24 @@ interface PortfolioSelectorProps {
 
 export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios, selectedPortfolio, onSelect, triggerStyle }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
   const { t } = useTranslation();
+
+  React.useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isOpen]);
 
   if (portfolios.length === 0) {
     return <Typography.Body>{t('order.no_portfolios')}</Typography.Body>;
@@ -26,7 +43,7 @@ export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios
   };
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={containerRef} style={{ position: 'relative' }}>
       <Button onClick={toggleOpen} style={{ background: 'transparent', border: '1px solid var(--stroke-separator-primary)', color: 'inherit', ...triggerStyle }}>
         {selectedPortfolio ? `${selectedPortfolio.portfolio} (${selectedPortfolio.exchange})` : t('order.select_portfolio')}
       </Button>
@@ -43,33 +60,33 @@ export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios
           padding: '8px',
           minWidth: '200px',
           boxShadow: 'var(--shadow-elevation-3-primary)',
-          marginTop: '4px'
+          marginTop: '4px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '4px'
         }}>
-          <Grid gap={4} cols={1}>
-            {portfolios.map(p => (
-              <div
-                key={`${p.exchange}-${p.portfolio}`}
-                onClick={() => handleSelect(p)}
-                style={{
-                  padding: '8px 12px',
-                  cursor: 'pointer',
-                  background: selectedPortfolio?.portfolio === p.portfolio ? 'var(--background-accent-neutral-fade)' : 'transparent',
-                  borderRadius: '6px',
-                  transition: 'background 0.2s'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--states-background-hovered-neutral-fade)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = selectedPortfolio?.portfolio === p.portfolio ? 'var(--background-accent-neutral-fade)' : 'transparent'}
-              >
-                {/* Manually style typography since MAX_UI might default to black */}
-                <div style={{ color: 'var(--text-primary)', fontWeight: 500, fontSize: '14px' }}>
-                  {p.portfolio}
-                </div>
-                <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
-                  {p.exchange}
-                </div>
+          {portfolios.map(p => (
+            <div
+              key={`${p.exchange}-${p.portfolio}`}
+              onClick={() => handleSelect(p)}
+              style={{
+                padding: '8px 12px',
+                cursor: 'pointer',
+                background: selectedPortfolio?.portfolio === p.portfolio ? 'var(--background-accent-neutral-fade)' : 'transparent',
+                borderRadius: '6px',
+                transition: 'background 0.2s',
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--states-background-hovered-neutral-fade)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = selectedPortfolio?.portfolio === p.portfolio ? 'var(--background-accent-neutral-fade)' : 'transparent'}
+            >
+              <div style={{ color: 'var(--text-primary)', fontWeight: 500, fontSize: '14px' }}>
+                {p.portfolio}
               </div>
-            ))}
-          </Grid>
+              <div style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
+                {p.exchange}
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>
