@@ -275,15 +275,15 @@ export const HomePage: React.FC = () => {
         />
         <Flex gap={12} align="center">
           <LanguageSwitcher />
-                      <Flex
-                        onClick={() => { void runLogout(); }}
-                        gap={8}
-                        align="center"
-                        justify="end"
-                        data-no-pull-refresh="true"
-                        style={{ cursor: 'pointer', color: 'white' }}
-                        title={t('common.logout')}
-                      >
+          <Flex
+            onClick={() => { void runLogout(); }}
+            gap={8}
+            align="center"
+            justify="end"
+            data-no-pull-refresh="true"
+            style={{ cursor: 'pointer', color: 'white' }}
+            title={t('common.logout')}
+          >
             {isLoggingOut ? <Spinner /> : <IconLogout width={20} height={20} />}
           </Flex>
         </Flex>
@@ -303,7 +303,7 @@ export const HomePage: React.FC = () => {
           <Grid gap={16} cols={1}>
             {/* Header / Portfolio Summary */}
             <div ref={headerRef}>
-              <Container style={{ padding: '14px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '16px', position: 'relative', overflow: 'visible' }}>
+              <Container style={{ padding: '14px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '0', position: 'relative', overflow: 'visible' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
                   <HeaderBackgroundWave />
                 </div>
