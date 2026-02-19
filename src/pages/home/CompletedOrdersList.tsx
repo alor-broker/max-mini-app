@@ -46,7 +46,7 @@ export const CompletedOrdersList: React.FC<CompletedOrdersListProps> = ({ orders
               <Flex direction="column">
                 <Typography.Body style={{ fontWeight: 600 }}>{order.symbol}</Typography.Body>
                 <Typography.Label style={{ color: statusColor }}>
-                  {t(`orderDetail.status.${order.status}`)}
+                  {t(`orderDetail.status.${order.status.toLowerCase()}`)}
                 </Typography.Label>
               </Flex>
               <Flex direction="column" style={{ alignItems: 'flex-end' }}>
