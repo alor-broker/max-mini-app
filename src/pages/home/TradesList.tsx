@@ -1,15 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { Flex, Typography, Grid } from '@maxhub/max-ui';
-import { PortfolioService, ClientPortfolio, PortfolioTrade, Side } from '../../api/services';
+import { PortfolioService, ClientPortfolio, PortfolioTrade, Side, Instrument } from '../../api/services';
 import { useTranslation } from 'react-i18next';
+import { MathHelper } from '../../utils/math-helper';
 
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface TradesListProps {
   trades: PortfolioTrade[];
+  instruments: Record<string, Instrument>;
 }
 
-export const TradesList: React.FC<TradesListProps> = ({ trades }) => {
+export const TradesList: React.FC<TradesListProps> = ({ trades, instruments }) => {
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -25,6 +27,8 @@ export const TradesList: React.FC<TradesListProps> = ({ trades }) => {
       {visibleTrades.map(trade => {
         const isBuy = trade.side === Side.Buy;
         const color = isBuy ? 'var(--text-positive)' : 'var(--text-negative)';
+        const inst = instruments[`${trade.exchange}:${trade.symbol}`];
+        const price = inst ? MathHelper.roundPrice(trade.price, inst.minstep) : MathHelper.round(trade.price, 2);
 
         return (
           <div
@@ -40,9 +44,9 @@ export const TradesList: React.FC<TradesListProps> = ({ trades }) => {
                 </Typography.Label>
               </Flex>
               <Flex direction="column" style={{ alignItems: 'flex-end' }}>
-                <Typography.Body>{trade.price} ₽</Typography.Body>
+                <Typography.Body>{price} ₽</Typography.Body>
                 <Typography.Label style={{ color: color }}>
-                  {isBuy ? t('common.buy') : t('common.sell')} {trade.qty} {t('common.lots')}
+                  {isBuy ? t('common.buy') : t('common.sell')} {MathHelper.round(trade.qty, 2)} {t('common.lots')}
                 </Typography.Label>
               </Flex>
             </Flex>

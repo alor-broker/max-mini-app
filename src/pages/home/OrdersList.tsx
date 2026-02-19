@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Flex, Typography, Grid } from '@maxhub/max-ui';
-import { PortfolioService, ClientPortfolio, PortfolioOrder, Side, OrderStatus } from '../../api/services';
+import { PortfolioService, ClientPortfolio, PortfolioOrder, Side, OrderStatus, Instrument } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { MathHelper } from '../../utils/math-helper';
 
 interface OrdersListProps {
   orders: PortfolioOrder[];
+  instruments: Record<string, Instrument>;
 }
 
-export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
+export const OrdersList: React.FC<OrdersListProps> = ({ orders, instruments }) => {
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -24,6 +26,8 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
       {visibleOrders.map(order => {
         const isBuy = order.side === Side.Buy;
         const sideColor = isBuy ? 'var(--text-positive)' : 'var(--text-negative)';
+        const inst = instruments[`${order.exchange}:${order.symbol}`];
+        const price = inst ? MathHelper.roundPrice(order.price, inst.minstep) : MathHelper.round(order.price, 2);
 
         return (
           <div
@@ -39,9 +43,9 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders }) => {
                 </Typography.Label>
               </Flex>
               <Flex direction="column" style={{ alignItems: 'flex-end' }}>
-                <Typography.Body>{order.price} ₽</Typography.Body>
+                <Typography.Body>{price} ₽</Typography.Body>
                 <Typography.Label style={{ color: sideColor }}>
-                  {isBuy ? t('common.buy') : t('common.sell')} {order.qtyUnits - order.filledQtyUnits} / {order.qtyUnits}
+                  {isBuy ? t('common.buy') : t('common.sell')} {MathHelper.round(order.qtyUnits - order.filledQtyUnits, 2)} / {MathHelper.round(order.qtyUnits, 2)}
                 </Typography.Label>
               </Flex>
             </Flex>

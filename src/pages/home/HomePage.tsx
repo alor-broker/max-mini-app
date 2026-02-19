@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Panel, Grid, Container, Flex, Typography, Button, Spinner } from '@maxhub/max-ui';
 import { useAuth } from '../../auth/AuthContext';
 import { storageManager } from '../../utils/storage-manager';
-import { ClientService, ClientPortfolio, PortfolioSummary, PortfolioOrder, PortfolioPosition, PortfolioTrade, PortfolioService, OrderStatus } from '../../api/services';
+import { ClientService, ClientPortfolio, PortfolioSummary, PortfolioOrder, PortfolioPosition, PortfolioTrade, PortfolioService, OrderStatus, Instrument, InstrumentsService } from '../../api/services';
 import { PortfolioSelector } from './PortfolioSelector';
 import { PortfolioEvaluation } from './PortfolioEvaluation';
 import { InvestmentIdeasPreview } from './InvestmentIdeasPreview';
@@ -40,6 +40,7 @@ export const HomePage: React.FC = () => {
   const [completedOrders, setCompletedOrders] = useState<PortfolioOrder[]>([]);
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
   const [trades, setTrades] = useState<PortfolioTrade[]>([]);
+  const [instruments, setInstruments] = useState<Record<string, Instrument>>({});
 
   useEffect(() => {
     if (user?.clientId && user?.login) {
@@ -96,6 +97,51 @@ export const HomePage: React.FC = () => {
       console.error("Failed to fetch portfolio data", e);
     }
   };
+
+  // Fetch instruments details for rounding
+  useEffect(() => {
+    const fetchInstruments = async () => {
+      const itemsToFetch = new Set<string>();
+
+      const addItem = (exchange: string, symbol: string) => {
+        const key = `${exchange}:${symbol}`;
+        if (!instruments[key]) {
+          itemsToFetch.add(JSON.stringify({ exchange, symbol }));
+        }
+      };
+
+      activeOrders.forEach(o => addItem(o.exchange, o.symbol));
+      completedOrders.forEach(o => addItem(o.exchange, o.symbol));
+      positions.forEach(p => {
+        if (!p.isCurrency) {
+          addItem(p.exchange, p.symbol);
+        }
+      });
+      trades.forEach(t => addItem(t.exchange, t.symbol));
+
+      if (itemsToFetch.size === 0) return;
+
+      const uniqueItems = Array.from(itemsToFetch).map(json => JSON.parse(json));
+
+      try {
+        const newInstruments = await InstrumentsService.getInstruments(uniqueItems);
+
+        setInstruments(prev => {
+          const next = { ...prev };
+          newInstruments.forEach((inst) => {
+            if (inst) {
+              next[`${inst.exchange}:${inst.symbol}`] = inst;
+            }
+          });
+          return next;
+        });
+      } catch (e) {
+        console.error("Failed to fetch instruments", e);
+      }
+    };
+
+    fetchInstruments();
+  }, [activeOrders, completedOrders, positions, trades, instruments]);
 
   const handlePortfolioSelect = async (p: ClientPortfolio) => {
     setSelectedPortfolio(p);
@@ -281,22 +327,22 @@ export const HomePage: React.FC = () => {
 
             {/* Orders */}
             <Section title={t('home.active_orders')}>
-              <OrdersList orders={activeOrders} />
+              <OrdersList orders={activeOrders} instruments={instruments} />
             </Section>
 
             {/* Portfolio Positions */}
             <Section title={t('home.positions')}>
-              <PositionsList positions={positions} portfolio={selectedPortfolio} />
+              <PositionsList positions={positions} portfolio={selectedPortfolio} instruments={instruments} />
             </Section>
 
             {/* Trades */}
             <Section title={t('home.trades_today')}>
-              <TradesList trades={trades} />
+              <TradesList trades={trades} instruments={instruments} />
             </Section>
 
             {/* Completed Orders */}
             <Section title={t('home.completed_orders')}>
-              <CompletedOrdersList orders={completedOrders} />
+              <CompletedOrdersList orders={completedOrders} instruments={instruments} />
             </Section>
           </Grid>
         </>

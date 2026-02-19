@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Flex, Typography, Grid } from '@maxhub/max-ui';
-import { PortfolioService, ClientPortfolio, PortfolioOrder, Side, OrderStatus } from '../../api/services';
+import { PortfolioService, ClientPortfolio, PortfolioOrder, Side, OrderStatus, Instrument } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { MathHelper } from '../../utils/math-helper';
 
 interface CompletedOrdersListProps {
   orders: PortfolioOrder[];
+  instruments: Record<string, Instrument>;
 }
 
-export const CompletedOrdersList: React.FC<CompletedOrdersListProps> = ({ orders }) => {
+export const CompletedOrdersList: React.FC<CompletedOrdersListProps> = ({ orders, instruments }) => {
   const [visibleCount, setVisibleCount] = useState(2);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -30,6 +32,10 @@ export const CompletedOrdersList: React.FC<CompletedOrdersListProps> = ({ orders
         if (order.status === OrderStatus.Rejected) statusColor = 'var(--text-negative)';
         if (order.status === OrderStatus.Canceled) statusColor = 'var(--text-secondary)';
 
+        const inst = instruments[`${order.exchange}:${order.symbol}`];
+        const price = inst ? MathHelper.roundPrice(order.price, inst.minstep) : MathHelper.round(order.price, 2);
+
+
         return (
           <div
             key={order.id}
@@ -44,9 +50,9 @@ export const CompletedOrdersList: React.FC<CompletedOrdersListProps> = ({ orders
                 </Typography.Label>
               </Flex>
               <Flex direction="column" style={{ alignItems: 'flex-end' }}>
-                <Typography.Body>{order.price} ₽</Typography.Body>
+                <Typography.Body>{price} ₽</Typography.Body>
                 <Typography.Label style={{ color: sideColor }}>
-                  {isBuy ? t('common.buy') : t('common.sell')} {order.filledQtyUnits} / {order.qtyUnits}
+                  {isBuy ? t('common.buy') : t('common.sell')} {MathHelper.round(order.filledQtyUnits, 2)} / {MathHelper.round(order.qtyUnits, 2)}
                 </Typography.Label>
               </Flex>
             </Flex>

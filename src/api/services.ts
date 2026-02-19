@@ -154,6 +154,7 @@ export interface PortfolioPosition {
   dailyUnrealisedPl: number;
   unrealisedPl: number;
   isCurrency: boolean;
+  currentVolume: number;
 }
 
 export interface PortfolioTrade {
@@ -401,7 +402,13 @@ export const InstrumentsService = {
 
   getInstrument: async (instrument: InstrumentKey): Promise<Instrument> => {
     const inst = await apiClient.get<Instrument>(`${API_CONFIG.apiUrl}/md/v2/Securities/${instrument.exchange}/${instrument.symbol}`);
-    return { ...inst, board: inst.board ?? inst.primary_board, minstep: inst.minstep ?? 0.01 };
+    return {
+      ...inst,
+      symbol: instrument.symbol,
+      exchange: instrument.exchange,
+      board: inst.board ?? inst.primary_board,
+      minstep: inst.minstep ?? 0.01
+    };
   },
 
   getQuotes: async (exchange: string, symbol: string): Promise<Quote | null> => {
@@ -434,6 +441,19 @@ export const InstrumentsService = {
     }
 
     return [];
+  },
+
+  getInstruments: async (requests: InstrumentKey[]): Promise<Instrument[]> => {
+    const promises = requests.map(req =>
+      InstrumentsService.getInstrument(req)
+        .catch(e => {
+          console.error(`Failed to fetch instrument ${req.symbol}`, e);
+          return null;
+        })
+    );
+
+    const results = await Promise.all(promises);
+    return results.filter((i): i is Instrument => i !== null);
   }
 }
 

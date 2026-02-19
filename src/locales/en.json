@@ -73,6 +73,7 @@
     "submit_buy_order": "Submit BUY Order",
     "submit_sell_order": "Submit SELL Order",
     "submitting": "Submitting...",
+    "success_submit": "Order submitted",
     "order_failed": "Order failed",
     "failed_submit": "Failed to submit order"
   },

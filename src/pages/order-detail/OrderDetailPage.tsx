@@ -96,7 +96,7 @@ export const OrderDetailPage: React.FC = () => {
   };
 
   return (
-    <Panel style={{ minHeight: '100vh' }}>
+    <Panel style={{ minHeight: '100%', background: 'var(--background-surface-primary)' }}>
       <Grid gap={16} cols={1}>
         {/* Gradient Header — full width, matching home page */}
         <Container

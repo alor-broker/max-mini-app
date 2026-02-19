@@ -9,9 +9,9 @@ export interface ApiConfig {
   superAppUrl: string;
 }
 
-const isDev = process.env.NODE_ENV === 'development' || process.env.REACT_APP_ENV === 'development';
-const environment = isDev ? devEnv : prodEnv;
-
+const isDev = process.env.REACT_APP_ENV === 'production' ? false : (process.env.NODE_ENV === 'development' || process.env.REACT_APP_ENV === 'development');
+// const environment = isDev ? devEnv : prodEnv;
+const environment = prodEnv;
 // Configuration from tg-app environment
 export const API_CONFIG: ApiConfig = {
   apiUrl: environment.apiUrl,

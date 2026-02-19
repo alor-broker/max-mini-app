@@ -73,6 +73,7 @@
     "submit_buy_order": "Купить",
     "submit_sell_order": "Продать",
     "submitting": "Отправка...",
+    "success_submit": "Заявка отправлена",
     "order_failed": "Ошибка заявки",
     "failed_submit": "Не удалось отправить заявку"
   },
@@ -115,7 +116,7 @@
     "side": "Направление",
     "quantity": "Количество",
     "price": "Цена",
-    "volume": "Объём",
+    "volume": "Объем",
     "date": "Дата и время",
     "new_order_for_symbol": "Новая заявка по этому инструменту"
   },

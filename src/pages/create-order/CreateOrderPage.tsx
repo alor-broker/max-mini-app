@@ -184,6 +184,8 @@ export const CreateOrderPage: React.FC = () => {
         }, selectedPortfolio.portfolio);
       }
 
+      showNotification(t('order.success_submit'), 'success');
+
       const state = location.state as { background?: any };
       if (state?.background) {
         navigate(-1);
