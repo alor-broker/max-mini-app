@@ -4,6 +4,8 @@ import { useAuth } from '../../auth/AuthContext';
 import { Typography, Panel, Flex } from '@maxhub/max-ui';
 import { useTranslation } from 'react-i18next';
 
+const AUTO_CONTINUE_UNLOCK_KEY = 'MAX_APP_AUTO_CONTINUE_UNLOCK_ONCE';
+
 export const SsoCallbackPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const { handleSsoCallback } = useAuth();
@@ -16,15 +18,16 @@ export const SsoCallbackPage: React.FC = () => {
     if (refreshToken) {
       handleSsoCallback(refreshToken)
         .then(() => {
-          navigate('/', { replace: true });
+          sessionStorage.setItem(AUTO_CONTINUE_UNLOCK_KEY, '1');
+          navigate('/auth/unlock?redirectUrl=/', { replace: true });
         })
         .catch((err) => {
           console.error('SSO Login failed', err);
-          // navigate('/auth/unlock'); // Un-comment to redirect back on failure
+          navigate('/', { replace: true });
         });
     } else {
       console.error('No refresh token found');
-      navigate('/auth/unlock');
+      navigate('/', { replace: true });
     }
   }, [searchParams, handleSsoCallback, navigate]);
 

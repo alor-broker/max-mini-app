@@ -10,6 +10,7 @@ import { useLogoutAction } from '../../auth/useLogoutAction';
 const PIN_LENGTH = 4;
 const MAX_ATTEMPTS = 10;
 const STORAGE_KEY_APP_PASSWORD = 'max_app_password';
+const AUTO_CONTINUE_UNLOCK_KEY = 'MAX_APP_AUTO_CONTINUE_UNLOCK_ONCE';
 
 // styles
 const dotStyle = (filled: boolean, error: boolean) => ({
@@ -95,16 +96,28 @@ export const UnlockPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // If we are unlocked (or was never locked) and loading is done
-    if (!isLoading && !isAuthLoading && !isLoggingOut && !isLocked) {
-      if (isAuthenticated) {
-        navigate(redirectUrl, { replace: true });
-      } else {
-        // Not authenticated, trigger login flow
-        login();
-      }
+    if (isLoading || isAuthLoading || isLoggingOut) return;
+
+    if (!isAuthenticated) {
+      login();
+      return;
     }
-  }, [isLoading, isAuthLoading, isLoggingOut, isLocked, isAuthenticated, navigate, redirectUrl, login]);
+
+    const shouldAutoContinue = sessionStorage.getItem(AUTO_CONTINUE_UNLOCK_KEY) === '1';
+    if (shouldAutoContinue) {
+      sessionStorage.removeItem(AUTO_CONTINUE_UNLOCK_KEY);
+      if (isLocked) {
+        unlock();
+      }
+      navigate(redirectUrl, { replace: false });
+      return;
+    }
+
+    // If we are unlocked (or was never locked), continue normally
+    if (!isLocked) {
+      navigate(redirectUrl, { replace: true });
+    }
+  }, [isLoading, isAuthLoading, isLoggingOut, isLocked, isAuthenticated, navigate, redirectUrl, login, unlock]);
 
   const handleSuccess = useCallback(() => {
     vibrate(50);

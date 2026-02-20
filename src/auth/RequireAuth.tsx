@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
 import { Spinner, Flex } from '@maxhub/max-ui';
 
 export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading, isLocked } = useAuth();
+  const { isAuthenticated, isLoading, isLocked, login } = useAuth();
   const location = useLocation();
+  const loginStartedRef = useRef(false);
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated && !loginStartedRef.current) {
+      loginStartedRef.current = true;
+      login();
+    }
+  }, [isLoading, isAuthenticated, login]);
 
   if (isLoading) {
     return (
@@ -16,7 +24,11 @@ export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children 
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth/sso" state={{ from: location }} replace />;
+    return (
+      <Flex align="center" justify="center" style={{ height: '100vh', width: '100%' }}>
+        <Spinner />
+      </Flex>
+    );
   }
 
   if (isLocked) {
