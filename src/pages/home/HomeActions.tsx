@@ -104,6 +104,7 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
         }}>
           <div style={{
             background: 'var(--background-surface-card)',
+            color: 'var(--text-primary)',
             padding: '24px',
             borderRadius: '16px',
             width: '80%',

@@ -211,6 +211,12 @@ export const CreateOrderPage: React.FC = () => {
     }
   };
 
+  const handlePriceQuickFill = (value: number | null | undefined) => {
+    if (value === null || value === undefined || Number.isNaN(value)) return;
+    setPrice(value.toString());
+    setOrderType('Limit');
+  };
+
   const cardStyle: React.CSSProperties = {
     width: '100%',
     boxSizing: 'border-box',
@@ -219,6 +225,12 @@ export const CreateOrderPage: React.FC = () => {
     borderRadius: '16px',
     padding: '16px',
     boxShadow: '0 4px 12px rgba(0, 0, 0, 0.04)'
+  };
+
+  const clickableQuoteValueStyle: React.CSSProperties = {
+    cursor: 'pointer',
+    textDecoration: 'underline dotted',
+    textUnderlineOffset: '2px'
   };
 
   return (
@@ -334,12 +346,21 @@ export const CreateOrderPage: React.FC = () => {
             </div>
 
             <PriceHistoryChart instrument={selectedInstrument} />
+            <Typography.Label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
+              Click a market value below to fill the limit price.
+            </Typography.Label>
 
             {quote ? (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
                 <div>
                   <Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.last_price')}</Typography.Label>
-                  <Typography.Body style={{ fontWeight: 600 }}>{quote.last_price}</Typography.Body>
+                  <Typography.Body
+                    style={{ ...clickableQuoteValueStyle, fontWeight: 600 }}
+                    onClick={() => handlePriceQuickFill(quote.last_price)}
+                    title={t('common.price')}
+                  >
+                    {quote.last_price}
+                  </Typography.Body>
                 </div>
                 <div style={{ gridColumn: 'span 2' }}>
                   <Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.change')}</Typography.Label>
@@ -350,17 +371,56 @@ export const CreateOrderPage: React.FC = () => {
 
                 <div>
                   <Typography.Label style={{ fontSize: '11px', display: 'block', color: 'gray' }}>{t('common.bid')}</Typography.Label>
-                  <Typography.Body style={{ color: '#4ade80' }}>{quote.bid}</Typography.Body>
+                  <Typography.Body
+                    style={{ ...clickableQuoteValueStyle, color: '#4ade80' }}
+                    onClick={() => handlePriceQuickFill(quote.bid)}
+                    title={t('common.price')}
+                  >
+                    {quote.bid}
+                  </Typography.Body>
                 </div>
                 <div>
                   <Typography.Label style={{ fontSize: '11px', display: 'block', color: 'gray' }}>{t('common.ask')}</Typography.Label>
-                  <Typography.Body style={{ color: '#ef4444' }}>{quote.ask}</Typography.Body>
+                  <Typography.Body
+                    style={{ ...clickableQuoteValueStyle, color: '#ef4444' }}
+                    onClick={() => handlePriceQuickFill(quote.ask)}
+                    title={t('common.price')}
+                  >
+                    {quote.ask}
+                  </Typography.Body>
                 </div>
                 <div></div>
 
-                <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.open')}</Typography.Label><Typography.Body>{quote.open_price}</Typography.Body></div>
-                <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.high')}</Typography.Label><Typography.Body>{quote.high_price}</Typography.Body></div>
-                <div><Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.low')}</Typography.Label><Typography.Body>{quote.low_price}</Typography.Body></div>
+                <div>
+                  <Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.open')}</Typography.Label>
+                  <Typography.Body
+                    style={clickableQuoteValueStyle}
+                    onClick={() => handlePriceQuickFill(quote.open_price)}
+                    title={t('common.price')}
+                  >
+                    {quote.open_price}
+                  </Typography.Body>
+                </div>
+                <div>
+                  <Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.high')}</Typography.Label>
+                  <Typography.Body
+                    style={clickableQuoteValueStyle}
+                    onClick={() => handlePriceQuickFill(quote.high_price)}
+                    title={t('common.price')}
+                  >
+                    {quote.high_price}
+                  </Typography.Body>
+                </div>
+                <div>
+                  <Typography.Label style={{ fontSize: '11px', display: 'block' }}>{t('common.low')}</Typography.Label>
+                  <Typography.Body
+                    style={clickableQuoteValueStyle}
+                    onClick={() => handlePriceQuickFill(quote.low_price)}
+                    title={t('common.price')}
+                  >
+                    {quote.low_price}
+                  </Typography.Body>
+                </div>
               </div>
             ) : (
               <Typography.Body style={{ textAlign: 'center', color: 'gray', fontSize: '12px' }}>{t('common.loading_market_data')}</Typography.Body>
