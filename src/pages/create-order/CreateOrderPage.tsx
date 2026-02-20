@@ -20,6 +20,9 @@ import { useNotification } from '../../components/NotificationContext';
 import { PriceHistoryChart } from './PriceHistoryChart';
 import { ModalPageLayout } from '../../components/ModalPageLayout';
 
+const ORDER_CREATED_EVENT = 'maxapp:order-created';
+const REFRESH_ORDERS_TRADES_FLAG_KEY = 'MAX_APP_REFRESH_ORDERS_TRADES';
+
 export const CreateOrderPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -191,6 +194,8 @@ export const CreateOrderPage: React.FC = () => {
       }
 
       showNotification(t('order.success_submit'), 'success');
+      await storageManager.setItem(REFRESH_ORDERS_TRADES_FLAG_KEY, '1');
+      window.dispatchEvent(new CustomEvent(ORDER_CREATED_EVENT));
 
       const state = location.state as { background?: any };
       if (state?.background) {

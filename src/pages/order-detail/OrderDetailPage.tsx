@@ -7,9 +7,9 @@ import { useNotification } from '../../components/NotificationContext';
 import { ModalPageLayout } from '../../components/ModalPageLayout';
 
 const statusColorMap: Record<OrderStatus, string> = {
-  [OrderStatus.Working]: '#0a84ff',
+  [OrderStatus.Working]: '#fef08a',
   [OrderStatus.Filled]: '#4ade80',
-  [OrderStatus.Canceled]: '#888',
+  [OrderStatus.Canceled]: '#ffffff',
   [OrderStatus.Rejected]: '#ef4444',
 };
 
@@ -68,7 +68,6 @@ export const OrderDetailPage: React.FC = () => {
     setIsCanceling(true);
     try {
       await OrdersService.cancelOrder(order.portfolio, order.id, order.exchange);
-      showNotification(t('orderDetail.success_cancel'), 'success');
       showNotification(t('orderDetail.success_cancel'), 'success');
 
       const state = location.state as { background?: any };

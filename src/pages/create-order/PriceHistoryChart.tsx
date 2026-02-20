@@ -58,39 +58,41 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
       return fallback;
     }
 
-    const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-    return value || fallback;
-  };
-
-  const parseRgb = (value: string): { r: number; g: number; b: number } | null => {
-    const match = value.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-    if (!match) {
-      return null;
+    const containerValue = chartContainerRef.current
+      ? getComputedStyle(chartContainerRef.current).getPropertyValue(name).trim()
+      : '';
+    if (containerValue) {
+      return containerValue;
     }
-    return {
-      r: Number(match[1]),
-      g: Number(match[2]),
-      b: Number(match[3])
-    };
+
+    const bodyValue = getComputedStyle(document.body).getPropertyValue(name).trim();
+    if (bodyValue) {
+      return bodyValue;
+    }
+
+    const rootValue = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+    return rootValue || fallback;
   };
 
   const isDarkTheme = (): boolean => {
-    const surface = getThemeColor('--background-surface-primary', 'rgb(255, 255, 255)');
-    const rgb = parseRgb(surface);
-    if (!rgb) {
+    if (typeof window === 'undefined') {
       return false;
     }
-
-    const luminance = (0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b) / 255;
-    return luminance < 0.5;
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   };
 
   const getThemePalette = () => ({
     textPrimary: getThemeColor('--text-primary', '#1f2937'),
     textSecondary: getThemeColor('--text-secondary', '#6b7280'),
-    strokeGrid: isDarkTheme()
-      ? getThemeColor('--text-tertiary', 'rgba(255,255,255,0.28)')
-      : getThemeColor('--stroke-separator-contrast', 'rgba(12,13,14,0.10)'),
+    strokeGridHorz: isDarkTheme()
+      ? '#ffffff'
+      : 'rgba(12,13,14,0.28)',
+    strokeGridVert: isDarkTheme()
+      ? 'rgba(255,255,255,0.18)'
+      : 'rgba(12,13,14,0.16)',
+    loadingText: isDarkTheme()
+      ? getThemeColor('--text-secondary', 'rgba(255,255,255,0.82)')
+      : getThemeColor('--text-secondary', '#6b7280'),
     positive: getThemeColor('--stroke-positive', '#2bc644'),
     negative: getThemeColor('--stroke-negative', '#ce4257')
   });
@@ -122,20 +124,20 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
         borderVisible: false
       },
       grid: {
-        vertLines: { visible: false, color: palette.strokeGrid },
-        horzLines: { visible: true, color: palette.strokeGrid }
+        vertLines: { visible: false, color: palette.strokeGridVert },
+        horzLines: { visible: true, color: palette.strokeGridHorz }
       },
       crosshair: {
         vertLine: {
           visible: true,
           labelVisible: false,
-          color: palette.strokeGrid,
+          color: palette.strokeGridVert,
           width: 1
         },
         horzLine: {
           visible: true,
           labelVisible: true,
-          color: palette.strokeGrid,
+          color: palette.strokeGridHorz,
           width: 1
         }
       },
@@ -234,8 +236,22 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
     chartRef.current.applyOptions({
       layout: { textColor: palette.textSecondary },
       grid: {
-        vertLines: { visible: false, color: palette.strokeGrid },
-        horzLines: { visible: true, color: palette.strokeGrid }
+        vertLines: { visible: false, color: palette.strokeGridVert },
+        horzLines: { visible: true, color: palette.strokeGridHorz }
+      },
+      crosshair: {
+        vertLine: {
+          visible: true,
+          labelVisible: false,
+          color: palette.strokeGridVert,
+          width: 1
+        },
+        horzLine: {
+          visible: true,
+          labelVisible: true,
+          color: palette.strokeGridHorz,
+          width: 1
+        }
       }
     });
 
@@ -255,6 +271,8 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
     }
   }, [historyData]);
 
+  const themePalette = getThemePalette();
+
   return (
     <div
       style={{
@@ -269,14 +287,14 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
 
         {loading ? (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography.Body style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
+            <Typography.Body style={{ color: themePalette.loadingText, fontSize: '12px' }}>
               {t('common.loading_market_data')}
             </Typography.Body>
           </div>
         ) : (
           historyData.length < 2 && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Typography.Body style={{ color: 'var(--text-secondary)', fontSize: '12px' }}>
+              <Typography.Body style={{ color: themePalette.loadingText, fontSize: '12px' }}>
                 {error || t('common.loading_market_data')}
               </Typography.Body>
             </div>

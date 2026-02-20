@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Panel, Grid, Container, Flex, Typography, Button, Spinner } from '@maxhub/max-ui';
 import { useAuth } from '../../auth/AuthContext';
 import { storageManager } from '../../utils/storage-manager';
@@ -16,9 +16,13 @@ import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 import { IconLogout, HeaderBackgroundWave } from '../../components/Icons';
 import { useLogoutAction } from '../../auth/useLogoutAction';
 
+const ORDER_CREATED_EVENT = 'maxapp:order-created';
+const REFRESH_ORDERS_TRADES_FLAG_KEY = 'MAX_APP_REFRESH_ORDERS_TRADES';
+const ORDERS_TRADES_POLL_INTERVAL_MS = 10000;
+
 // Placeholder components for sections
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
-  <Container style={{ marginBottom: '16px', padding: '16px', backgroundColor: 'rgba(0,0,0,0.03)', borderRadius: '16px' }}>
+  <Container style={{ marginBottom: '16px', padding: '16px', backgroundColor: 'var(--background-surface-tertiary)', borderRadius: '16px' }}>
     <Flex justify="space-between" align="center" style={{ marginBottom: '12px' }}>
       <Typography.Headline>{title}</Typography.Headline>
     </Flex>
@@ -70,12 +74,28 @@ export const HomePage: React.FC = () => {
   }, [user]);
 
   // Fetch data when selected portfolio changes
-  useEffect(() => {
-    if (!selectedPortfolio) return;
-    fetchAllData(selectedPortfolio);
-  }, [selectedPortfolio]);
+  const applyOrdersState = useCallback((orders: PortfolioOrder[]) => {
+    setActiveOrders(orders.filter(o => o.status === OrderStatus.Working));
+    const completed = orders.filter(o => o.status !== OrderStatus.Working);
+    completed.sort((a, b) => b.transTime.getTime() - a.transTime.getTime());
+    setCompletedOrders(completed);
+  }, []);
 
-  const fetchAllData = async (portfolio: ClientPortfolio) => {
+  const fetchOrdersAndTrades = useCallback(async (portfolio: ClientPortfolio) => {
+    try {
+      const [orders, portfolioTrades] = await Promise.all([
+        PortfolioService.getOrders(portfolio.exchange, portfolio.portfolio),
+        PortfolioService.getTrades(portfolio.exchange, portfolio.portfolio)
+      ]);
+
+      applyOrdersState(orders);
+      setTrades(portfolioTrades);
+    } catch (e) {
+      console.error("Failed to fetch orders/trades", e);
+    }
+  }, [applyOrdersState]);
+
+  const fetchAllData = useCallback(async (portfolio: ClientPortfolio) => {
     try {
       const [sum, ords, pos, trds] = await Promise.all([
         PortfolioService.getSummary(portfolio.exchange, portfolio.portfolio),
@@ -85,18 +105,60 @@ export const HomePage: React.FC = () => {
       ]);
 
       setSummary(sum);
-      setActiveOrders(ords.filter(o => o.status === OrderStatus.Working));
-      // Filter completed orders (not working) and sort by time desc
-      const completed = ords.filter(o => o.status !== OrderStatus.Working);
-      completed.sort((a, b) => b.transTime.getTime() - a.transTime.getTime());
-      setCompletedOrders(completed);
-
+      applyOrdersState(ords);
       setPositions(pos);
       setTrades(trds);
     } catch (e) {
       console.error("Failed to fetch portfolio data", e);
     }
-  };
+  }, [applyOrdersState]);
+
+  useEffect(() => {
+    if (!selectedPortfolio) return;
+    void fetchAllData(selectedPortfolio);
+  }, [selectedPortfolio, fetchAllData]);
+
+  useEffect(() => {
+    if (!selectedPortfolio) return;
+
+    const handleOrderCreated = () => {
+      void fetchOrdersAndTrades(selectedPortfolio);
+    };
+
+    window.addEventListener(ORDER_CREATED_EVENT, handleOrderCreated);
+    return () => window.removeEventListener(ORDER_CREATED_EVENT, handleOrderCreated);
+  }, [selectedPortfolio, fetchOrdersAndTrades]);
+
+  useEffect(() => {
+    if (!selectedPortfolio) return;
+
+    const intervalId = window.setInterval(() => {
+      void fetchOrdersAndTrades(selectedPortfolio);
+    }, ORDERS_TRADES_POLL_INTERVAL_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, [selectedPortfolio, fetchOrdersAndTrades]);
+
+  useEffect(() => {
+    if (!selectedPortfolio) return;
+
+    let cancelled = false;
+    const checkRefreshFlag = async () => {
+      const shouldRefresh = await storageManager.getItem(REFRESH_ORDERS_TRADES_FLAG_KEY);
+      if (shouldRefresh !== '1') return;
+
+      await storageManager.removeItem(REFRESH_ORDERS_TRADES_FLAG_KEY);
+      if (!cancelled) {
+        await fetchOrdersAndTrades(selectedPortfolio);
+      }
+    };
+
+    void checkRefreshFlag();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedPortfolio, fetchOrdersAndTrades]);
 
   // Fetch instruments details for rounding
   useEffect(() => {
@@ -346,30 +408,32 @@ export const HomePage: React.FC = () => {
               </Container>
             </div>
 
-            {/* Investment Ideas (API not implemented yet) */}
-            {/* <Section title={t('home.investment_ideas')}>
-          <InvestmentIdeasPreview />
-        </Section> */}
+            <div style={{ padding: '0 16px 16px' }}>
+              {/* Investment Ideas (API not implemented yet) */}
+              {/* <Section title={t('home.investment_ideas')}>
+            <InvestmentIdeasPreview />
+          </Section> */}
 
-            {/* Orders */}
-            <Section title={t('home.active_orders')}>
-              <OrdersList orders={activeOrders} instruments={instruments} />
-            </Section>
+              {/* Orders */}
+              <Section title={t('home.active_orders')}>
+                <OrdersList orders={activeOrders} instruments={instruments} />
+              </Section>
 
-            {/* Portfolio Positions */}
-            <Section title={t('home.positions')}>
-              <PositionsList positions={positions} portfolio={selectedPortfolio} instruments={instruments} />
-            </Section>
+              {/* Portfolio Positions */}
+              <Section title={t('home.positions')}>
+                <PositionsList positions={positions} portfolio={selectedPortfolio} instruments={instruments} />
+              </Section>
 
-            {/* Trades */}
-            <Section title={t('home.trades_today')}>
-              <TradesList trades={trades} instruments={instruments} />
-            </Section>
+              {/* Trades */}
+              <Section title={t('home.trades_today')}>
+                <TradesList trades={trades} instruments={instruments} />
+              </Section>
 
-            {/* Completed Orders */}
-            <Section title={t('home.completed_orders')}>
-              <CompletedOrdersList orders={completedOrders} instruments={instruments} />
-            </Section>
+              {/* Completed Orders */}
+              <Section title={t('home.completed_orders')}>
+                <CompletedOrdersList orders={completedOrders} instruments={instruments} />
+              </Section>
+            </div>
           </Grid>
         </>
       )}
