@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Panel, Grid, Container, Flex, Typography, Button, Spinner } from '@maxhub/max-ui';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { storageManager } from '../../utils/storage-manager';
+import { biometricManager } from '../../utils/biometric-manager';
 import { useTranslation } from 'react-i18next';
 import { useLogoutAction } from '../../auth/useLogoutAction';
 
@@ -48,6 +49,13 @@ const ghostButtonStyle: React.CSSProperties = {
   color: 'var(--text-primary)',
 };
 
+const biometricButtonStyle: React.CSSProperties = {
+  ...baseButtonStyle,
+  backgroundColor: 'transparent',
+  color: '#1890ff',
+  fontSize: '28px',
+};
+
 export const UnlockPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -56,6 +64,7 @@ export const UnlockPage: React.FC = () => {
   const { unlock, isLocked, isAuthenticated, login, isLoading: isAuthLoading } = useAuth();
   const { runLogout, isLoggingOut } = useLogoutAction(async () => {
     await storageManager.removeItem(STORAGE_KEY_APP_PASSWORD);
+    await biometricManager.disable();
   });
 
   const [pin, setPin] = useState('');
@@ -63,6 +72,11 @@ export const UnlockPage: React.FC = () => {
   const [attemptsCount, setAttemptsCount] = useState(MAX_ATTEMPTS);
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Biometric state
+  const [biometricAvailable, setBiometricAvailable] = useState(false);
+  const [biometricEnrolled, setBiometricEnrolled] = useState(false);
+  const biometricAttemptedRef = useRef(false);
 
   const isCancelable = searchParams.get('isCancellable') === 'true';
   const stateFrom = (location.state as any)?.from?.pathname;
@@ -75,16 +89,25 @@ export const UnlockPage: React.FC = () => {
     }
   }, []);
 
+  // Initialize: load stored PIN and check biometric availability
   useEffect(() => {
     const init = async () => {
       try {
         const savedPin = await storageManager.getItem(STORAGE_KEY_APP_PASSWORD);
 
         if (!savedPin) {
-          // Logic for when no password is set
           setStoredPin(null);
         } else {
           setStoredPin(savedPin);
+        }
+
+        // Check biometric availability and enrollment
+        const bioAvailable = await biometricManager.isAvailable();
+        setBiometricAvailable(bioAvailable);
+
+        if (bioAvailable) {
+          const bioEnrolled = await biometricManager.isEnrolled();
+          setBiometricEnrolled(bioEnrolled);
         }
       } catch (e) {
         console.error("Unlock init failed", e);
@@ -138,6 +161,42 @@ export const UnlockPage: React.FC = () => {
     });
   }, [vibrate, runLogout]);
 
+  // Auto-trigger biometric authentication when the page loads (unlock mode only)
+  useEffect(() => {
+    if (
+      isLoading ||
+      isAuthLoading ||
+      !isAuthenticated ||
+      !isLocked ||
+      !storedPin ||               // Only in unlock mode (PIN already exists)
+      !biometricEnrolled ||       // Must have enrolled biometrics
+      biometricAttemptedRef.current // Only try once automatically
+    ) {
+      return;
+    }
+
+    biometricAttemptedRef.current = true;
+    triggerBiometricAuth();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoading, isAuthLoading, isAuthenticated, isLocked, storedPin, biometricEnrolled]);
+
+  /**
+   * Triggers biometric authentication.
+   * On success, unlocks the app. On failure, falls back to PIN.
+   */
+  const triggerBiometricAuth = async () => {
+    try {
+      const success = await biometricManager.authenticate();
+      if (success) {
+        handleSuccess();
+      }
+      // If not successful, user falls back to PIN entry (no error shown)
+    } catch (error) {
+      console.warn('[UnlockPage] Biometric auth error:', error);
+      // Silent fallback to PIN
+    }
+  };
+
   useEffect(() => {
     if (pin.length === PIN_LENGTH) {
       if (storedPin) {
@@ -150,9 +209,22 @@ export const UnlockPage: React.FC = () => {
           }, 100);
         }
       } else {
-        // Create mode: Set PIN, save, and then Unlock
+        // Create mode: Set PIN, save, and then enroll biometrics, then Unlock
         const save = async () => {
           await storageManager.setItem(STORAGE_KEY_APP_PASSWORD, pin);
+
+          // Offer biometric enrollment if available
+          if (biometricAvailable) {
+            try {
+              const enrolled = await biometricManager.enroll();
+              if (enrolled) {
+                setBiometricEnrolled(true);
+              }
+            } catch (e) {
+              console.warn('[UnlockPage] Biometric enrollment skipped:', e);
+            }
+          }
+
           handleSuccess();
         }
         save();
@@ -160,7 +232,7 @@ export const UnlockPage: React.FC = () => {
     } else {
       if (error) setError(false);
     }
-  }, [pin, storedPin, handleSuccess, handleFailure, error]);
+  }, [pin, storedPin, handleSuccess, handleFailure, error, biometricAvailable]);
 
   const handleDigit = (digit: string) => {
     if (pin.length < PIN_LENGTH) {
@@ -193,13 +265,19 @@ export const UnlockPage: React.FC = () => {
     );
   }
 
+  // In unlock mode, determine the title (biometric or PIN)
+  const isCreateMode = !storedPin;
+  const title = isCreateMode
+    ? t('auth.create_passcode')
+    : t('auth.enter_passcode');
+
   return (
     <Panel>
       <Container>
         <Flex direction="column" align="center" justify="center" style={{ minHeight: '100vh', padding: '20px' }}>
 
           <Typography.Headline style={{ marginBottom: '8px' }}>
-            {storedPin ? t('auth.enter_passcode') : t('auth.create_passcode')}
+            {title}
           </Typography.Headline>
 
           {error && (
@@ -222,8 +300,31 @@ export const UnlockPage: React.FC = () => {
               </Button>
             ))}
 
-            {/* Empty placeholder to align 0 */}
-            <div style={{ width: '64px', height: '64px', margin: '8px' }} />
+            {/* Bottom-left: biometric button if enrolled, empty placeholder otherwise */}
+            {!isCreateMode && biometricEnrolled ? (
+              <Button
+                style={biometricButtonStyle}
+                onClick={triggerBiometricAuth}
+                title={t('auth.use_biometrics')}
+              >
+                {/* Fingerprint icon */}
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18.9 7a8 8 0 0 0-2.2-2.3" />
+                  <path d="M3.9 14.1a8 8 0 0 1-.9-3.6 8 8 0 0 1 2.2-5.5" />
+                  <path d="M8.7 3.6A8 8 0 0 1 12 3a7.9 7.9 0 0 1 5 1.8" />
+                  <path d="M12 7a5 5 0 0 0-5 5c0 .9.2 1.7.5 2.5" />
+                  <path d="M16.4 8.5A5 5 0 0 1 17 12" />
+                  <path d="M12 7a5 5 0 0 1 5 5c0 2-1 3.5-2.5 4.5" />
+                  <path d="M9 12a3 3 0 0 1 3-3" />
+                  <path d="M15 12a3 3 0 0 1-3 3" />
+                  <path d="M12 9a3 3 0 0 1 3 3c0 1.3-.8 2.4-2 2.8" />
+                  <path d="M12 15v3" />
+                  <path d="M10 18.5A6.5 6.5 0 0 1 7 12" />
+                </svg>
+              </Button>
+            ) : (
+              <div style={{ width: '64px', height: '64px', margin: '8px' }} />
+            )}
 
             <Button
               key={0}

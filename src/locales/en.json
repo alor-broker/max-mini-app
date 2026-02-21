@@ -38,7 +38,8 @@
     "create_passcode": "Create Passcode",
     "invalid_password": "Invalid Password",
     "logout_reset": "Logout / Reset",
-    "authenticating": "Authenticating..."
+    "authenticating": "Authenticating...",
+    "use_biometrics": "Use Biometrics"
   },
   "home": {
     "new_order": "New Order",

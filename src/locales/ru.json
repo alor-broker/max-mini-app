@@ -38,7 +38,8 @@
     "create_passcode": "Создайте код-пароль",
     "invalid_password": "Неверный пароль",
     "logout_reset": "Выйти / Сбросить",
-    "authenticating": "Аутентификация..."
+    "authenticating": "Аутентификация...",
+    "use_biometrics": "Биометрия"
   },
   "home": {
     "new_order": "Новая заявка",
