@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Panel, Grid, Container, Flex, Typography, Button, Spinner } from '@maxhub/max-ui';
 import { useAuth } from '../../auth/AuthContext';
 import { storageManager } from '../../utils/storage-manager';
@@ -48,61 +48,91 @@ export const HomePage: React.FC = () => {
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
   const [trades, setTrades] = useState<PortfolioTrade[]>([]);
   const [instruments, setInstruments] = useState<Record<string, Instrument>>({});
+  const loadPortfoliosInFlightRef = useRef<Promise<ClientPortfolio[]> | null>(null);
+  const loadPortfoliosKeyRef = useRef<string | null>(null);
+  const clientId = user?.clientId ?? null;
+  const login = user?.login ?? null;
 
   useEffect(() => {
     logHome('init portfolios effect', {
-      hasUser: Boolean(user),
-      clientId: user?.clientId ?? null,
-      login: user?.login ?? null,
+      hasUser: Boolean(clientId || login),
+      clientId,
+      login,
     });
 
-    if (user?.clientId) {
-      setIsInitialLoading(true);
-      const loader = user.login ? 'getActivePortfolios' : 'getPortfolios';
-      logHome('loading portfolios', { loader, clientId: user.clientId, login: user.login ?? null });
-
-      const loadPortfolios = user.login
-        ? ClientService.getActivePortfolios(user.clientId, user.login)
-        : ClientService.getPortfolios(user.clientId);
-
-      loadPortfolios
-        .then(async (data) => {
-          logHome('portfolios loaded', {
-            count: data.length,
-            ids: data.map((p) => p.portfolio),
-          });
-          setPortfolios(data);
-
-          const savedPortfolioId = await storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
-          logHome('saved portfolio from storage', { savedPortfolioId });
-          let portfolioToSelect = data.length > 0 ? data[0] : null;
-
-          if (savedPortfolioId) {
-            const found = data.find(p => p.portfolio === savedPortfolioId);
-            if (found) {
-              portfolioToSelect = found;
-            }
-          }
-
-          logHome('selected portfolio after init', {
-            selected: portfolioToSelect?.portfolio ?? null,
-          });
-          setSelectedPortfolio(portfolioToSelect);
-          // Data will be fetched by the effect below when selectedPortfolio changes
-        })
-        .catch((e) => {
-          console.error(e);
-          logHome('portfolio load failed', e);
-        })
-        .finally(() => {
-          setIsInitialLoading(false);
-          logHome('initial loading finished');
-        });
-    } else {
+    if (!clientId) {
       setIsInitialLoading(false);
       logHome('skip portfolio load: user.clientId is missing');
+      return;
     }
-  }, [user]);
+
+    let cancelled = false;
+    setIsInitialLoading(true);
+    const loadKey = `${clientId}|${login ?? ''}`;
+    const existingInFlight =
+      loadPortfoliosInFlightRef.current && loadPortfoliosKeyRef.current === loadKey
+        ? loadPortfoliosInFlightRef.current
+        : null;
+
+    const loadPortfolios =
+      existingInFlight ??
+      (login
+        ? ClientService.getActivePortfolios(clientId, login)
+        : ClientService.getPortfolios(clientId));
+
+    if (existingInFlight) {
+      logHome('reuse duplicate portfolios load (in-flight)', { loadKey });
+    } else {
+      const loader = login ? 'getActivePortfolios' : 'getPortfolios';
+      logHome('loading portfolios', { loader, clientId, login });
+      loadPortfoliosInFlightRef.current = loadPortfolios;
+      loadPortfoliosKeyRef.current = loadKey;
+    }
+
+    loadPortfolios
+      .then(async (data) => {
+        if (cancelled) return;
+        logHome('portfolios loaded', {
+          count: data.length,
+          ids: data.map((p) => p.portfolio),
+        });
+        setPortfolios(data);
+
+        const savedPortfolioId = await storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
+        logHome('saved portfolio from storage', { savedPortfolioId });
+        let portfolioToSelect = data.length > 0 ? data[0] : null;
+
+        if (savedPortfolioId) {
+          const found = data.find(p => p.portfolio === savedPortfolioId);
+          if (found) {
+            portfolioToSelect = found;
+          }
+        }
+
+        logHome('selected portfolio after init', {
+          selected: portfolioToSelect?.portfolio ?? null,
+        });
+        setSelectedPortfolio(portfolioToSelect);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        console.error(e);
+        logHome('portfolio load failed', e);
+      })
+      .finally(() => {
+        if (loadPortfoliosInFlightRef.current === loadPortfolios) {
+          loadPortfoliosInFlightRef.current = null;
+          loadPortfoliosKeyRef.current = null;
+        }
+        if (cancelled) return;
+        setIsInitialLoading(false);
+        logHome('initial loading finished');
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId, login]);
 
   // Fetch data when selected portfolio changes
   const applyOrdersState = useCallback((orders: PortfolioOrder[]) => {
