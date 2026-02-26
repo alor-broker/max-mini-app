@@ -4,6 +4,8 @@ import { useAuth } from './AuthContext';
 import { Spinner, Flex } from '@maxhub/max-ui';
 import { DebugClearStorageButton } from '../components/DebugClearStorageButton';
 
+const AUTO_LOGIN_DELAY_MS = 2000;
+
 export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading, isLocked, login } = useAuth();
   const location = useLocation();
@@ -12,7 +14,13 @@ export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !loginStartedRef.current) {
       loginStartedRef.current = true;
-      login();
+      const timerId = window.setTimeout(() => {
+        login();
+      }, AUTO_LOGIN_DELAY_MS);
+
+      return () => {
+        window.clearTimeout(timerId);
+      };
     }
   }, [isLoading, isAuthenticated, login]);
 
