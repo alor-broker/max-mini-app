@@ -10,17 +10,13 @@ export const getAccessToken = async (): Promise<string | null> => {
   if (accessTokenCache) {
     return accessTokenCache;
   }
-
-  const token = await storageManager.getItem(ACCESS_TOKEN_KEY);
-  if (token) {
-    accessTokenCache = token;
-  }
-  return token;
+  // Access token is intentionally in-memory only.
+  // It is reissued from refresh token on app start.
+  return null;
 };
 
 export const setAccessToken = async (token: string): Promise<void> => {
   accessTokenCache = token;
-  await storageManager.setItem(ACCESS_TOKEN_KEY, token);
 };
 
 export const getRefreshToken = async (): Promise<string | null> => {
@@ -43,6 +39,5 @@ export const setRefreshToken = async (token: string): Promise<void> => {
 export const clearTokens = async (): Promise<void> => {
   accessTokenCache = undefined;
   refreshTokenCache = undefined;
-  await storageManager.removeItem(ACCESS_TOKEN_KEY);
   await storageManager.removeItem(REFRESH_TOKEN_KEY);
 };
