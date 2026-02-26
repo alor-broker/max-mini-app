@@ -26,8 +26,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     const initAuth = async () => {
+      const getRefreshTokenWithRetry = async (): Promise<string | null> => {
+        const firstAttempt = await getRefreshToken();
+        if (firstAttempt) {
+          return firstAttempt;
+        }
+
+        // Bridge-backed storage can be late on some Android starts.
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        return getRefreshToken();
+      };
+
       try {
-        const token = await getRefreshToken();
+        const token = await getRefreshTokenWithRetry();
         if (token) {
           try {
             // Try to exchange refresh token for new access token

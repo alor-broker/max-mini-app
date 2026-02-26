@@ -1,12 +1,11 @@
-
 export interface MaxWebApp {
   platform?: string;
   version?: string;
   DeviceStorage: {
-    setItem: (key: string, value: string) => Promise<void>;
-    getItem: (key: string) => Promise<string | null>;
-    removeItem: (key: string) => Promise<void>;
-    clear: () => Promise<void>;
+    setItem: (key: string, value: string, callback?: (error: unknown, success?: boolean) => void) => Promise<void> | void;
+    getItem: (key: string, callback?: (error: unknown, value: string | null) => void) => Promise<string | null> | string | null | void;
+    removeItem: (key: string, callback?: (error: unknown, success?: boolean) => void) => Promise<void> | void;
+    clear: (callback?: (error: unknown, success?: boolean) => void) => Promise<void> | void;
   };
 }
 
@@ -16,146 +15,261 @@ declare global {
   }
 }
 
-const TIME_OUT_MS = 3000;
-let isDeviceStorageSupported = true;
+export interface StorageProvider {
+  setItem: (key: string, value: string) => Promise<void>;
+  getItem: (key: string) => Promise<string | null>;
+  removeItem: (key: string) => Promise<void>;
+  clear: () => Promise<void>;
+}
 
-const safeBridgeCall = async <T>(promise: Promise<T>): Promise<T> => {
-  let timeoutId: NodeJS.Timeout;
+const BRIDGE_TIMEOUT_MS = 3000;
+const BRIDGE_READY_WAIT_MS = 400;
+const BRIDGE_READY_POLL_MS = 50;
 
-  const timeoutPromise = new Promise<never>((_, reject) => {
-    timeoutId = setTimeout(() => {
-      reject(new Error('Bridge call timed out'));
-    }, TIME_OUT_MS);
-  });
-
+const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
+  let timeoutId: ReturnType<typeof setTimeout> | null = null;
   try {
-    const result = await Promise.race([promise, timeoutPromise]);
-    clearTimeout(timeoutId!);
-    return result;
-  } catch (error) {
-    clearTimeout(timeoutId!);
-    throw error;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutId = setTimeout(() => reject(new Error('Bridge call timed out')), timeoutMs);
+    });
+    return await Promise.race([promise, timeoutPromise]);
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
   }
 };
 
-/**
- * StorageManager handles data persistence based on the environment.
- * If running inside Max Messenger, it uses window.WebApp.DeviceStorage.
- * Otherwise, falls back to localStorage.
- */
-export const storageManager = {
-  /**
-   * Saves a key-value pair to storage.
-   * @param key The key to store.
-   * @param value The value to store.
-   */
-  setItem: async (key: string, value: string): Promise<void> => {
-    // console.log(`[StorageManager] setItem: ${key}`);
-    // Always save to localStorage as a backup/cache because DeviceStorage might be flaky or fire-and-forget
-    // preventing us from knowing if it actually succeeded.
-    // This ensures that getItem's fallback to localStorage will always find the data.
+const isThenable = (value: unknown): value is PromiseLike<unknown> => {
+  return (
+    (typeof value === 'object' || typeof value === 'function') &&
+    value !== null &&
+    typeof (value as { then?: unknown }).then === 'function'
+  );
+};
+
+class BrowserStorageProvider implements StorageProvider {
+  async setItem(key: string, value: string): Promise<void> {
     localStorage.setItem(key, value);
+  }
 
-    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      // console.log(`[StorageManager] Using DeviceStorage for ${key}. Platform: ${window.WebApp.platform}, Version: ${window.WebApp.version}`);
-      try {
-        await safeBridgeCall(window.WebApp.DeviceStorage.setItem(key, value));
-      } catch (e: any) {
-        console.warn(`[StorageManager] DeviceStorage.setItem failed or timed out for ${key} (data already saved to localStorage)`, e);
-        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
-          console.warn('[StorageManager] DeviceStorage seems unsupported. Disabling DeviceStorage for this session and relying on localStorage.');
-          isDeviceStorageSupported = false;
-        }
-      }
-    } else {
-      // console.log(`[StorageManager] Using localStorage for ${key}`);
-    }
-  },
+  async getItem(key: string): Promise<string | null> {
+    return localStorage.getItem(key);
+  }
 
-  /**
-   * Retrieves a value by key.
-   * @param key The key to look up.
-   * @returns The stored value or null if not found.
-   */
-  getItem: async (key: string): Promise<string | null> => {
-    // console.log(`[StorageManager] getItem: ${key}`);
-
-    // Default to localStorage lookup function
-    const getFromLocalStorage = () => {
-      const value = localStorage.getItem(key);
-      // console.log(`[StorageManager] localStorage result for ${key}:`, value);
-      return value;
-    };
-
-    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      // console.log(`[StorageManager] Using DeviceStorage for ${key}`);
-      try {
-        const value = await safeBridgeCall(window.WebApp.DeviceStorage.getItem(key));
-
-        // If value is found in DeviceStorage, return it
-        if (value !== undefined && value !== null) {
-          // console.log(`[StorageManager] DeviceStorage result for ${key}:`, value);
-          return value;
-        }
-
-        // If DeviceStorage returned null/undefined, it might mean the data was saved to 
-        // localStorage during a previous failed write. Check localStorage.
-        // console.log(`[StorageManager] DeviceStorage returned empty for ${key}, checking localStorage fallback`);
-        return getFromLocalStorage();
-
-      } catch (e: any) {
-        console.warn(`[StorageManager] DeviceStorage.getItem failed or timed out for ${key}, falling back to localStorage`, e);
-        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
-          console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
-          isDeviceStorageSupported = false;
-        }
-        return getFromLocalStorage();
-      }
-    }
-
-    return getFromLocalStorage();
-  },
-
-  /**
-   * Removes an item by key.
-   * @param key The key to remove.
-   */
-  removeItem: async (key: string): Promise<void> => {
-    // console.log(`[StorageManager] removeItem: ${key}`);
-    // Always remove local backup to keep consistency with setItem fallback strategy.
+  async removeItem(key: string): Promise<void> {
     localStorage.removeItem(key);
+  }
 
-    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      try {
-        await safeBridgeCall(window.WebApp.DeviceStorage.removeItem(key));
-      } catch (e: any) {
-        console.warn(`[StorageManager] DeviceStorage.removeItem failed or timed out for ${key}, falling back to localStorage`, e);
-        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
-          console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
-          isDeviceStorageSupported = false;
-        }
-      }
-    }
-  },
-
-  /**
-   * Clears all stored data.
-   */
-  clear: async (): Promise<void> => {
-    // console.log(`[StorageManager] clear`);
-    // Always clear local backup to keep consistency with setItem fallback strategy.
+  async clear(): Promise<void> {
     localStorage.clear();
+  }
+}
 
-    if (isDeviceStorageSupported && typeof window !== 'undefined' && window.WebApp?.DeviceStorage) {
-      try {
-        await safeBridgeCall(window.WebApp.DeviceStorage.clear());
-      } catch (e: any) {
-        console.warn('[StorageManager] DeviceStorage.clear failed or timed out, falling back to localStorage', e);
-        if (e?.error?.type === 'UnsupportedEvent' || e?.toString().includes('UnsupportedEvent') || JSON.stringify(e).includes('UnsupportedEvent')) {
-          console.warn('[StorageManager] DeviceStorage seems unsupported, disabling for this session.');
-          isDeviceStorageSupported = false;
+class MaxDeviceStorageProvider implements StorageProvider {
+  isAvailable(): boolean {
+    return typeof window !== 'undefined' && !!window.WebApp?.DeviceStorage;
+  }
+
+  private getDeviceStorage(): MaxWebApp['DeviceStorage'] {
+    if (!this.isAvailable()) {
+      throw new Error('MAX DeviceStorage is not available');
+    }
+    return window.WebApp!.DeviceStorage;
+  }
+
+  private async callCallbackStyle<T>(
+    invoker: (callback: (error: unknown, value: T) => void) => void
+  ): Promise<T> {
+    return withTimeout(
+      new Promise<T>((resolve, reject) => {
+        try {
+          invoker((error, value) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(value);
+          });
+        } catch (error) {
+          reject(error);
         }
-      }
+      }),
+      BRIDGE_TIMEOUT_MS
+    );
+  }
+
+  async getItem(key: string): Promise<string | null> {
+    const deviceStorage = this.getDeviceStorage();
+    const getter = deviceStorage.getItem.bind(deviceStorage) as MaxWebApp['DeviceStorage']['getItem'];
+
+    if (getter.length >= 2) {
+      return this.callCallbackStyle<string | null>((callback) => {
+        getter(key, (error, value) => callback(error, value ?? null));
+      });
+    }
+
+    const directResult = getter(key);
+    if (typeof directResult === 'string' || directResult === null) {
+      return directResult;
+    }
+    if (isThenable(directResult)) {
+      return (await withTimeout(Promise.resolve(directResult as PromiseLike<string | null>), BRIDGE_TIMEOUT_MS)) ?? null;
+    }
+
+    return this.callCallbackStyle<string | null>((callback) => {
+      getter(key, (error, value) => callback(error, value ?? null));
+    });
+  }
+
+  private async callMutation(
+    operation: 'setItem' | 'removeItem' | 'clear',
+    key?: string,
+    value?: string
+  ): Promise<void> {
+    const deviceStorage = this.getDeviceStorage();
+
+    const useCallbackStyle =
+      (operation === 'setItem' && deviceStorage.setItem.length >= 3) ||
+      (operation === 'removeItem' && deviceStorage.removeItem.length >= 2) ||
+      (operation === 'clear' && deviceStorage.clear.length >= 1);
+
+    if (useCallbackStyle) {
+      await this.callCallbackStyle<boolean>((callback) => {
+        const wrapped = (error: unknown, success?: boolean) => callback(error, success ?? true);
+        if (operation === 'setItem') {
+          deviceStorage.setItem(key!, value!, wrapped);
+          return;
+        }
+        if (operation === 'removeItem') {
+          deviceStorage.removeItem(key!, wrapped);
+          return;
+        }
+        deviceStorage.clear(wrapped);
+      });
+      return;
+    }
+
+    let directResult: unknown;
+    if (operation === 'setItem') {
+      directResult = deviceStorage.setItem(key!, value!);
+    } else if (operation === 'removeItem') {
+      directResult = deviceStorage.removeItem(key!);
+    } else {
+      directResult = deviceStorage.clear();
+    }
+
+    if (isThenable(directResult)) {
+      await withTimeout(Promise.resolve(directResult), BRIDGE_TIMEOUT_MS);
     }
   }
-};
+
+  async setItem(key: string, value: string): Promise<void> {
+    await this.callMutation('setItem', key, value);
+  }
+
+  async removeItem(key: string): Promise<void> {
+    await this.callMutation('removeItem', key);
+  }
+
+  async clear(): Promise<void> {
+    await this.callMutation('clear');
+  }
+}
+
+class StorageManager implements StorageProvider {
+  constructor(
+    private readonly browserProvider: BrowserStorageProvider,
+    private readonly maxProvider: MaxDeviceStorageProvider
+  ) {}
+
+  private isLocalDevHost(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    const { hostname } = window.location;
+    return hostname === 'localhost' || hostname === '127.0.0.1';
+  }
+
+  private hasMaxLaunchParams(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+    const search = new URLSearchParams(window.location.search);
+    return (
+      search.has('WebAppVersion') ||
+      search.has('webAppVersion') ||
+      search.has('WebAppData') ||
+      search.has('webAppData')
+    );
+  }
+
+  private isLikelyMaxContext(): boolean {
+    if (typeof window === 'undefined') {
+      return false;
+    }
+
+    if (this.isLocalDevHost()) {
+      return false;
+    }
+
+    const platform = window.WebApp?.platform;
+    if (platform && platform !== 'web') {
+      return true;
+    }
+
+    const initData = (window.WebApp as { initData?: string } | undefined)?.initData;
+    if (typeof initData === 'string' && initData.length > 0) {
+      return true;
+    }
+
+    return this.hasMaxLaunchParams();
+  }
+
+  private async waitForBridgeReady(): Promise<void> {
+    const startedAt = Date.now();
+    while (Date.now() - startedAt < BRIDGE_READY_WAIT_MS) {
+      if (this.maxProvider.isAvailable()) {
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, BRIDGE_READY_POLL_MS));
+    }
+  }
+
+  private async resolveProvider(): Promise<StorageProvider> {
+    if (this.isLikelyMaxContext()) {
+      await this.waitForBridgeReady();
+      if (this.maxProvider.isAvailable()) {
+        return this.maxProvider;
+      }
+      throw new Error('MAX context detected but DeviceStorage is unavailable');
+    }
+
+    return this.browserProvider;
+  }
+
+  async setItem(key: string, value: string): Promise<void> {
+    const provider = await this.resolveProvider();
+    await provider.setItem(key, value);
+  }
+
+  async getItem(key: string): Promise<string | null> {
+    const provider = await this.resolveProvider();
+    return provider.getItem(key);
+  }
+
+  async removeItem(key: string): Promise<void> {
+    const provider = await this.resolveProvider();
+    await provider.removeItem(key);
+  }
+
+  async clear(): Promise<void> {
+    const provider = await this.resolveProvider();
+    await provider.clear();
+  }
+}
+
+export const storageManager = new StorageManager(
+  new BrowserStorageProvider(),
+  new MaxDeviceStorageProvider()
+);

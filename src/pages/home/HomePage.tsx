@@ -19,6 +19,9 @@ import { useLogoutAction } from '../../auth/useLogoutAction';
 const ORDER_CREATED_EVENT = 'maxapp:order-created';
 const REFRESH_ORDERS_TRADES_FLAG_KEY = 'MAX_APP_REFRESH_ORDERS_TRADES';
 const ORDERS_TRADES_POLL_INTERVAL_MS = 10000;
+const logHome = (...args: unknown[]) => {
+  console.log('[HomePage]', ...args);
+};
 
 // Placeholder components for sections
 const Section: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
@@ -47,13 +50,31 @@ export const HomePage: React.FC = () => {
   const [instruments, setInstruments] = useState<Record<string, Instrument>>({});
 
   useEffect(() => {
-    if (user?.clientId && user?.login) {
+    logHome('init portfolios effect', {
+      hasUser: Boolean(user),
+      clientId: user?.clientId ?? null,
+      login: user?.login ?? null,
+    });
+
+    if (user?.clientId) {
       setIsInitialLoading(true);
-      ClientService.getActivePortfolios(user.clientId, user.login)
+      const loader = user.login ? 'getActivePortfolios' : 'getPortfolios';
+      logHome('loading portfolios', { loader, clientId: user.clientId, login: user.login ?? null });
+
+      const loadPortfolios = user.login
+        ? ClientService.getActivePortfolios(user.clientId, user.login)
+        : ClientService.getPortfolios(user.clientId);
+
+      loadPortfolios
         .then(async (data) => {
+          logHome('portfolios loaded', {
+            count: data.length,
+            ids: data.map((p) => p.portfolio),
+          });
           setPortfolios(data);
 
           const savedPortfolioId = await storageManager.getItem('MAX_APP_SELECTED_PORTFOLIO');
+          logHome('saved portfolio from storage', { savedPortfolioId });
           let portfolioToSelect = data.length > 0 ? data[0] : null;
 
           if (savedPortfolioId) {
@@ -63,13 +84,23 @@ export const HomePage: React.FC = () => {
             }
           }
 
+          logHome('selected portfolio after init', {
+            selected: portfolioToSelect?.portfolio ?? null,
+          });
           setSelectedPortfolio(portfolioToSelect);
           // Data will be fetched by the effect below when selectedPortfolio changes
         })
-        .catch(console.error)
-        .finally(() => setIsInitialLoading(false));
+        .catch((e) => {
+          console.error(e);
+          logHome('portfolio load failed', e);
+        })
+        .finally(() => {
+          setIsInitialLoading(false);
+          logHome('initial loading finished');
+        });
     } else {
       setIsInitialLoading(false);
+      logHome('skip portfolio load: user.clientId is missing');
     }
   }, [user]);
 
@@ -79,9 +110,15 @@ export const HomePage: React.FC = () => {
     const completed = orders.filter(o => o.status !== OrderStatus.Working);
     completed.sort((a, b) => b.transTime.getTime() - a.transTime.getTime());
     setCompletedOrders(completed);
+    logHome('orders state applied', {
+      total: orders.length,
+      active: orders.filter(o => o.status === OrderStatus.Working).length,
+      completed: completed.length,
+    });
   }, []);
 
   const fetchOrdersAndTrades = useCallback(async (portfolio: ClientPortfolio) => {
+    logHome('fetchOrdersAndTrades start', { exchange: portfolio.exchange, portfolio: portfolio.portfolio });
     try {
       const [orders, portfolioTrades] = await Promise.all([
         PortfolioService.getOrders(portfolio.exchange, portfolio.portfolio),
@@ -90,12 +127,15 @@ export const HomePage: React.FC = () => {
 
       applyOrdersState(orders);
       setTrades(portfolioTrades);
+      logHome('fetchOrdersAndTrades success', { orders: orders.length, trades: portfolioTrades.length });
     } catch (e) {
       console.error("Failed to fetch orders/trades", e);
+      logHome('fetchOrdersAndTrades failed', e);
     }
   }, [applyOrdersState]);
 
   const fetchAllData = useCallback(async (portfolio: ClientPortfolio) => {
+    logHome('fetchAllData start', { exchange: portfolio.exchange, portfolio: portfolio.portfolio });
     try {
       const [sum, ords, pos, trds] = await Promise.all([
         PortfolioService.getSummary(portfolio.exchange, portfolio.portfolio),
@@ -108,13 +148,27 @@ export const HomePage: React.FC = () => {
       applyOrdersState(ords);
       setPositions(pos);
       setTrades(trds);
+      logHome('fetchAllData success', {
+        summary: sum,
+        orders: ords.length,
+        positions: pos.length,
+        trades: trds.length,
+      });
     } catch (e) {
       console.error("Failed to fetch portfolio data", e);
+      logHome('fetchAllData failed', e);
     }
   }, [applyOrdersState]);
 
   useEffect(() => {
-    if (!selectedPortfolio) return;
+    if (!selectedPortfolio) {
+      logHome('selectedPortfolio effect: skipped (no selected portfolio)');
+      return;
+    }
+    logHome('selectedPortfolio effect: fetching all data', {
+      exchange: selectedPortfolio.exchange,
+      portfolio: selectedPortfolio.portfolio,
+    });
     void fetchAllData(selectedPortfolio);
   }, [selectedPortfolio, fetchAllData]);
 
@@ -224,11 +278,18 @@ export const HomePage: React.FC = () => {
 
   const refreshData = async () => {
     setIsRefreshing(true);
+    logHome('pull-to-refresh start');
 
     // 1. Refresh portfolios list
-    if (user?.clientId && user?.login) {
+    if (user?.clientId) {
       try {
-        const data = await ClientService.getActivePortfolios(user.clientId, user.login);
+        const data = user.login
+          ? await ClientService.getActivePortfolios(user.clientId, user.login)
+          : await ClientService.getPortfolios(user.clientId);
+        logHome('refresh portfolios loaded', {
+          count: data.length,
+          ids: data.map((p) => p.portfolio),
+        });
         setPortfolios(data);
 
         // 2. Refresh current portfolio data
@@ -247,10 +308,14 @@ export const HomePage: React.FC = () => {
         }
       } catch (e) {
         console.error(e);
+        logHome('pull-to-refresh failed', e);
       }
+    } else {
+      logHome('pull-to-refresh skipped: user.clientId is missing');
     }
 
     setIsRefreshing(false);
+    logHome('pull-to-refresh end');
   };
 
 

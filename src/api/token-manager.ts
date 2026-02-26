@@ -3,16 +3,19 @@ import { storageManager } from '../utils/storage-manager';
 const ACCESS_TOKEN_KEY = 'max_app_access_token';
 const REFRESH_TOKEN_KEY = 'max_app_refresh_token';
 
-let accessTokenCache: string | null | undefined;
-let refreshTokenCache: string | null | undefined;
+let accessTokenCache: string | undefined;
+let refreshTokenCache: string | undefined;
 
 export const getAccessToken = async (): Promise<string | null> => {
-  if (accessTokenCache !== undefined) {
+  if (accessTokenCache) {
     return accessTokenCache;
   }
 
-  accessTokenCache = await storageManager.getItem(ACCESS_TOKEN_KEY);
-  return accessTokenCache;
+  const token = await storageManager.getItem(ACCESS_TOKEN_KEY);
+  if (token) {
+    accessTokenCache = token;
+  }
+  return token;
 };
 
 export const setAccessToken = async (token: string): Promise<void> => {
@@ -21,12 +24,15 @@ export const setAccessToken = async (token: string): Promise<void> => {
 };
 
 export const getRefreshToken = async (): Promise<string | null> => {
-  if (refreshTokenCache !== undefined) {
+  if (refreshTokenCache) {
     return refreshTokenCache;
   }
 
-  refreshTokenCache = await storageManager.getItem(REFRESH_TOKEN_KEY);
-  return refreshTokenCache;
+  const token = await storageManager.getItem(REFRESH_TOKEN_KEY);
+  if (token) {
+    refreshTokenCache = token;
+  }
+  return token;
 };
 
 export const setRefreshToken = async (token: string): Promise<void> => {
@@ -35,8 +41,8 @@ export const setRefreshToken = async (token: string): Promise<void> => {
 };
 
 export const clearTokens = async (): Promise<void> => {
-  accessTokenCache = null;
-  refreshTokenCache = null;
+  accessTokenCache = undefined;
+  refreshTokenCache = undefined;
   await storageManager.removeItem(ACCESS_TOKEN_KEY);
   await storageManager.removeItem(REFRESH_TOKEN_KEY);
 };
