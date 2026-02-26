@@ -53,7 +53,7 @@ export const UnlockPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { unlock, isLocked, isAuthenticated, login, logout, isLoading: isAuthLoading } = useAuth();
+  const { unlock, isLocked, isAuthenticated, login, isLoading: isAuthLoading } = useAuth();
   const { runLogout, isLoggingOut } = useLogoutAction(async () => {
     await storageManager.removeItem(STORAGE_KEY_APP_PASSWORD);
   });
@@ -63,7 +63,6 @@ export const UnlockPage: React.FC = () => {
   const [attemptsCount, setAttemptsCount] = useState(MAX_ATTEMPTS);
   const [error, setError] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [isClearingStorage, setIsClearingStorage] = useState(false);
 
   const isCancelable = searchParams.get('isCancellable') === 'true';
   const stateFrom = (location.state as any)?.from?.pathname;
@@ -174,20 +173,6 @@ export const UnlockPage: React.FC = () => {
     if (error) setError(false);
   };
 
-  const clearStorageAndReload = async () => {
-    if (isClearingStorage) return;
-    setIsClearingStorage(true);
-    try {
-      await storageManager.clear();
-      localStorage.clear();
-      sessionStorage.clear();
-    } catch (e) {
-      console.error('[UnlockPage] Failed to clear storage', e);
-    } finally {
-      await logout();
-    }
-  };
-
   const renderDots = () => {
     return (
       <Flex gap={16} justify="center" style={{ marginBottom: '32px' }}>
@@ -204,9 +189,6 @@ export const UnlockPage: React.FC = () => {
         <Flex direction="column" align="center" justify="center" style={{ height: '100vh', gap: '16px' }}>
           <Spinner />
           <Typography.Body>{t('common.loading')}</Typography.Body>
-          <Button onClick={clearStorageAndReload} disabled={isClearingStorage}>
-            {isClearingStorage ? 'Clearing...' : 'Clear Storage & Logout'}
-          </Button>
         </Flex>
       </Panel>
     );

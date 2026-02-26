@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../auth/AuthContext';
 import { Typography, Panel, Flex } from '@maxhub/max-ui';
 import { useTranslation } from 'react-i18next';
+import { DebugClearStorageButton } from '../../components/DebugClearStorageButton';
 
 const AUTO_CONTINUE_UNLOCK_KEY = 'MAX_APP_AUTO_CONTINUE_UNLOCK_ONCE';
 
@@ -33,8 +34,9 @@ export const SsoCallbackPage: React.FC = () => {
 
   return (
     <Panel>
-      <Flex align="center" justify="center" style={{ height: '100vh' }}>
+      <Flex direction="column" align="center" justify="center" style={{ height: '100vh', gap: '16px' }}>
         <Typography.Headline>{t('auth.authenticating')}</Typography.Headline>
+        <DebugClearStorageButton />
       </Flex>
     </Panel>
   );
