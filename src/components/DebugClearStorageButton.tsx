@@ -24,10 +24,29 @@ const REQUIRED_KEYS = [
   'MAX_APP_AUTO_CONTINUE_UNLOCK_ONCE',
 ] as const;
 
-const formatValue = (value: string | null): string => {
-  if (!value) return 'missing';
-  if (value.length <= 10) return `present (${value})`;
-  return `present (${value.slice(0, 6)}... len=${value.length})`;
+const formatValue = (value: unknown): string => {
+  if (value === null || value === undefined || value === '') return 'missing';
+
+  if (typeof value === 'string') {
+    if (value.length <= 10) return `present (${value})`;
+    return `present (${value.slice(0, 6)}... len=${value.length})`;
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return `present (${String(value)})`;
+  }
+
+  if (typeof value === 'object') {
+    const objectValue = value as { value?: unknown };
+    if (typeof objectValue.value === 'string') {
+      const v = objectValue.value;
+      if (v.length <= 10) return `present (obj.value=${v})`;
+      return `present (obj.value=${v.slice(0, 6)}... len=${v.length})`;
+    }
+    return `present (type=object keys=${Object.keys(objectValue).join(',') || 'none'})`;
+  }
+
+  return `present (type=${typeof value})`;
 };
 
 export const DebugClearStorageButton: React.FC<DebugClearStorageButtonProps> = ({
