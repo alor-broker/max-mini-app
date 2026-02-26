@@ -1,12 +1,14 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from './AuthContext';
-import { Spinner, Flex } from '@maxhub/max-ui';
+import { Spinner, Flex, Button } from '@maxhub/max-ui';
+import { storageManager } from '../utils/storage-manager';
 
 export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated, isLoading, isLocked, login } = useAuth();
   const location = useLocation();
   const loginStartedRef = useRef(false);
+  const [isClearing, setIsClearing] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated && !loginStartedRef.current) {
@@ -15,20 +17,35 @@ export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children 
     }
   }, [isLoading, isAuthenticated, login]);
 
+  const clearStorageAndReload = async () => {
+    if (isClearing) return;
+    setIsClearing(true);
+    try {
+      await storageManager.clear();
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {
+      console.error('[RequireAuth] Failed to clear storage', e);
+    } finally {
+      window.location.reload();
+    }
+  };
+
+  const renderLoadingWithReset = () => (
+    <Flex direction="column" align="center" justify="center" style={{ height: '100vh', width: '100%', gap: '16px' }}>
+      <Spinner />
+      <Button onClick={clearStorageAndReload} disabled={isClearing}>
+        {isClearing ? 'Clearing...' : 'Clear Storage & Reload'}
+      </Button>
+    </Flex>
+  );
+
   if (isLoading) {
-    return (
-      <Flex align="center" justify="center" style={{ height: '100vh', width: '100%' }}>
-        <Spinner />
-      </Flex>
-    );
+    return renderLoadingWithReset();
   }
 
   if (!isAuthenticated) {
-    return (
-      <Flex align="center" justify="center" style={{ height: '100vh', width: '100%' }}>
-        <Spinner />
-      </Flex>
-    );
+    return renderLoadingWithReset();
   }
 
   if (isLocked) {
