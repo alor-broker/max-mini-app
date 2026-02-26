@@ -5,7 +5,7 @@ import { Spinner, Flex, Button } from '@maxhub/max-ui';
 import { storageManager } from '../utils/storage-manager';
 
 export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading, isLocked, login } = useAuth();
+  const { isAuthenticated, isLoading, isLocked, login, logout } = useAuth();
   const location = useLocation();
   const loginStartedRef = useRef(false);
   const [isClearing, setIsClearing] = useState(false);
@@ -27,7 +27,7 @@ export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children 
     } catch (e) {
       console.error('[RequireAuth] Failed to clear storage', e);
     } finally {
-      window.location.reload();
+      await logout();
     }
   };
 
@@ -35,7 +35,7 @@ export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children 
     <Flex direction="column" align="center" justify="center" style={{ height: '100vh', width: '100%', gap: '16px' }}>
       <Spinner />
       <Button onClick={clearStorageAndReload} disabled={isClearing}>
-        {isClearing ? 'Clearing...' : 'Clear Storage & Reload'}
+        {isClearing ? 'Clearing...' : 'Clear Storage & Logout'}
       </Button>
     </Flex>
   );

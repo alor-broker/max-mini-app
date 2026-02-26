@@ -53,7 +53,7 @@ export const UnlockPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  const { unlock, isLocked, isAuthenticated, login, isLoading: isAuthLoading } = useAuth();
+  const { unlock, isLocked, isAuthenticated, login, logout, isLoading: isAuthLoading } = useAuth();
   const { runLogout, isLoggingOut } = useLogoutAction(async () => {
     await storageManager.removeItem(STORAGE_KEY_APP_PASSWORD);
   });
@@ -184,7 +184,7 @@ export const UnlockPage: React.FC = () => {
     } catch (e) {
       console.error('[UnlockPage] Failed to clear storage', e);
     } finally {
-      window.location.reload();
+      await logout();
     }
   };
 
@@ -205,7 +205,7 @@ export const UnlockPage: React.FC = () => {
           <Spinner />
           <Typography.Body>{t('common.loading')}</Typography.Body>
           <Button onClick={clearStorageAndReload} disabled={isClearingStorage}>
-            {isClearingStorage ? 'Clearing...' : 'Clear Storage & Reload'}
+            {isClearingStorage ? 'Clearing...' : 'Clear Storage & Logout'}
           </Button>
         </Flex>
       </Panel>
