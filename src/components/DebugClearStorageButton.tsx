@@ -101,7 +101,15 @@ export const DebugClearStorageButton: React.FC<DebugClearStorageButtonProps> = (
       ]);
       setReportLines(lines);
     } catch (e) {
-      setReportLines([`inspect error: ${String(e)}`]);
+      let message = String(e);
+      if (typeof e === 'object' && e !== null) {
+        try {
+          message = JSON.stringify(e);
+        } catch {
+          message = String(e);
+        }
+      }
+      setReportLines([`inspect error: ${message}`]);
     } finally {
       setIsInspecting(false);
     }

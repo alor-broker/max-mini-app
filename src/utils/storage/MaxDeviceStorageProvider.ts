@@ -1,10 +1,12 @@
 import { StorageProvider } from '../storage-manager';
 import { MaxWebApp } from './max-webapp';
 
-const BRIDGE_READ_TIMEOUT_MS = 1200;
+const BRIDGE_READ_TIMEOUT_MS = 1500;
 const BRIDGE_MUTATION_TIMEOUT_MS = 2500;
-const BRIDGE_READY_WAIT_MS = 500;
+const BRIDGE_READY_WAIT_MS = 3000;
 const BRIDGE_READY_POLL_MS = 50;
+const BRIDGE_READ_RETRIES = 3;
+const BRIDGE_READ_RETRY_DELAY_MS = 250;
 
 const withTimeout = async <T>(promise: Promise<T>, timeoutMs: number): Promise<T> => {
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
@@ -25,6 +27,29 @@ const isThenable = (value: unknown): value is PromiseLike<unknown> => {
     (typeof value === 'object' || typeof value === 'function') &&
     value !== null &&
     typeof (value as { then?: unknown }).then === 'function'
+  );
+};
+
+const sleep = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const stringifyError = (error: unknown): string => {
+  if (typeof error === 'string') return error;
+  if (error instanceof Error) return error.message;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
+};
+
+const isRetryableBridgeError = (error: unknown): boolean => {
+  const text = stringifyError(error).toLowerCase();
+  return (
+    text.includes('timeout') ||
+    text.includes('transport') ||
+    text.includes('not available') ||
+    text.includes('temporar') ||
+    text.includes('unsupportedevent')
   );
 };
 
@@ -78,24 +103,39 @@ export class MaxDeviceStorageProvider implements StorageProvider {
   }
 
   async getItem(key: string): Promise<string | null> {
-    const deviceStorage = await this.getDeviceStorage();
-    const getter = deviceStorage.getItem.bind(deviceStorage) as MaxWebApp['DeviceStorage']['getItem'];
+    let lastError: unknown = null;
 
-    try {
-      const value = await this.callBridge<string | null>((done) => {
-        return getter(key, (error, callbackValue) => done(error, callbackValue ?? null));
-      }, BRIDGE_READ_TIMEOUT_MS);
-      return value ?? null;
-    } catch {
-      const fallback = getter(key);
-      if (typeof fallback === 'string' || fallback === null) {
-        return fallback;
+    for (let attempt = 1; attempt <= BRIDGE_READ_RETRIES; attempt++) {
+      const deviceStorage = await this.getDeviceStorage();
+      const getter = deviceStorage.getItem.bind(deviceStorage) as MaxWebApp['DeviceStorage']['getItem'];
+
+      try {
+        const value = await this.callBridge<string | null>((done) => {
+          return getter(key, (error, callbackValue) => done(error, callbackValue ?? null));
+        }, BRIDGE_READ_TIMEOUT_MS);
+        return value ?? null;
+      } catch (error) {
+        lastError = error;
+        try {
+          const fallback = getter(key);
+          if (typeof fallback === 'string' || fallback === null) {
+            return fallback;
+          }
+          if (isThenable(fallback)) {
+            return (await withTimeout(Promise.resolve(fallback as PromiseLike<string | null>), BRIDGE_READ_TIMEOUT_MS)) ?? null;
+          }
+        } catch (fallbackError) {
+          lastError = fallbackError;
+        }
+
+        if (attempt < BRIDGE_READ_RETRIES && isRetryableBridgeError(lastError)) {
+          await sleep(BRIDGE_READ_RETRY_DELAY_MS);
+          continue;
+        }
       }
-      if (isThenable(fallback)) {
-        return (await withTimeout(Promise.resolve(fallback as PromiseLike<string | null>), BRIDGE_READ_TIMEOUT_MS)) ?? null;
-      }
-      return null;
     }
+
+    throw lastError ?? new Error('DeviceStorage.getItem failed');
   }
 
   private async mutate(
