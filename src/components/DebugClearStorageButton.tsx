@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@maxhub/max-ui';
 import { storageManager } from '../utils/storage-manager';
 import { useAuth } from '../auth/AuthContext';
@@ -9,12 +9,35 @@ interface DebugClearStorageButtonProps {
   busyLabel?: string;
 }
 
+type KeyReport = {
+  key: string;
+  storage: string;
+  local: string;
+  session: string;
+};
+
+const REQUIRED_KEYS = [
+  'max_app_refresh_token',
+  'max_app_access_token',
+  'max_app_password',
+  'MAX_APP_SELECTED_PORTFOLIO',
+  'MAX_APP_AUTO_CONTINUE_UNLOCK_ONCE',
+] as const;
+
+const formatValue = (value: string | null): string => {
+  if (!value) return 'missing';
+  if (value.length <= 10) return `present (${value})`;
+  return `present (${value.slice(0, 6)}... len=${value.length})`;
+};
+
 export const DebugClearStorageButton: React.FC<DebugClearStorageButtonProps> = ({
   idleLabel = 'Clear Storage & Logout',
   busyLabel = 'Clearing...'
 }) => {
   const { logout } = useAuth();
   const [isClearing, setIsClearing] = useState(false);
+  const [isInspecting, setIsInspecting] = useState(false);
+  const [reportLines, setReportLines] = useState<string[]>(['Inspecting required keys...']);
 
   const clearStorageAndLogout = async () => {
     if (isClearing) return;
@@ -29,6 +52,45 @@ export const DebugClearStorageButton: React.FC<DebugClearStorageButtonProps> = (
       await logout();
     }
   };
+
+  const inspectRequiredKeys = async () => {
+    if (isInspecting) return;
+    setIsInspecting(true);
+    try {
+      const reports = await Promise.all(
+        REQUIRED_KEYS.map(async (key): Promise<KeyReport> => {
+          const [storageValue, localValue, sessionValue] = await Promise.all([
+            storageManager.getItem(key),
+            Promise.resolve(localStorage.getItem(key)),
+            Promise.resolve(sessionStorage.getItem(key)),
+          ]);
+
+          return {
+            key,
+            storage: formatValue(storageValue),
+            local: formatValue(localValue),
+            session: formatValue(sessionValue),
+          };
+        })
+      );
+
+      const lines = reports.flatMap((r) => [
+        `${r.key}`,
+        `  storage: ${r.storage}`,
+        `  local: ${r.local}`,
+        `  session: ${r.session}`,
+      ]);
+      setReportLines(lines);
+    } catch (e) {
+      setReportLines([`inspect error: ${String(e)}`]);
+    } finally {
+      setIsInspecting(false);
+    }
+  };
+
+  useEffect(() => {
+    void inspectRequiredKeys();
+  }, []);
 
   const urlEntries = [
     ['apiUrl', API_CONFIG.apiUrl],
@@ -50,23 +112,56 @@ export const DebugClearStorageButton: React.FC<DebugClearStorageButtonProps> = (
   const hostSummary = urlEntries.map(([, value]) => getHost(value)).join(' | ');
 
   return (
-    <Button onClick={clearStorageAndLogout} disabled={isClearing} title={fullUrlsTitle}>
-      <span style={{ display: 'block' }}>
-        {isClearing ? busyLabel : idleLabel}
-      </span>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '6px',
+        maxWidth: '320px'
+      }}
+      title={fullUrlsTitle}
+    >
+      <Button onClick={clearStorageAndLogout} disabled={isClearing}>
+        <span style={{ display: 'block' }}>
+          {isClearing ? busyLabel : idleLabel}
+        </span>
+        <span
+          style={{
+            display: 'block',
+            fontSize: '10px',
+            opacity: 0.85,
+            maxWidth: '260px',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          {hostSummary}
+        </span>
+      </Button>
+
+      <Button onClick={() => { void inspectRequiredKeys(); }} disabled={isInspecting}>
+        {isInspecting ? 'Inspecting...' : 'Inspect Required Keys'}
+      </Button>
+
       <span
         style={{
           display: 'block',
           fontSize: '10px',
-          opacity: 0.85,
-          maxWidth: '260px',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap'
+          color: 'var(--text-secondary)',
+          background: 'var(--background-surface-secondary)',
+          borderRadius: '8px',
+          padding: '6px 8px',
+          lineHeight: 1.3
         }}
       >
-        {hostSummary}
+        {reportLines.map((line, idx) => (
+          <React.Fragment key={`${line}-${idx}`}>
+            {line}
+            <br />
+          </React.Fragment>
+        ))}
       </span>
-    </Button>
+    </div>
   );
 };
