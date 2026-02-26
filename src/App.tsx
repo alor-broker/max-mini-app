@@ -9,6 +9,7 @@ import { CreateOrderPage } from './pages/create-order/CreateOrderPage';
 import { OrderDetailPage } from './pages/order-detail/OrderDetailPage';
 import { TradeDetailPage } from './pages/trade-detail/TradeDetailPage';
 import { OperationsHistoryPage } from './pages/operations-history/OperationsHistoryPage';
+import { DebugClearStorageButton } from './components/DebugClearStorageButton';
 import { MaxUI } from '@maxhub/max-ui';
 import '@maxhub/max-ui/dist/styles.css';
 
@@ -70,6 +71,17 @@ function AppRoutes() {
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
+      <div
+        style={{
+          position: 'fixed',
+          right: '12px',
+          bottom: '12px',
+          zIndex: 4000
+        }}
+      >
+        <DebugClearStorageButton idleLabel="Debug: Clear & Logout" />
+      </div>
 
       {/* Show the modal when a `background` page is set */}
       {background && (
