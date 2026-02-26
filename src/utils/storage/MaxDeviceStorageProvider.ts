@@ -53,6 +53,18 @@ const isRetryableBridgeError = (error: unknown): boolean => {
   );
 };
 
+const normalizeBridgeValue = (value: unknown): string | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'string') return value;
+  if (typeof value === 'object') {
+    const wrapped = value as { value?: unknown };
+    if (typeof wrapped.value === 'string') {
+      return wrapped.value;
+    }
+  }
+  return null;
+};
+
 const isMissingKeyError = (error: unknown): boolean => {
   const text = stringifyError(error).toLowerCase();
   return (
@@ -119,10 +131,10 @@ export class MaxDeviceStorageProvider implements StorageProvider {
       const getter = deviceStorage.getItem.bind(deviceStorage) as MaxWebApp['DeviceStorage']['getItem'];
 
       try {
-        const value = await this.callBridge<string | null>((done) => {
+        const value = await this.callBridge<unknown>((done) => {
           return getter(key, (error, callbackValue) => done(error, callbackValue ?? null));
         }, BRIDGE_READ_TIMEOUT_MS);
-        return value ?? null;
+        return normalizeBridgeValue(value);
       } catch (error) {
         lastError = error;
         if (isMissingKeyError(lastError)) {
@@ -130,11 +142,13 @@ export class MaxDeviceStorageProvider implements StorageProvider {
         }
         try {
           const fallback = getter(key);
-          if (typeof fallback === 'string' || fallback === null) {
-            return fallback;
+          const normalizedFallback = normalizeBridgeValue(fallback);
+          if (normalizedFallback !== null) {
+            return normalizedFallback;
           }
           if (isThenable(fallback)) {
-            return (await withTimeout(Promise.resolve(fallback as PromiseLike<string | null>), BRIDGE_READ_TIMEOUT_MS)) ?? null;
+            const resolved = await withTimeout(Promise.resolve(fallback as PromiseLike<unknown>), BRIDGE_READ_TIMEOUT_MS);
+            return normalizeBridgeValue(resolved);
           }
         } catch (fallbackError) {
           lastError = fallbackError;
