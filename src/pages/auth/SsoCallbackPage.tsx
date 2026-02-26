@@ -13,8 +13,40 @@ export const SsoCallbackPage: React.FC = () => {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const readRefreshToken = () => {
+    const queryCandidates = [
+      searchParams.get('refreshToken'),
+      searchParams.get('refresh_token'),
+      searchParams.get('token'),
+      searchParams.get('jwt'),
+    ];
+    const fromQuery = queryCandidates.find((value) => Boolean(value));
+    if (fromQuery) {
+      return fromQuery;
+    }
+
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash.startsWith('#')
+        ? window.location.hash.slice(1)
+        : window.location.hash;
+      const hashParams = new URLSearchParams(hash);
+      const hashCandidates = [
+        hashParams.get('refreshToken'),
+        hashParams.get('refresh_token'),
+        hashParams.get('token'),
+        hashParams.get('jwt'),
+      ];
+      const fromHash = hashCandidates.find((value) => Boolean(value));
+      if (fromHash) {
+        return fromHash;
+      }
+    }
+
+    return null;
+  };
+
   useEffect(() => {
-    const refreshToken = searchParams.get('refreshToken');
+    const refreshToken = readRefreshToken();
 
     if (refreshToken) {
       handleSsoCallback(refreshToken)

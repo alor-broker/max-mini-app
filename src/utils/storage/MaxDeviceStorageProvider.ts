@@ -53,6 +53,15 @@ const isRetryableBridgeError = (error: unknown): boolean => {
   );
 };
 
+const isMissingKeyError = (error: unknown): boolean => {
+  const text = stringifyError(error).toLowerCase();
+  return (
+    text.includes('device_storage_get_key.not_found') ||
+    text.includes('get_key.not_found') ||
+    text.includes('not_found')
+  );
+};
+
 export class MaxDeviceStorageProvider implements StorageProvider {
   constructor(private readonly webAppRef: () => MaxWebApp | undefined = () => window.WebApp) {}
 
@@ -116,6 +125,9 @@ export class MaxDeviceStorageProvider implements StorageProvider {
         return value ?? null;
       } catch (error) {
         lastError = error;
+        if (isMissingKeyError(lastError)) {
+          return null;
+        }
         try {
           const fallback = getter(key);
           if (typeof fallback === 'string' || fallback === null) {
@@ -133,6 +145,10 @@ export class MaxDeviceStorageProvider implements StorageProvider {
           continue;
         }
       }
+    }
+
+    if (isMissingKeyError(lastError)) {
+      return null;
     }
 
     throw lastError ?? new Error('DeviceStorage.getItem failed');

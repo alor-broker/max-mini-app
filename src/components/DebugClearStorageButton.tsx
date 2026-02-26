@@ -76,10 +76,26 @@ export const DebugClearStorageButton: React.FC<DebugClearStorageButtonProps> = (
     if (isInspecting) return;
     setIsInspecting(true);
     try {
+      const safeGetFromStorageManager = async (key: string): Promise<string | null> => {
+        try {
+          return await storageManager.getItem(key);
+        } catch (error) {
+          let message = String(error);
+          if (typeof error === 'object' && error !== null) {
+            try {
+              message = JSON.stringify(error);
+            } catch {
+              message = String(error);
+            }
+          }
+          return `error:${message}`;
+        }
+      };
+
       const reports = await Promise.all(
         REQUIRED_KEYS.map(async (key): Promise<KeyReport> => {
           const [storageValue, localValue, sessionValue] = await Promise.all([
-            storageManager.getItem(key),
+            safeGetFromStorageManager(key),
             Promise.resolve(localStorage.getItem(key)),
             Promise.resolve(sessionStorage.getItem(key)),
           ]);
