@@ -26,6 +26,7 @@ function AppRoutes() {
     <>
       <Routes location={background || location}>
         <Route path="/auth/unlock" element={<UnlockPage />} />
+        <Route path="/auth" element={<SsoCallbackPage />} />
         <Route path="/auth/sso" element={<SsoCallbackPage />} />
         <Route
           path="/"

@@ -22,7 +22,8 @@ export interface StorageProvider {
   clear: () => Promise<void>;
 }
 
-const BRIDGE_TIMEOUT_MS = 3000;
+const BRIDGE_READ_TIMEOUT_MS = 1200;
+const BRIDGE_MUTATION_TIMEOUT_MS = 2500;
 const BRIDGE_READY_WAIT_MS = 400;
 const BRIDGE_READY_POLL_MS = 50;
 
@@ -79,7 +80,8 @@ class MaxDeviceStorageProvider implements StorageProvider {
   }
 
   private async callCallbackStyle<T>(
-    invoker: (callback: (error: unknown, value: T) => void) => void
+    invoker: (callback: (error: unknown, value: T) => void) => void,
+    timeoutMs: number
   ): Promise<T> {
     return withTimeout(
       new Promise<T>((resolve, reject) => {
@@ -95,7 +97,7 @@ class MaxDeviceStorageProvider implements StorageProvider {
           reject(error);
         }
       }),
-      BRIDGE_TIMEOUT_MS
+      timeoutMs
     );
   }
 
@@ -106,7 +108,7 @@ class MaxDeviceStorageProvider implements StorageProvider {
     if (getter.length >= 2) {
       return this.callCallbackStyle<string | null>((callback) => {
         getter(key, (error, value) => callback(error, value ?? null));
-      });
+      }, BRIDGE_READ_TIMEOUT_MS);
     }
 
     const directResult = getter(key);
@@ -114,12 +116,12 @@ class MaxDeviceStorageProvider implements StorageProvider {
       return directResult;
     }
     if (isThenable(directResult)) {
-      return (await withTimeout(Promise.resolve(directResult as PromiseLike<string | null>), BRIDGE_TIMEOUT_MS)) ?? null;
+      return (await withTimeout(Promise.resolve(directResult as PromiseLike<string | null>), BRIDGE_READ_TIMEOUT_MS)) ?? null;
     }
 
     return this.callCallbackStyle<string | null>((callback) => {
       getter(key, (error, value) => callback(error, value ?? null));
-    });
+    }, BRIDGE_READ_TIMEOUT_MS);
   }
 
   private async callMutation(
@@ -146,7 +148,7 @@ class MaxDeviceStorageProvider implements StorageProvider {
           return;
         }
         deviceStorage.clear(wrapped);
-      });
+      }, BRIDGE_MUTATION_TIMEOUT_MS);
       return;
     }
 
@@ -160,7 +162,7 @@ class MaxDeviceStorageProvider implements StorageProvider {
     }
 
     if (isThenable(directResult)) {
-      await withTimeout(Promise.resolve(directResult), BRIDGE_TIMEOUT_MS);
+      await withTimeout(Promise.resolve(directResult), BRIDGE_MUTATION_TIMEOUT_MS);
     }
   }
 
