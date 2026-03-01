@@ -86,9 +86,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(result.user);
         setIsAuthenticated(true);
 
-        // Check if PIN is set. If not, we must lock to force PIN creation.
+        // Check if PIN is set (with retries for MAX bridge cold-start delay).
+        // If not, we must lock to force PIN creation.
         // If PIN is set, fresh login acts as an unlock.
-        const hasPin = !!(await storageManager.getItem('max_app_password'));
+        let hasPin = false;
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          const pin = await storageManager.getItem('max_app_password');
+          if (pin) { hasPin = true; break; }
+          if (attempt < 3) await new Promise((r) => setTimeout(r, 300));
+        }
         setIsLocked(!hasPin);
       } else {
         throw new Error("Failed to verify token");

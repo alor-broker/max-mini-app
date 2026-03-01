@@ -75,17 +75,29 @@ export const UnlockPage: React.FC = () => {
     }
   }, []);
 
-  // Initialize: load stored PIN
+  // Initialize: load stored PIN (with retries for MAX bridge cold-start delay)
   useEffect(() => {
+    const PIN_READ_RETRIES = 3;
+    const PIN_READ_RETRY_DELAY_MS = 300;
+
     const init = async () => {
       try {
-        const savedPin = await storageManager.getItem(STORAGE_KEY_APP_PASSWORD);
+        let savedPin: string | null = null;
 
-        if (!savedPin) {
-          setStoredPin(null);
-        } else {
-          setStoredPin(savedPin);
+        for (let attempt = 1; attempt <= PIN_READ_RETRIES; attempt++) {
+          savedPin = await storageManager.getItem(STORAGE_KEY_APP_PASSWORD);
+          if (savedPin) break;
+
+          // If this is not the last attempt, wait before retrying.
+          // Bridge-backed storage on MAX may not have all keys ready
+          // on cold start — the refresh token loads first, but other
+          // keys can lag behind.
+          if (attempt < PIN_READ_RETRIES) {
+            await new Promise((r) => setTimeout(r, PIN_READ_RETRY_DELAY_MS));
+          }
         }
+
+        setStoredPin(savedPin);
       } catch (e) {
         console.error("Unlock init failed", e);
       } finally {
