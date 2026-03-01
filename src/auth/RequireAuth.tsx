@@ -23,7 +23,7 @@ export const RequireAuth: React.FC<{ children: React.ReactNode }> = ({ children 
   const renderLoadingWithReset = () => (
     <Flex direction="column" align="center" justify="center" style={{ height: '100vh', width: '100%', gap: '16px' }}>
       <Spinner />
-      <DebugClearStorageButton />
+      {/* <DebugClearStorageButton /> */}
     </Flex>
   );
 

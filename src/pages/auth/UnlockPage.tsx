@@ -104,7 +104,7 @@ export const UnlockPage: React.FC = () => {
     }
 
     const shouldAutoContinue = sessionStorage.getItem(AUTO_CONTINUE_UNLOCK_KEY) === '1';
-    if (shouldAutoContinue) {
+    if (shouldAutoContinue && storedPin) {
       sessionStorage.removeItem(AUTO_CONTINUE_UNLOCK_KEY);
       if (isLocked) {
         unlock();
@@ -113,11 +113,16 @@ export const UnlockPage: React.FC = () => {
       return;
     }
 
+    // Stale auto-continue should never bypass first-time PIN creation.
+    if (shouldAutoContinue && !storedPin) {
+      sessionStorage.removeItem(AUTO_CONTINUE_UNLOCK_KEY);
+    }
+
     // If we are unlocked (or was never locked), continue normally
     if (!isLocked) {
       navigate(redirectUrl, { replace: true });
     }
-  }, [isLoading, isAuthLoading, isLoggingOut, isLocked, isAuthenticated, navigate, redirectUrl, login, unlock]);
+  }, [isLoading, isAuthLoading, isLoggingOut, isLocked, isAuthenticated, navigate, redirectUrl, login, unlock, storedPin]);
 
   const handleSuccess = useCallback(() => {
     vibrate(50);
