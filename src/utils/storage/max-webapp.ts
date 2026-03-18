@@ -1,13 +1,15 @@
+export interface MaxDeviceStorage {
+  setItem(key: string, value: string): Promise<unknown>;
+  getItem(key: string): Promise<unknown>;
+  removeItem(key: string): Promise<unknown>;
+  clear(): Promise<unknown>;
+}
+
 export interface MaxWebApp {
   platform?: string;
   version?: string;
   initData?: string;
-  DeviceStorage: {
-    setItem: (key: string, value: string, callback?: (error: unknown, success?: boolean) => void) => Promise<void> | void;
-    getItem: (key: string, callback?: (error: unknown, value: string | null) => void) => Promise<string | null> | string | null | void;
-    removeItem: (key: string, callback?: (error: unknown, success?: boolean) => void) => Promise<void> | void;
-    clear: (callback?: (error: unknown, success?: boolean) => void) => Promise<void> | void;
-  };
+  DeviceStorage: MaxDeviceStorage;
 }
 
 declare global {
@@ -16,6 +18,16 @@ declare global {
   }
 }
 
+/**
+ * Detects whether the app is running inside the MAX messenger runtime.
+ *
+ * Cannot rely on `window.WebApp` or `window.WebApp.DeviceStorage` existing
+ * because the bridge script (max-web-app.js) always creates those objects,
+ * even in a regular browser where the native transport is unavailable.
+ *
+ * Instead we use heuristics: native platforms report a non-"web" platform,
+ * the presence of initData, or MAX-specific URL search params.
+ */
 export const isLikelyMaxRuntime = (): boolean => {
   if (typeof window === 'undefined') {
     return false;
