@@ -81,6 +81,7 @@ function AppRoutes() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
+      {/*  Keep it commented for debug purposes in the future
       <div
         style={{
           position: 'fixed',
@@ -90,7 +91,7 @@ function AppRoutes() {
         }}
       >
         <DebugClearStorageButton idleLabel="Debug: Clear & Logout" />
-      </div>
+      </div> */}
 
       {/* Show the modal when a `background` page is set */}
       {background && (

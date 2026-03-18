@@ -68,7 +68,7 @@ export const SsoCallbackPage: React.FC = () => {
     <Panel>
       <Flex direction="column" align="center" justify="center" style={{ height: '100vh', gap: '16px' }}>
         <Typography.Headline>{t('auth.authenticating')}</Typography.Headline>
-        <DebugClearStorageButton />
+        {/* <DebugClearStorageButton /> */}
       </Flex>
     </Panel>
   );

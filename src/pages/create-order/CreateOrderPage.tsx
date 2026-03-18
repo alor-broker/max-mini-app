@@ -347,7 +347,7 @@ export const CreateOrderPage: React.FC = () => {
 
             <PriceHistoryChart instrument={selectedInstrument} />
             <Typography.Label style={{ display: 'block', fontSize: '11px', color: 'var(--text-secondary)', marginBottom: '8px' }}>
-              Click a market value below to fill the limit price.
+              {t('order.click_market_value')}
             </Typography.Label>
 
             {quote ? (
@@ -423,7 +423,7 @@ export const CreateOrderPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <Typography.Body style={{ textAlign: 'center', color: 'gray', fontSize: '12px' }}>{t('common.loading_market_data')}</Typography.Body>
+              <Typography.Body style={{ textAlign: 'center', color: 'gray', fontSize: '12px' }}>{t('common.loading_data')}</Typography.Body>
             )}
           </div>
 

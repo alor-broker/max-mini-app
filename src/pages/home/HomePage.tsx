@@ -13,7 +13,7 @@ import { CompletedOrdersList } from './CompletedOrdersList';
 import { HomeActions } from './HomeActions';
 import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
-import { IconLogout, HeaderBackgroundWave } from '../../components/Icons';
+import { IconLogout, HeaderBackgroundWave, AppLogo } from '../../components/Icons';
 import { useLogoutAction } from '../../auth/useLogoutAction';
 
 const ORDER_CREATED_EVENT = 'maxapp:order-created';
@@ -412,7 +412,7 @@ export const HomePage: React.FC = () => {
         right: '16px',
         zIndex: 1000,
         padding: '10px 16px',
-        background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%)',
+        background: 'linear-gradient(135deg, rgba(34, 52, 91, 0.95) 0%, rgba(48, 65, 147, 0.95) 100%)',
         backdropFilter: 'blur(12px)',
         borderRadius: '100px', // Fully round capsule shape
         display: 'flex',
@@ -424,12 +424,15 @@ export const HomePage: React.FC = () => {
         pointerEvents: showStickyHeader ? 'auto' : 'none',
         boxShadow: '0 8px 32px rgba(0,0,0,0.2)'
       }}>
-        <PortfolioSelector
-          portfolios={portfolios}
-          selectedPortfolio={selectedPortfolio}
-          onSelect={handlePortfolioSelect}
-          triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)', fontSize: '14px', padding: '4px 12px', height: '32px' }}
-        />
+        <Flex gap={8} align="center">
+          <AppLogo width={24} height={24} />
+          <PortfolioSelector
+            portfolios={portfolios}
+            selectedPortfolio={selectedPortfolio}
+            onSelect={handlePortfolioSelect}
+            triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)', fontSize: '14px', padding: '4px 12px', height: '32px' }}
+          />
+        </Flex>
         <Flex gap={12} align="center">
           <LanguageSwitcher />
           <Flex
@@ -460,19 +463,22 @@ export const HomePage: React.FC = () => {
           <Grid gap={16} cols={1}>
             {/* Header / Portfolio Summary */}
             <div ref={headerRef}>
-              <Container style={{ padding: '14px 16px', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white', borderRadius: '0', position: 'relative', overflow: 'visible' }}>
+              <Container style={{ padding: '14px 16px', background: 'linear-gradient(135deg, #22345B 0%, #304193 100%)', color: 'white', borderRadius: '0', position: 'relative', overflow: 'visible' }}>
                 <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, pointerEvents: 'none' }}>
                   <HeaderBackgroundWave />
                 </div>
                 <Flex direction="column" gap={16} style={{ position: 'relative', zIndex: 1 }}>
 
                   <Flex justify="space-between" align="center" style={{ width: '100%' }}>
-                    <PortfolioSelector
-                      portfolios={portfolios}
-                      selectedPortfolio={selectedPortfolio}
-                      onSelect={handlePortfolioSelect}
-                      triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
-                    />
+                    <Flex gap={8} align="center">
+                      <AppLogo width={28} height={28} />
+                      <PortfolioSelector
+                        portfolios={portfolios}
+                        selectedPortfolio={selectedPortfolio}
+                        onSelect={handlePortfolioSelect}
+                        triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
+                      />
+                    </Flex>
                     <Flex gap={12} align="center" style={{ marginLeft: 'auto' }}>
                       <LanguageSwitcher />
                       <Flex

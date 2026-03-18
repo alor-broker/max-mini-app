@@ -85,7 +85,7 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
     textPrimary: getThemeColor('--text-primary', '#1f2937'),
     textSecondary: getThemeColor('--text-secondary', '#6b7280'),
     strokeGridHorz: isDarkTheme()
-      ? '#ffffff'
+      ? '#8f8f8fff'
       : 'rgba(12,13,14,0.28)',
     strokeGridVert: isDarkTheme()
       ? 'rgba(255,255,255,0.18)'
@@ -205,7 +205,7 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
         console.error('Failed to fetch history', e);
         if (!cancelled) {
           setHistoryData([]);
-          setError(t('common.loading_market_data'));
+          setError(t('common.loading_data'));
         }
       } finally {
         if (!cancelled) {
@@ -288,14 +288,14 @@ export const PriceHistoryChart: React.FC<PriceHistoryChartProps> = ({ instrument
         {loading ? (
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Typography.Body style={{ color: themePalette.loadingText, fontSize: '12px' }}>
-              {t('common.loading_market_data')}
+              {t('common.loading_data')}
             </Typography.Body>
           </div>
         ) : (
           historyData.length < 2 && (
             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Typography.Body style={{ color: themePalette.loadingText, fontSize: '12px' }}>
-                {error || t('common.loading_market_data')}
+                {error || t('common.loading_data')}
               </Typography.Body>
             </div>
           )

@@ -136,7 +136,13 @@ export const OperationsHistoryPage: React.FC = () => {
               <CellSimple
                 key={item.id}
                 title={item.title || item.subType || t('history.operation', { defaultValue: 'Operation' })}
-                subtitle={new Date(item.date).toLocaleString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
+                subtitle={new Date(item.date).toLocaleString('en-GB', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                }).replace(/\//g, '.').replace(',', '')}
                 after={(
                   <Flex direction="column" gap={2} style={{ alignItems: 'flex-end' }}>
                     <Typography.Body style={{ color: getAmountColor(amount), fontWeight: 700 }}>
