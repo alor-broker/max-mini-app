@@ -19,40 +19,33 @@ declare global {
 }
 
 /**
- * Detects whether the app is running inside the MAX messenger runtime.
+ * Detects whether the app is running inside a **native** MAX messenger client
+ * that supports DeviceStorage (iOS, Android, Desktop).
  *
- * Cannot rely on `window.WebApp` or `window.WebApp.DeviceStorage` existing
+ *  * Cannot rely on `window.WebApp` or `window.WebApp.DeviceStorage` existing
  * because the bridge script (max-web-app.js) always creates those objects,
- * even in a regular browser where the native transport is unavailable.
+ * 
+ * The MAX web version (max.ru opened in a browser) also injects the bridge
+ * script and sets URL params like `WebAppVersion` / `WebAppData`, but
+ * DeviceStorage methods throw `UnsupportedEvent` there.
  *
- * Instead we use heuristics: native platforms report a non-"web" platform,
- * the presence of initData, or MAX-specific URL search params.
+ * Therefore we ONLY return `true` when the platform is explicitly a native
+ * one — anything else (including `"web"` or absent) falls through to the
+ * BrowserStorageProvider which uses localStorage.
  */
 export const isLikelyMaxRuntime = (): boolean => {
   if (typeof window === 'undefined') {
     return false;
   }
 
-  const { hostname, search } = window.location;
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return false;
-  }
-
   const platform = window.WebApp?.platform;
-  if (platform && platform !== 'web') {
+
+  // Native MAX clients report "ios", "android", or "desktop".
+  // The web version reports "web" — DeviceStorage is NOT available there.
+  // If platform is absent, we're outside MAX entirely.
+  if (typeof platform === 'string' && platform.length > 0 && platform !== 'web') {
     return true;
   }
 
-  const initData = window.WebApp?.initData;
-  if (typeof initData === 'string' && initData.length > 0) {
-    return true;
-  }
-
-  const params = new URLSearchParams(search);
-  return (
-    params.has('WebAppVersion') ||
-    params.has('webAppVersion') ||
-    params.has('WebAppData') ||
-    params.has('webAppData')
-  );
+  return false;
 };
