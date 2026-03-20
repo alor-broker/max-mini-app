@@ -144,8 +144,8 @@ export const UnlockPage: React.FC = () => {
 
   const handleFailure = useCallback(() => {
     vibrate([50, 50, 50]);
-    setError(true);
     setPin('');
+    setError(true);
     setAttemptsCount(prev => {
       const newCount = prev - 1;
       if (newCount <= 0) {
@@ -174,13 +174,13 @@ export const UnlockPage: React.FC = () => {
         }
         save();
       }
-    } else {
-      if (error) setError(false);
     }
-  }, [pin, storedPin, handleSuccess, handleFailure, error]);
+  }, [pin, storedPin, handleSuccess, handleFailure]);
 
   const handleDigit = (digit: string) => {
     if (pin.length < PIN_LENGTH) {
+      // Clear error message as soon as the user starts typing a new PIN
+      if (error) setError(false);
       setPin(prev => prev + digit);
     }
   };
@@ -246,7 +246,16 @@ export const UnlockPage: React.FC = () => {
               </Button>
             ))}
 
-            <div style={{ width: '64px', height: '64px', margin: '8px' }} />
+            {isCreateMode ? (
+              <Button
+                style={ghostButtonStyle}
+                onClick={() => setPin('')}
+              >
+                C
+              </Button>
+            ) : (
+              <div style={{ width: '64px', height: '64px', margin: '8px' }} />
+            )}
 
             <Button
               key={0}
