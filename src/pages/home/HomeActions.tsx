@@ -19,6 +19,8 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
   const { openModal } = useModal();
   const [showConfirm, setShowConfirm] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [hoveredAction, setHoveredAction] = useState<string | null>(null);
+  const [pressedAction, setPressedAction] = useState<string | null>(null);
 
   const handleCancelAll = async () => {
     if (!portfolio) return;
@@ -36,46 +38,130 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
     }
   };
 
-  const ActionButton = ({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) => (
-    <div onClick={onClick} data-no-pull-refresh="true" style={{ cursor: 'pointer', textAlign: 'center', minWidth: '80px' }}>
-      <Flex direction="column" align="center" gap={8}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          background: 'rgba(255, 255, 255, 0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          border: '1px solid rgba(255, 255, 255, 0.4)',
-          transition: 'transform 0.2s',
+  const ActionButton = ({
+    id,
+    icon,
+    label,
+    onClick,
+    tone = 'default',
+  }: {
+    id: string;
+    icon: React.ReactNode;
+    label: string;
+    onClick: () => void;
+    tone?: 'default' | 'danger';
+  }) => {
+    const isHovered = hoveredAction === id;
+    const isPressed = pressedAction === id;
+    const isDanger = tone === 'danger';
+
+    const baseStyle: React.CSSProperties = {
+      borderRadius: '999px',
+      padding: '6px 10px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px',
+      border: '1px solid rgba(255,255,255,0.35)',
+      background: 'rgba(0,0,0,0.12)',
+      color: 'white',
+      fontSize: '11px',
+      fontWeight: 600,
+      lineHeight: 1,
+      cursor: 'pointer',
+      minHeight: '30px',
+      transition: 'transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, border-color 0.2s ease',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.18)',
+      backdropFilter: 'blur(6px)',
+      whiteSpace: 'nowrap',
+    };
+
+    const toneStyle: React.CSSProperties = isDanger
+      ? {
+        borderColor: 'rgba(239, 68, 68, 0.6)',
+        color: '#fee2e2',
+        background: 'rgba(239, 68, 68, 0.12)',
+      }
+      : {};
+
+    const hoverStyle: React.CSSProperties = isHovered
+      ? {
+        background: isDanger ? 'rgba(239, 68, 68, 0.18)' : 'rgba(255,255,255,0.16)',
+        borderColor: isDanger ? 'rgba(239, 68, 68, 0.8)' : 'rgba(255,255,255,0.5)',
+        transform: 'translateY(-1px)',
+        boxShadow: '0 10px 24px rgba(0,0,0,0.25)',
+      }
+      : {};
+
+    const pressedStyle: React.CSSProperties = isPressed
+      ? {
+        transform: 'translateY(0) scale(0.98)',
+        boxShadow: '0 6px 18px rgba(0,0,0,0.22)',
+      }
+      : {};
+
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        data-no-pull-refresh="true"
+        style={{ ...baseStyle, ...toneStyle, ...hoverStyle, ...pressedStyle }}
+        onMouseEnter={() => setHoveredAction(id)}
+        onMouseLeave={() => {
+          setHoveredAction(null);
+          setPressedAction(null);
         }}
-          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
-          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        onMouseDown={() => setPressedAction(id)}
+        onMouseUp={() => setPressedAction(null)}
+      >
+        <span
+          style={{
+            width: '22px',
+            height: '22px',
+            borderRadius: '50%',
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: isDanger ? 'rgba(239, 68, 68, 0.25)' : 'rgba(255,255,255,0.18)',
+            border: '1px solid rgba(255,255,255,0.35)',
+          }}
         >
           {icon}
-        </div>
-        <Typography.Label style={{ color: 'white', fontSize: '11px', textAlign: 'center' }}>{label}</Typography.Label>
-      </Flex>
-    </div>
-  );
+        </span>
+        <Typography.Label style={{ color: 'inherit', fontSize: '11px', fontWeight: 600 }}>
+          {label}
+        </Typography.Label>
+      </button>
+    );
+  };
 
   return (
     <>
-      <Flex gap={24} justify="center" style={{ width: '100%', marginTop: '16px' }}>
+      <Flex
+        gap={10}
+        justify="center"
+        style={{
+          width: '100%',
+          marginTop: '10px',
+          flexWrap: 'nowrap',
+        }}
+      >
         <ActionButton
-          icon={<IconNewOrder />}
+          id="new-order"
+          icon={<IconNewOrder width={14} height={14} />}
           label={t('home.new_order')}
           onClick={() => openModal('createOrder', { portfolio: portfolio ?? undefined })}
         />
         <ActionButton
-          icon={<IconOperationsHistory />}
+          id="history"
+          icon={<IconOperationsHistory width={14} height={14} />}
           label={t('home.operations_history', { defaultValue: 'History' })}
           onClick={() => openModal('operationsHistory', { portfolio: portfolio ?? undefined })}
         />
         <ActionButton
-          icon={<IconCancelAll />}
+          id="cancel-all"
+          icon={<IconCancelAll width={14} height={14} />}
           label={t('home.cancel_all_orders')}
+          tone="danger"
           onClick={() => {
             if (!portfolio) {
               showNotification(t('order.select_portfolio'), 'info');
