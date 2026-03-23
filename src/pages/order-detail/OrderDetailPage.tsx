@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Container, Flex, Typography, Button, Grid } from '@maxhub/max-ui';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { PortfolioOrder, Side, OrderStatus, OrdersService } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../components/NotificationContext';
 import { ModalPageLayout } from '../../components/ModalPageLayout';
+import { useModal } from '../../components/ModalContext';
 
 const statusColorMap: Record<OrderStatus, string> = {
   [OrderStatus.Working]: '#fef08a',
@@ -27,15 +27,16 @@ const DetailRow: React.FC<{ label: string; value: React.ReactNode; valueColor?: 
   </Flex>
 );
 
-export const OrderDetailPage: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+interface OrderDetailPageProps {
+  order?: PortfolioOrder;
+}
+
+export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ order }) => {
   const { t } = useTranslation();
   const { showNotification } = useNotification();
+  const { closeModal, openModal } = useModal();
   const [isCanceling, setIsCanceling] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-
-  const order = (location.state as { order?: PortfolioOrder })?.order;
 
   if (!order) {
     return (
@@ -69,13 +70,7 @@ export const OrderDetailPage: React.FC = () => {
     try {
       await OrdersService.cancelOrder(order.portfolio, order.id, order.exchange);
       showNotification(t('orderDetail.success_cancel'), 'success');
-
-      const state = location.state as { background?: any };
-      if (state?.background) {
-        navigate(-1);
-      } else {
-        navigate('/');
-      }
+      closeModal();
     } catch (e) {
       console.error(e);
       showNotification(t('common.error'), 'error');
@@ -196,7 +191,7 @@ export const OrderDetailPage: React.FC = () => {
 
           <Container style={{ width: '100%', padding: 0 }}>
             <Button
-              onClick={() => navigate('/order/new', { state: { symbol: order.symbol, background: location } })}
+              onClick={() => openModal('createOrder', { symbol: order.symbol })}
               style={{
                 width: '100%',
                 background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

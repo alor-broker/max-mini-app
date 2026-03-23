@@ -1,9 +1,9 @@
 import React from 'react';
 import { Container, Flex, Typography, Button, Grid } from '@maxhub/max-ui';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { PortfolioTrade, Side } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 import { ModalPageLayout } from '../../components/ModalPageLayout';
+import { useModal } from '../../components/ModalContext';
 
 const DetailRow: React.FC<{ label: string; value: React.ReactNode; valueColor?: string }> = ({ label, value, valueColor }) => (
   <Flex
@@ -19,12 +19,13 @@ const DetailRow: React.FC<{ label: string; value: React.ReactNode; valueColor?: 
   </Flex>
 );
 
-export const TradeDetailPage: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { t } = useTranslation();
+interface TradeDetailPageProps {
+  trade?: PortfolioTrade;
+}
 
-  const trade = (location.state as { trade?: PortfolioTrade })?.trade;
+export const TradeDetailPage: React.FC<TradeDetailPageProps> = ({ trade }) => {
+  const { t } = useTranslation();
+  const { openModal } = useModal();
 
   if (!trade) {
     return (
@@ -140,7 +141,7 @@ export const TradeDetailPage: React.FC = () => {
         {/* Action button */}
         <Container style={{ padding: '0 16px 16px' }}>
           <Button
-            onClick={() => navigate('/order/new', { state: { symbol: trade.symbol } })}
+            onClick={() => openModal('createOrder', { symbol: trade.symbol })}
             style={{
               width: '100%',
               background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

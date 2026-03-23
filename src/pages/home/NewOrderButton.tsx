@@ -1,21 +1,19 @@
 import React from 'react';
 import { Flex, Typography } from '@maxhub/max-ui';
-import { useNavigate } from 'react-router-dom';
-
 import { useTranslation } from 'react-i18next';
-
 import { ClientPortfolio } from '../../api/services';
+import { useModal } from '../../components/ModalContext';
 
 interface NewOrderButtonProps {
   portfolio?: ClientPortfolio | null;
 }
 
 export const NewOrderButton: React.FC<NewOrderButtonProps> = ({ portfolio }) => {
-  const navigate = useNavigate();
   const { t } = useTranslation();
+  const { openModal } = useModal();
 
   return (
-    <div onClick={() => navigate('/order/new', { state: { portfolio } })} style={{ cursor: 'pointer', textAlign: 'center' }}>
+    <div onClick={() => openModal('createOrder', { portfolio: portfolio ?? undefined })} style={{ cursor: 'pointer', textAlign: 'center' }}>
       <Flex direction="column" align="center" gap={8}>
         <div style={{
           width: '48px',

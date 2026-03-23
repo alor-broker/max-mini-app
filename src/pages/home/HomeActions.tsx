@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Flex, Typography, Button } from '@maxhub/max-ui';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ClientPortfolio, OrdersService } from '../../api/services';
 import { useNotification } from '../../components/NotificationContext';
 import { IconNewOrder, IconCancelAll, IconOperationsHistory } from '../../components/Icons';
+import { useModal } from '../../components/ModalContext';
 
 
 interface HomeActionsProps {
@@ -14,10 +14,9 @@ interface HomeActionsProps {
 }
 
 export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrigger, activeOrdersCount = 0 }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useTranslation();
   const { showNotification } = useNotification();
+  const { openModal } = useModal();
   const [showConfirm, setShowConfirm] = useState(false);
   const [isCanceling, setIsCanceling] = useState(false);
 
@@ -67,12 +66,12 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
         <ActionButton
           icon={<IconNewOrder />}
           label={t('home.new_order')}
-          onClick={() => navigate('/order/new', { state: { portfolio, background: location } })}
+          onClick={() => openModal('createOrder', { portfolio: portfolio ?? undefined })}
         />
         <ActionButton
           icon={<IconOperationsHistory />}
           label={t('home.operations_history', { defaultValue: 'History' })}
-          onClick={() => navigate('/operations/history', { state: { portfolio, background: location } })}
+          onClick={() => openModal('operationsHistory', { portfolio: portfolio ?? undefined })}
         />
         <ActionButton
           icon={<IconCancelAll />}
@@ -104,7 +103,6 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
         }}>
           <div style={{
             background: 'var(--background-surface-card)',
-            color: 'var(--text-primary)',
             padding: '24px',
             borderRadius: '16px',
             width: '80%',
@@ -118,8 +116,8 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
               <Button onClick={() => setShowConfirm(false)} style={{ background: '#eee', color: '#333', border: 'none', flex: 1 }}>
                 {t('common.no')}
               </Button>
-              <Button onClick={handleCancelAll} style={{ background: '#ef4444', color: 'white', border: 'none', flex: 1 }}>
-                {t('common.yes')}
+              <Button onClick={handleCancelAll} disabled={isCanceling} style={{ background: '#ef4444', color: 'white', border: 'none', flex: 1 }}>
+                {isCanceling ? '...' : t('common.yes')}
               </Button>
             </Flex>
           </div>

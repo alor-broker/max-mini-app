@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Flex, Typography, Button, Input } from '@maxhub/max-ui';
-import { useNavigate, useLocation } from 'react-router-dom';
 import {
   ClientService,
   ClientPortfolio,
@@ -19,16 +18,21 @@ import { useTranslation } from 'react-i18next';
 import { useNotification } from '../../components/NotificationContext';
 import { PriceHistoryChart } from './PriceHistoryChart';
 import { ModalPageLayout } from '../../components/ModalPageLayout';
+import { useModal } from '../../components/ModalContext';
 
 const ORDER_CREATED_EVENT = 'maxapp:order-created';
 const REFRESH_ORDERS_TRADES_FLAG_KEY = 'MAX_APP_REFRESH_ORDERS_TRADES';
 
-export const CreateOrderPage: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+interface CreateOrderPageProps {
+  symbol?: string;
+  portfolio?: ClientPortfolio;
+}
+
+export const CreateOrderPage: React.FC<CreateOrderPageProps> = ({ symbol: initialSymbol, portfolio: initialPortfolio }) => {
   const { user } = useAuth();
   const { t } = useTranslation();
   const { showNotification } = useNotification();
+  const { closeModal, closeAllModals } = useModal();
 
   // State
   const [portfolios, setPortfolios] = useState<ClientPortfolio[]>([]);
@@ -43,15 +47,14 @@ export const CreateOrderPage: React.FC = () => {
   const autoSelectRef = useRef(false);
   const latestSearchRequestIdRef = useRef(0);
 
-  // Initial State from Navigation
+  // Initial State from props
   useEffect(() => {
-    const state = location.state as { symbol?: string; portfolio?: ClientPortfolio };
-    if (state?.symbol) {
-      setSearchQuery(state.symbol);
+    if (initialSymbol) {
+      setSearchQuery(initialSymbol);
       autoSelectRef.current = true;
     }
     // Portfolio will be set after portfolios are loaded
-  }, [location.state]);
+  }, [initialSymbol]);
 
   // Order Form State
   const [orderType, setOrderType] = useState<string>('Limit');
@@ -67,9 +70,8 @@ export const CreateOrderPage: React.FC = () => {
       ClientService.getActivePortfolios(user.clientId, user.login).then(async (data) => {
         setPortfolios(data);
 
-        const state = location.state as { symbol?: string; portfolio?: ClientPortfolio };
-        if (state?.portfolio) {
-          const found = data.find(p => p.portfolio === state.portfolio?.portfolio);
+        if (initialPortfolio) {
+          const found = data.find(p => p.portfolio === initialPortfolio.portfolio);
           if (found) {
             setSelectedPortfolio(found);
             return;
@@ -88,7 +90,7 @@ export const CreateOrderPage: React.FC = () => {
         if (data.length > 0) setSelectedPortfolio(data[0]);
       });
     }
-  }, [user, location.state]);
+  }, [user, initialPortfolio]);
 
   useEffect(() => {
     const normalizedQuery = searchQuery.trim();
@@ -197,12 +199,7 @@ export const CreateOrderPage: React.FC = () => {
       await storageManager.setItem(REFRESH_ORDERS_TRADES_FLAG_KEY, '1');
       window.dispatchEvent(new CustomEvent(ORDER_CREATED_EVENT));
 
-      const state = location.state as { background?: any };
-      if (state?.background) {
-        navigate(-1);
-      } else {
-        navigate('/');
-      }
+      closeAllModals();
     } catch (e) {
       console.error("Order failed", e);
       showNotification(t('order.failed_submit'), 'error');

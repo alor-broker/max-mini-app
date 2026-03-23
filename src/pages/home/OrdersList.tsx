@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Flex, Typography, Grid } from '@maxhub/max-ui';
-import { PortfolioService, ClientPortfolio, PortfolioOrder, Side, OrderStatus, Instrument } from '../../api/services';
+import { PortfolioOrder, Side, Instrument } from '../../api/services';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { MathHelper } from '../../utils/math-helper';
+import { useModal } from '../../components/ModalContext';
 
 interface OrdersListProps {
   orders: PortfolioOrder[];
@@ -13,8 +13,7 @@ interface OrdersListProps {
 export const OrdersList: React.FC<OrdersListProps> = ({ orders, instruments }) => {
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { openModal } = useModal();
 
   if (orders.length === 0) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_active_orders')}</Typography.Body>;
 
@@ -32,7 +31,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ orders, instruments }) =
         return (
           <div
             key={order.id}
-            onClick={() => navigate('/order/detail', { state: { order, background: location } })}
+            onClick={() => openModal('orderDetail', { order })}
             style={{ padding: '8px', borderBottom: '1px solid var(--stroke-separator-secondary)', cursor: 'pointer' }}
           >
             <Flex justify="space-between" align="center">

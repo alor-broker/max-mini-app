@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Flex, Typography, Grid } from '@maxhub/max-ui';
-import { PortfolioService, ClientPortfolio, PortfolioPosition, Instrument } from '../../api/services';
+import { ClientPortfolio, PortfolioPosition, Instrument } from '../../api/services';
 import { useTranslation } from 'react-i18next';
-
-import { useNavigate, useLocation } from 'react-router-dom';
 import { MathHelper } from '../../utils/math-helper';
+import { useModal } from '../../components/ModalContext';
 
 interface PositionsListProps {
   positions: PortfolioPosition[];
@@ -15,8 +14,7 @@ interface PositionsListProps {
 export const PositionsList: React.FC<PositionsListProps> = ({ positions, portfolio, instruments }) => {
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { openModal } = useModal();
 
   if (positions.length === 0) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_positions')}</Typography.Body>;
 
@@ -45,7 +43,7 @@ export const PositionsList: React.FC<PositionsListProps> = ({ positions, portfol
         return (
           <div
             key={pos.symbol}
-            onClick={pos.isCurrency ? undefined : () => navigate('/order/new', { state: { symbol: pos.symbol, portfolio, background: location } })}
+            onClick={pos.isCurrency ? undefined : () => openModal('createOrder', { symbol: pos.symbol, portfolio: portfolio ?? undefined })}
             style={{ padding: '8px', borderBottom: '1px solid var(--stroke-separator-secondary)', cursor: pos.isCurrency ? 'default' : 'pointer' }}
           >
             <Flex justify="space-between" align="center">

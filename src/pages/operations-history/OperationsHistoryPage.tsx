@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, CellList, CellSimple, Flex, Spinner, Typography } from '@maxhub/max-ui';
-import { useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../auth/AuthContext';
 import { storageManager } from '../../utils/storage-manager';
@@ -14,12 +13,14 @@ import {
 
 const PAGE_LIMIT = 20;
 
-export const OperationsHistoryPage: React.FC = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+interface OperationsHistoryPageProps {
+  portfolio?: ClientPortfolio;
+}
+
+export const OperationsHistoryPage: React.FC<OperationsHistoryPageProps> = ({ portfolio: initialPortfolio }) => {
   const { user } = useAuth();
   const { t, i18n } = useTranslation();
-  const [portfolio, setPortfolio] = useState<ClientPortfolio | null>(null);
+  const [portfolio, setPortfolio] = useState<ClientPortfolio | null>(initialPortfolio ?? null);
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -29,9 +30,9 @@ export const OperationsHistoryPage: React.FC = () => {
   const agreementId = portfolio?.agreement ?? '';
 
   useEffect(() => {
-    const state = location.state as { portfolio?: ClientPortfolio };
-    if (state?.portfolio) {
-      setPortfolio(state.portfolio);
+    // If portfolio was provided via props, use it directly
+    if (initialPortfolio) {
+      setPortfolio(initialPortfolio);
       return;
     }
 
@@ -50,7 +51,7 @@ export const OperationsHistoryPage: React.FC = () => {
       })
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [location.state, user]);
+  }, [initialPortfolio, user]);
 
   const loadHistory = async (nextOffset: number, append: boolean) => {
     if (!agreementId) {

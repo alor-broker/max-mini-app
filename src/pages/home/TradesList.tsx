@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Flex, Typography, Grid } from '@maxhub/max-ui';
-import { PortfolioService, ClientPortfolio, PortfolioTrade, Side, Instrument } from '../../api/services';
+import { PortfolioTrade, Side, Instrument } from '../../api/services';
 import { useTranslation } from 'react-i18next';
 import { MathHelper } from '../../utils/math-helper';
-
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useModal } from '../../components/ModalContext';
 
 interface TradesListProps {
   trades: PortfolioTrade[];
@@ -14,8 +13,7 @@ interface TradesListProps {
 export const TradesList: React.FC<TradesListProps> = ({ trades, instruments }) => {
   const [visibleCount, setVisibleCount] = useState(5);
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const { openModal } = useModal();
 
   if (trades.length === 0) return <Typography.Body style={{ color: 'var(--text-secondary)' }}>{t('home.no_trades')}</Typography.Body>;
 
@@ -33,7 +31,7 @@ export const TradesList: React.FC<TradesListProps> = ({ trades, instruments }) =
         return (
           <div
             key={trade.id}
-            onClick={() => navigate('/trade/detail', { state: { trade, background: location } })}
+            onClick={() => openModal('tradeDetail', { trade })}
             style={{ padding: '8px', borderBottom: '1px solid var(--stroke-separator-secondary)', cursor: 'pointer' }}
           >
             <Flex justify="space-between" align="center">
