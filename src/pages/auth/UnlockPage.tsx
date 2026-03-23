@@ -246,16 +246,12 @@ export const UnlockPage: React.FC = () => {
               </Button>
             ))}
 
-            {isCreateMode ? (
-              <Button
-                style={ghostButtonStyle}
-                onClick={() => setPin('')}
-              >
-                C
-              </Button>
-            ) : (
-              <div style={{ width: '64px', height: '64px', margin: '8px' }} />
-            )}
+            <Button
+              style={ghostButtonStyle}
+              onClick={() => setPin('')}
+            >
+              C
+            </Button>
 
             <Button
               key={0}
