@@ -43,7 +43,7 @@ export const HomeActions: React.FC<HomeActionsProps> = ({ portfolio, refreshTrig
           width: '48px',
           height: '48px',
           borderRadius: '50%',
-          background: 'rgba(255, 255, 255, 0.2)',
+          background: 'rgba(42, 52, 97, 0.5)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
