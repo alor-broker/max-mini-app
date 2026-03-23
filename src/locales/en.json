@@ -121,7 +121,7 @@
     "price": "Price",
     "volume": "Volume",
     "date": "Date & Time",
-    "new_order_for_symbol": "New Order for This Instrument"
+    "new_order_for_symbol": "New Order"
   },
   "portfolio": {
     "buying_power": "Buying Power",

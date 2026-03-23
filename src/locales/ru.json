@@ -121,7 +121,7 @@
     "price": "Цена",
     "volume": "Объем",
     "date": "Дата и время",
-    "new_order_for_symbol": "Новая заявка по этому инструменту"
+    "new_order_for_symbol": "Новая заявка"
   },
   "portfolio": {
     "buying_power": "Покупательская способность",

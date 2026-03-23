@@ -345,8 +345,8 @@ export const PortfolioService = {
   },
 
   getTrades: async (exchange: string, portfolio: string): Promise<PortfolioTrade[]> => {
-    const trades = await apiClient.get<PortfolioTrade[]>(`${API_CONFIG.apiUrl}/md/v2/Clients/${exchange}/${portfolio}/trades`);
-    return trades.map(t => ({ ...t, date: new Date(t.date) }));
+    const trades = await apiClient.get<any[]>(`${API_CONFIG.apiUrl}/md/v2/Clients/${exchange}/${portfolio}/trades`);
+    return trades.map(t => ({ ...t, orderNo: t.orderno ?? t.orderNo, date: new Date(t.date) }));
   },
 
   getOrders: async (exchange: string, portfolio: string): Promise<PortfolioOrder[]> => {

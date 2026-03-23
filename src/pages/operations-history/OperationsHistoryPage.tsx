@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, CellList, CellSimple, Flex, Spinner, Typography } from '@maxhub/max-ui';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../auth/AuthContext';
@@ -24,8 +24,8 @@ export const OperationsHistoryPage: React.FC<OperationsHistoryPageProps> = ({ po
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(false);
+  const limitRef = useRef(PAGE_LIMIT);
 
   const agreementId = portfolio?.agreement ?? '';
 
@@ -53,7 +53,7 @@ export const OperationsHistoryPage: React.FC<OperationsHistoryPageProps> = ({ po
       .finally(() => setLoading(false));
   }, [initialPortfolio, user]);
 
-  const loadHistory = async (nextOffset: number, append: boolean) => {
+  const loadHistory = async (limit: number) => {
     if (!agreementId) {
       setLoading(false);
       setLoadingMore(false);
@@ -63,18 +63,18 @@ export const OperationsHistoryPage: React.FC<OperationsHistoryPageProps> = ({ po
     try {
       const response = await OperationsHistoryService.getHistory(agreementId, {
         endpoint: 'all',
-        limit: PAGE_LIMIT,
-        offset: nextOffset,
+        limit,
+        offset: 0,
         searchType: 'moneymove'
       });
 
       const list = Array.isArray(response?.list) ? response.list : [];
-      setItems((prev) => (append ? [...prev, ...list] : list));
-      setOffset(nextOffset);
-      setHasMore(list.length >= PAGE_LIMIT);
+      setItems(list);
+      limitRef.current = limit;
+      setHasMore(list.length >= limit);
     } catch (error) {
       console.error('Failed to load operations history', error);
-      if (!append) setItems([]);
+      setItems([]);
       setHasMore(false);
     } finally {
       setLoading(false);
@@ -84,13 +84,14 @@ export const OperationsHistoryPage: React.FC<OperationsHistoryPageProps> = ({ po
 
   useEffect(() => {
     if (!agreementId) return;
+    limitRef.current = PAGE_LIMIT;
     setLoading(true);
-    loadHistory(0, false);
+    loadHistory(PAGE_LIMIT);
   }, [agreementId]);
 
   const onLoadMore = () => {
     setLoadingMore(true);
-    loadHistory(offset + PAGE_LIMIT, true);
+    loadHistory(limitRef.current + PAGE_LIMIT);
   };
 
   const formatter = useMemo(() => (
@@ -127,7 +128,7 @@ export const OperationsHistoryPage: React.FC<OperationsHistoryPageProps> = ({ po
         </Typography.Body>
       ) : (
         <CellList mode="island" filled>
-          {items.map((item) => {
+          {items.map((item, index) => {
             const amount = getAmount(item);
             const amountText = typeof amount === 'number'
               ? `${amount > 0 ? '+' : ''}${formatter.format(amount)} ${item.currency ?? item.data?.currency ?? ''}`.trim()
@@ -135,7 +136,7 @@ export const OperationsHistoryPage: React.FC<OperationsHistoryPageProps> = ({ po
 
             return (
               <CellSimple
-                key={item.id}
+                key={`${item.id}_${index}`}
                 title={item.title || item.subType || t('history.operation', { defaultValue: 'Operation' })}
                 subtitle={new Date(item.date).toLocaleString('en-GB', {
                   day: '2-digit',

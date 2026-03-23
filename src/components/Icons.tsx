@@ -45,7 +45,6 @@ export const HeaderBackgroundWave = () => (
 
 export const AppLogo = ({ width = "100%", height = "100%", className }: { width?: number | string; height?: number | string; className?: string }) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000" width={width} height={height} className={className}>
-    <rect width="1000" height="1000" fill="#22345B"/>
     <g fill="none" stroke="#ffffff" strokeWidth="60" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="360,620 500,380 640,620" />
       <path d="M 705,330 A 290,240 0 1,0 788,530 L 412,530" />
