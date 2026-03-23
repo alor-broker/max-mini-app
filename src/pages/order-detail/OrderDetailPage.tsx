@@ -87,7 +87,7 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ order }) => {
         <Container
           style={{
             padding: '24px 16px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, #22345B 0%, #304193 100%)',
             color: 'white',
             borderRadius: '0',
           }}
