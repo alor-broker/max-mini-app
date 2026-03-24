@@ -97,7 +97,7 @@
     "price": "Price",
     "trans_time": "Created",
     "end_time": "Expires",
-    "new_order_for_symbol": "New Order for This Instrument",
+    "new_order_for_symbol": "New Order",
     "status": {
       "working": "Working",
       "filled": "Filled",

@@ -144,7 +144,7 @@ export const TradeDetailPage: React.FC<TradeDetailPageProps> = ({ trade }) => {
             onClick={() => openModal('createOrder', { symbol: trade.symbol })}
             style={{
               width: '100%',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: 'linear-gradient(135deg, #304193 0%, #22345B 100%)',
               border: 'none',
               color: 'white',
               fontWeight: 600,

@@ -23,7 +23,7 @@ export const SegmentedControl: React.FC<SegmentedControlProps> = ({ options, val
             style={{
               flex: 1,
               fontWeight: isSelected ? 'bold' : 'normal',
-              background: isSelected ? '#0a84ff' : 'transparent',
+              background: isSelected ? '#304193' : 'transparent',
               color: isSelected ? 'white' : 'inherit',
               border: 'none',
               borderRadius: '6px'

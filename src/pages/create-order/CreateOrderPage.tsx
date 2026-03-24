@@ -493,7 +493,7 @@ export const CreateOrderPage: React.FC<CreateOrderPageProps> = ({ symbol: initia
                 style={{
                   marginTop: '8px',
                   width: '100%',
-                  background: 'var(--button-primary-background, #007aff)',
+                  background: 'var(--button-primary-background, #304193)',
                   color: 'white',
                   border: 'none',
                   fontWeight: 600

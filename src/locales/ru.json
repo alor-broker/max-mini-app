@@ -97,7 +97,7 @@
     "price": "Цена",
     "trans_time": "Создана",
     "end_time": "Действует до",
-    "new_order_for_symbol": "Новая заявка по этому инструменту",
+    "new_order_for_symbol": "Новая заявка",
     "status": {
       "working": "Активна",
       "filled": "Исполнена",
