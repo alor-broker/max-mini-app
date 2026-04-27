@@ -5,6 +5,9 @@ interface ModalLayoutProps {
   onClose?: () => void;
 }
 
+let bodyScrollLockCount = 0;
+let originalBodyOverflow = '';
+
 export const ModalLayout: React.FC<ModalLayoutProps> = ({ children, onClose }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -15,15 +18,20 @@ export const ModalLayout: React.FC<ModalLayoutProps> = ({ children, onClose }) =
   const contentRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Lock body scroll
-    const originalStyle = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
+    if (bodyScrollLockCount === 0) {
+      originalBodyOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+    }
+    bodyScrollLockCount += 1;
 
     // Trigger entry animation
     requestAnimationFrame(() => setIsVisible(true));
 
     return () => {
-      document.body.style.overflow = originalStyle;
+      bodyScrollLockCount = Math.max(0, bodyScrollLockCount - 1);
+      if (bodyScrollLockCount === 0) {
+        document.body.style.overflow = originalBodyOverflow;
+      }
     };
   }, []);
 

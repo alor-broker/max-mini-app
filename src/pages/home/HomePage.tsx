@@ -470,16 +470,16 @@ export const HomePage: React.FC = () => {
                 <Flex direction="column" gap={16} style={{ position: 'relative', zIndex: 1 }}>
 
                   <Flex justify="space-between" align="center" style={{ width: '100%' }}>
-                    <Flex gap={8} align="center">
+                    <Flex gap={8} align="center" style={{ minWidth: 0, flex: '1 1 auto' }}>
                       <AppLogo width={28} height={28} />
                       <PortfolioSelector
                         portfolios={portfolios}
                         selectedPortfolio={selectedPortfolio}
                         onSelect={handlePortfolioSelect}
-                        triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)' }}
+                        triggerStyle={{ color: 'white', borderColor: 'rgba(255,255,255,0.3)', maxWidth: 'min(172px, calc(100vw - 190px))' }}
                       />
                     </Flex>
-                    <Flex gap={12} align="center" style={{ marginLeft: 'auto' }}>
+                    <Flex gap={12} align="center" style={{ marginLeft: '12px', flexShrink: 0 }}>
                       <LanguageSwitcher />
                       <Flex
                         onClick={() => { void runLogout(); }}

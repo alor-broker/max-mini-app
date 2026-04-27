@@ -241,14 +241,15 @@ export const OrderDetailPage: React.FC<OrderDetailPageProps> = ({ order }) => {
           justifyContent: 'center'
         }}>
           <div style={{
-            background: 'var(--background-surface-card)',
+            background: 'var(--background-surface-primary, #ffffff)',
+            color: 'var(--text-primary, #111827)',
             padding: '24px',
             borderRadius: '16px',
             width: '80%',
             maxWidth: '320px',
             textAlign: 'center'
           }}>
-            <Typography.Headline style={{ marginBottom: '16px', fontSize: '18px' }}>
+            <Typography.Headline style={{ marginBottom: '16px', fontSize: '18px', color: 'var(--text-primary, #111827)' }}>
               {t('orderDetail.cancel_confirm')}
             </Typography.Headline>
             <Flex gap={16} justify="center">

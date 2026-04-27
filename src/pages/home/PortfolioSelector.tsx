@@ -43,8 +43,8 @@ export const PortfolioSelector: React.FC<PortfolioSelectorProps> = ({ portfolios
   };
 
   return (
-    <div ref={containerRef} data-no-pull-refresh="true" style={{ position: 'relative' }}>
-      <Button onClick={toggleOpen} style={{ background: 'transparent', border: '1px solid var(--stroke-separator-primary)', color: 'inherit', overflow: 'visible', textOverflow: 'unset', whiteSpace: 'nowrap', ...triggerStyle }}>
+    <div ref={containerRef} data-no-pull-refresh="true" style={{ position: 'relative', minWidth: 0 }}>
+      <Button onClick={toggleOpen} style={{ background: 'transparent', border: '1px solid var(--stroke-separator-primary)', color: 'inherit', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%', ...triggerStyle }}>
         {selectedPortfolio ? `${selectedPortfolio.portfolio} (${selectedPortfolio.exchange})` : t('order.select_portfolio')}
       </Button>
 

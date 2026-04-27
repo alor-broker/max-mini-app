@@ -7,9 +7,12 @@ export const LanguageSwitcher: React.FC = () => {
   const { i18n } = useTranslation();
 
   const toggleLanguage = () => {
-    const nextLang = i18n.language === 'ru' ? 'en' : 'ru';
+    const currentLang = i18n.resolvedLanguage ?? i18n.language ?? 'en';
+    const nextLang = currentLang.toLowerCase().startsWith('ru') ? 'en' : 'ru';
     i18n.changeLanguage(nextLang);
   };
+
+  const currentLang = i18n.resolvedLanguage ?? i18n.language ?? 'en';
 
   return (
     <div
@@ -19,17 +22,21 @@ export const LanguageSwitcher: React.FC = () => {
         cursor: 'pointer',
         display: 'flex',
         alignItems: 'center',
+        flexShrink: 0,
         gap: '6px',
         color: 'white',
         border: '1px solid rgba(255,255,255,0.3)',
         padding: '6px 10px',
         borderRadius: '20px',
-        background: 'rgba(0,0,0,0.1)'
+        background: 'rgba(0,0,0,0.1)',
+        minWidth: '58px',
+        justifyContent: 'center',
+        boxSizing: 'border-box'
       }}
     >
       <IconGlobe width={18} height={18} />
       <span style={{ fontSize: '13px', fontWeight: 600, textTransform: 'uppercase', lineHeight: 1 }}>
-        {i18n.language?.substring(0, 2) || 'EN'}
+        {currentLang.substring(0, 2)}
       </span>
     </div>
   );

@@ -94,12 +94,13 @@ export const OperationsHistoryPage: React.FC<OperationsHistoryPageProps> = ({ po
     loadHistory(limitRef.current + PAGE_LIMIT);
   };
 
-  const formatter = useMemo(() => (
-    new Intl.NumberFormat(i18n.language === 'ru' ? 'ru-RU' : 'en-US', {
+  const formatter = useMemo(() => {
+    const language = i18n.resolvedLanguage ?? i18n.language ?? 'en';
+    return new Intl.NumberFormat(language.toLowerCase().startsWith('ru') ? 'ru-RU' : 'en-US', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
-    })
-  ), [i18n.language]);
+    });
+  }, [i18n.language, i18n.resolvedLanguage]);
 
   const getAmount = (item: HistoryItem): number | undefined => {
     if (typeof item.sum === 'number') return item.sum;
@@ -146,11 +147,11 @@ export const OperationsHistoryPage: React.FC<OperationsHistoryPageProps> = ({ po
                   minute: '2-digit'
                 }).replace(/\//g, '.').replace(',', '')}
                 after={(
-                  <Flex direction="column" gap={2} style={{ alignItems: 'flex-end' }}>
-                    <Typography.Body style={{ color: getAmountColor(amount), fontWeight: 700 }}>
+                  <Flex direction="column" gap={2} style={{ alignItems: 'flex-end', minWidth: '96px' }}>
+                    <Typography.Body style={{ color: getAmountColor(amount), fontWeight: 700, textAlign: 'right', whiteSpace: 'nowrap' }}>
                       {amountText}
                     </Typography.Body>
-                    <Typography.Label style={{ color: 'var(--text-secondary)' }}>
+                    <Typography.Label style={{ color: 'var(--text-secondary)', textAlign: 'right', whiteSpace: 'nowrap' }}>
                       {item.statusName || item.status}
                     </Typography.Label>
                   </Flex>
