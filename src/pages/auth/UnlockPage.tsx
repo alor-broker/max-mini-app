@@ -54,9 +54,7 @@ export const UnlockPage: React.FC = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const { unlock, isLocked, isAuthenticated, login, isLoading: isAuthLoading } = useAuth();
-  const { runLogout, isLoggingOut } = useLogoutAction(async () => {
-    await storageManager.removeItem(STORAGE_KEY_APP_PASSWORD);
-  });
+  const { runLogout, isLoggingOut } = useLogoutAction();
 
   const [pin, setPin] = useState('');
   const [storedPin, setStoredPin] = useState<string | null>(null);

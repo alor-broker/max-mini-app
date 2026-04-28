@@ -116,8 +116,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     try {
       await clearTokens();
+      await storageManager.removeItem('max_app_password');
     } catch (error) {
-      console.error("Failed to clear tokens during logout:", error);
+      console.error("Failed to clear auth data during logout:", error);
     } finally {
       AuthService.redirectToSso(true);
     }
