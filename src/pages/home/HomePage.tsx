@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import { LanguageSwitcher } from '../../components/LanguageSwitcher';
 import { IconLogout, HeaderBackgroundWave, AppLogo } from '../../components/Icons';
 import { useLogoutAction } from '../../auth/useLogoutAction';
+import { LegalFooter } from '../../components/LegalFooter';
 
 const ORDER_CREATED_EVENT = 'maxapp:order-created';
 const REFRESH_ORDERS_TRADES_FLAG_KEY = 'MAX_APP_REFRESH_ORDERS_TRADES';
@@ -534,6 +535,8 @@ export const HomePage: React.FC = () => {
               <Section title={t('home.completed_orders')}>
                 <CompletedOrdersList orders={completedOrders} instruments={instruments} />
               </Section>
+
+              <LegalFooter />
             </div>
           </Grid>
         </>

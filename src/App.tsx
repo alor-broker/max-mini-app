@@ -9,6 +9,7 @@ import { CreateOrderPage } from './pages/create-order/CreateOrderPage';
 import { OrderDetailPage } from './pages/order-detail/OrderDetailPage';
 import { TradeDetailPage } from './pages/trade-detail/TradeDetailPage';
 import { OperationsHistoryPage } from './pages/operations-history/OperationsHistoryPage';
+import { MaxBotLicensePage } from './pages/legal/MaxBotLicensePage';
 import { storageManager } from './utils/storage-manager';
 import { BrowserStorageProvider } from './utils/storage/BrowserStorageProvider';
 import { MaxDeviceStorageProvider } from './utils/storage/MaxDeviceStorageProvider';
@@ -80,6 +81,7 @@ function AppRoutes() {
         <Route path="/auth/unlock" element={<UnlockPage />} />
         <Route path="/auth" element={<SsoCallbackPage />} />
         <Route path="/auth/sso" element={<SsoCallbackPage />} />
+        <Route path="/legal/max-bot-license" element={<MaxBotLicensePage />} />
         <Route
           path="/"
           element={
