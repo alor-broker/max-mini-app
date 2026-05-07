@@ -48,6 +48,7 @@ export interface ClientPortfolio {
   market: string;
   agreement: string;
   exchange: string;
+  isVirtual?: boolean;
 }
 
 export interface PortfolioSummary {
@@ -304,22 +305,43 @@ export const UserService = {
   }
 };
 
+type ClientPortfolioMeta = Omit<ClientPortfolio, 'exchange'>;
+
+const isUnitedPortfolio = (portfolio: ClientPortfolioMeta): boolean => {
+  return Boolean(portfolio.isVirtual)
+    || portfolio.market === 'Единый рынок'
+    || portfolio.market === 'United'
+    || portfolio.portfolio.startsWith('E');
+};
+
+const withPortfolioExchanges = (
+  portfolios: ClientPortfolioMeta[],
+  positions: PortfolioPosition[] = []
+): ClientPortfolio[] => {
+  return portfolios.map(portfolio => {
+    const position = positions.find(pos => pos.portfolio === portfolio.portfolio);
+
+    return {
+      ...portfolio,
+      exchange: isUnitedPortfolio(portfolio) ? 'UNITED' : position?.exchange ?? 'MOEX'
+    };
+  });
+};
+
 // --- ClientService ---
 export const ClientService = {
   getPortfolios: async (clientId: string): Promise<ClientPortfolio[]> => {
-    const portfolios = await apiClient.get<Omit<ClientPortfolio, 'exchange'>[]>(`${API_CONFIG.userDataUrl}/client/v1.0/users/${clientId}/all-portfolios`);
+    const portfolios = await apiClient.get<ClientPortfolioMeta[]>(`${API_CONFIG.userDataUrl}/client/v1.0/users/${clientId}/all-portfolios`);
 
-    return portfolios.map(p => ({
-      ...p,
-      exchange: p.market === 'United' ? 'SPBX' : 'MOEX'
-    }));
+    return withPortfolioExchanges(portfolios);
   },
 
   getActivePortfolios: async (clientId: string, login: string): Promise<ClientPortfolio[]> => {
-    const [allPortfolios, allPositions] = await Promise.all([
-      ClientService.getPortfolios(clientId),
+    const [portfolios, allPositions] = await Promise.all([
+      apiClient.get<ClientPortfolioMeta[]>(`${API_CONFIG.userDataUrl}/client/v1.0/users/${clientId}/all-portfolios`),
       PortfolioService.getAllPositions(login)
     ]);
+    const allPortfolios = withPortfolioExchanges(portfolios, allPositions);
 
     // Filter portfolios that have at least one position with non-zero quantity
     const activePortfolios = allPortfolios.filter(portfolio =>
